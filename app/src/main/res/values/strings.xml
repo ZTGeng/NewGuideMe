@@ -1,0 +1,143 @@
+<resources>
+    <string name="app_name">NewGuideMe</string>
+
+    <string name="title_activity_register">Register</string>
+    <string name="title_activity_blind_home">Blind User Home</string>
+    <string name="title_activity_blind_video">Video for Blind User</string>
+    <string name="title_activity_blind_wait">Waiting for Helpers</string>
+    <string name="title_activity_blind_rate">Rating</string>
+    <string name="title_activity_helper_home">Helper User Home</string>
+    <string name="title_activity_helper_video">Video for Helper User</string>
+    <string name="title_activity_helper_wait">Please Wait</string>
+    <string name="title_activity_helper_rate">Rating</string>
+
+    <!-- Login and Register -->
+    <string name="login_email_hint">Email</string>
+    <string name="login_username_hint">Name, use letters and numbers</string>
+    <string name="login_password_hint">Password, 8 or more characters</string>
+    <string name="login_password_hint_short">Password</string>
+    <string name="login_login_button">Login</string>
+    <string name="login_register_button">Register</string>
+    <string name="login_register_button_v">Register as a Visual Impairer</string>
+    <string name="login_register_button_h">Register as a Helper</string>
+    <string name="login_forgot_password_button">Forgot Password</string>
+    <string name="change_password_old_hint">Old Password</string>
+    <string name="change_password_new_hint">New Password</string>
+    <string name="change_password_code_hint">Code</string>
+    <string name="change_password_button">Change Password</string>
+    <string name="login_cancel_button">Cancel</string>
+    <string name="login_continue_button">Continue</string>
+    <string name="logout_button">Logout</string>
+    <string name="email_not_ok_hint">Please Input a Valid Email</string>
+    <string name="username_not_ok_hint">Username Can Only have Letters and Numbers</string>
+    <string name="password_not_ok_hint">Password Must have %1$d Letters or More</string>
+
+    <!-- Menu -->
+    <string name="account_menu">Account</string>
+    <string name="change_server_menu">Change Server</string>
+    <string name="change_password_menu">Change Password</string>
+    <string name="logout_menu">Logout</string>
+    <string name="change_server_hint">Input Video Server Url or Click Default</string>
+    <string name="change_server_ok">OK</string>
+    <string name="change_server_cancel">Cancel</string>
+    <string name="change_server_default">Default</string>
+
+    <!-- Blind Home -->
+    <string name="friend_hint">Call a Favorite or Anyone?</string>
+    <string name="call_button">Start a Video Calling</string>
+    <string name="start_call_hint">Please Input a Description about the Help You Need</string>
+    <string name="start_call_cancel">Cancel</string>
+    <string name="start_call_next">Next</string>
+    <string name="select_friend">Please Select Your Favorites. Or Select No One to Get Help from a Stranger</string>
+    <string name="vi_home_call_error">Cannot make the call. Please try again</string>
+
+    <!-- Blind Wait -->
+    <string name="vi_wait_call_error">Cannot make the call. Please try again</string>
+    <string name="vi_wait_quit_button">Quit</string>
+    <string name="vi_wait_quit_confirm_message">Are you leaving?</string>
+    <string name="vi_wait_quit_confirm_button">YES</string>
+    <string name="vi_wait_quit_cancel_button">Cancel</string>
+    <string name="vi_wait_connect_hint">Calling the helper, Please wait.</string>
+    <string name="vi_wait_confirm_accept_helper">Start Video Call with %1$s?</string>
+    <string name="vi_wait_accept_button">Accept</string>
+    <string name="vi_wait_cancel_button">Cancel</string>
+    <string name="vi_wait_helper_notice">There are %1$d Helpers in the List.</string>
+    <string name="vi_wait_helper_empty_notice">There are No Helpers Now, Please Wait.</string>
+    <string name="helper_item_rating_hint">Rating: </string>
+    <string name="blind_wait_new_helper">There are %1$d Helpers in the List.</string>
+    <string name="blind_wait_no_helper">There are No Helpers Now, Please Wait.</string>
+
+    <!-- Blind Video -->
+    <string name="blind_video_mute_on">Mute is On</string>
+    <string name="blind_video_mute_off">Mute is Off</string>
+    <string name="blind_video_navigation_on">Navigation is On</string>
+    <string name="blind_video_navigation_off">Navigation is Off</string>
+    <string name="blind_video_destination_message">Do You Want to Indicate a Destination? You can Do it Any Time You Turn on the Navigation.</string>
+    <string name="blind_video_destination_hint">Input Full Address</string>
+    <string name="blind_video_destination_confirm_button">Send</string>
+    <string name="blind_video_destination_cancel_button">Not This Time</string>
+    <string name="blind_video_destination_never_button">Never</string>
+    <string name="blind_video_quit_button">Quit</string>
+    <string name="blind_video_quit_confirm_message">Stop video call?</string>
+    <string name="blind_video_quit_confirm_button">YES</string>
+    <string name="blind_video_quit_cancel_button">Cancel</string>
+    <string name="blind_video_add_button_on">Add Favorite</string>
+    <string name="blind_video_add_button_off">%1$s is Already your Favorite</string>
+    <string name="blind_video_add_confirm_message">Add %1$s as Favorite?</string>
+    <string name="blind_video_add_confirm_button">YES</string>
+    <string name="blind_video_add_cancel_button">Cancel</string>
+    <string name="blind_video_add_request_message">%1$s Wants to Add You as a Favorite</string>
+
+    <!-- Blind Rate -->
+    <string name="vi_rate_submit_button">Submit</string>
+    <string name="vi_rate_cancel_button">Cancel</string>
+    <string name="vi_rate_hint">Please Rate the Helper</string>
+    <string name="vi_rate_message">Rate %1$s with %2$s Points, is it OK?</string>
+    <string name="vi_rate_ok_button">OK</string>
+    <string name="vi_rate_change_button">Change</string>
+    <string name="vi_rate_minus">Minus 0.5</string>
+    <string name="vi_rate_plus">Add 0.5</string>
+
+    <!-- Helper Home -->
+    <string name="empty_list">No Blind Users</string>
+    <string name="room_enter_button">Enter</string>
+    <string name="room_cancel_button">Cancel</string>
+    <string name="room_confirm_message">Start video call with %1$s?</string>
+    <string name="gcm_send_message">Token retrieved and sent to server! You can now use gcmsender to
+        send downstream messages to this app.</string>
+    <string name="registering_message">Generating InstanceID token</string>
+    <string name="token_error_message">An error occurred while either fetching the InstanceID token,
+        sending the fetched token to the server or subscribing to the PubSub topic. Please try
+        running the sample again.</string>
+    <string name="token_error_message_short">Error While Update GCM Token!</string>
+    <string name="notify_message">%1$s Need Your Help</string>
+    <string name="helper_home_call_error">Cannot Call the User. Please Try Later</string>
+    <string name="helper_home_join_error">This User has Got Help from Other Helpers</string>
+    <string name="helper_home_operation_hint">Click Blind Users to Help. Swipe Down to Refresh.</string>
+
+    <!-- Helper Wait -->
+    <string name="helper_wait_message">Waiting for the Blind User to Answer&#8230;</string>
+    <string name="helper_wait_quit_confirm_message">Are you leaving?</string>
+    <string name="helper_wait_quit_confirm_button">YES</string>
+    <string name="helper_wait_quit_cancel_button">Cancel</string>
+
+    <!-- Helper Video -->
+    <string name="helper_video_mute_label">Mute: </string>
+    <string name="helper_video_add_button">Add Favorite</string>
+    <string name="helper_video_quit_confirm_message">Stop video call?</string>
+    <string name="helper_video_quit_confirm_button">YES</string>
+    <string name="helper_video_quit_cancel_button">Cancel</string>
+    <string name="helper_video_add_confirm_message">Add %1$s as Favorite?</string>
+    <string name="helper_video_add_confirm_button">YES</string>
+    <string name="helper_video_add_cancel_button">Cancel</string>
+    <string name="helper_video_add_request_message">%1$s Wants to Add You as a Favorite</string>
+
+    <!-- Helper Rate -->
+    <string name="helper_rate_submit_button">Submit</string>
+    <string name="helper_rate_cancel_button">Cancel</string>
+    <string name="helper_rate_hint">Please Rate the Visual Impairer</string>
+    <string name="helper_rate_message">Rate %1$s with %2$s Points, is it OK?</string>
+    <string name="helper_rate_ok_button">OK</string>
+    <string name="helper_rate_change_button">Change</string>
+
+</resources>

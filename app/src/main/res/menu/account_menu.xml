@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/account_menu"
+        android:icon="@drawable/profile"
+        app:showAsAction="always"
+        android:title="@string/account_menu">
+        <menu>
+
+            <item
+                android:id="@+id/change_password_menu"
+                app:showAsAction="never"
+                android:title="@string/change_password_menu"/>
+
+            <item
+                android:id="@+id/logout_menu"
+                app:showAsAction="never"
+                android:title="@string/logout_menu"/>
+        </menu>
+    </item>
+
+</menu>
