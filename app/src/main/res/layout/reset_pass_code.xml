@@ -2,43 +2,67 @@
 
 <android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="300dp"
-    android:layout_gravity="center"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.AppCompatEditText
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/reset_code_inputlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:textAlignment="center"
-        android:hint="@string/change_password_code_hint"
-        android:id="@+id/code"
-        android:layout_gravity="center" />
+        android:layout_marginTop="@dimen/space_3x">
 
-    <android.support.v7.widget.AppCompatEditText
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/reset_code_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:hint="@string/reset_password_code_hint"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/reset_new_password_inputlayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:textAlignment="center"
-        android:hint="@string/change_password_new_hint"
-        android:id="@+id/npass"
-        android:layout_gravity="center" />
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/reset_new_password_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:textAlignment="center"
+            android:hint="@string/reset_password_new_hint"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/reset_confirm_password_inputlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/reset_confirm_password_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:textAlignment="center"
+            android:hint="@string/reset_password_confirm_hint"/>
+
+    </android.support.design.widget.TextInputLayout>
 
     <android.support.v7.widget.AppCompatButton
+        android:id="@+id/reset_ok_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/conbtn"
-        android:textColor="#ffffff"
         android:textAlignment="center"
-        android:text="@string/login_continue_button"/>
+        android:text="@string/login_ok"/>
 
     <android.support.v7.widget.AppCompatButton
+        android:id="@+id/reset_cancel_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="40dp"
-        android:id="@+id/cancel"
-        android:textColor="#ffffff"
+        android:layout_marginTop="@dimen/space_1x"
+        android:layout_marginBottom="@dimen/space_3x"
         android:textAlignment="center"
-        android:text="@string/login_cancel_button"/>
+        android:text="@string/login_cancel"/>
 </android.support.v7.widget.LinearLayoutCompat>

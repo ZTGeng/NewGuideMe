@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NewGuideMe</string>
+    <string name="app_name">GuideMe</string>
 
     <string name="title_activity_register">Register</string>
     <string name="title_activity_blind_home">Blind User Home</string>
@@ -12,22 +12,30 @@
     <string name="title_activity_helper_rate">Rating</string>
 
     <!-- Login and Register -->
+    <string name="login_title">Enter email and password to login</string>
     <string name="login_email_hint">Email</string>
+    <string name="login_email_empty_error">Email can\'t be Empty</string>
     <string name="login_username_hint">Name, use letters and numbers</string>
-    <string name="login_password_hint">Password, 8 or more characters</string>
-    <string name="login_password_hint_short">Password</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_password_empty_error">Password can\'t be Empty</string>
     <string name="login_login_button">Login</string>
     <string name="login_register_button">Register</string>
     <string name="login_register_button_v">Register as a Visual Impairer</string>
     <string name="login_register_button_h">Register as a Helper</string>
-    <string name="login_forgot_password_button">Forgot Password</string>
-    <string name="change_password_old_hint">Old Password</string>
-    <string name="change_password_new_hint">New Password</string>
-    <string name="change_password_code_hint">Code</string>
-    <string name="change_password_button">Change Password</string>
-    <string name="login_cancel_button">Cancel</string>
-    <string name="login_continue_button">Continue</string>
-    <string name="logout_button">Logout</string>
+    <string name="login_forgot_password">Forgot Password</string>
+    <string name="login_ok">OK</string>
+    <string name="login_cancel">Cancel</string>
+    <string name="login_continue">Continue</string>
+    <string name="login_login">Login</string>
+    <string name="login_logout">Logout</string>
+    <string name="reset_password_title">Reset Password</string>
+    <string name="reset_password_old_hint">Old Password</string>
+    <string name="reset_password_new_hint">New Password</string>
+    <string name="reset_password_confirm_hint">Input Again</string>
+    <string name="reset_password_code_hint">Code</string>
+    <string name="reset_password_code_empty_error">Code can\'t be Empty</string>
+    <string name="reset_password_not_match_error">Not Match Above</string>
+    <string name="reset_password_button">Change Password</string>
     <string name="email_not_ok_hint">Please Input a Valid Email</string>
     <string name="username_not_ok_hint">Username Can Only have Letters and Numbers</string>
     <string name="password_not_ok_hint">Password Must have %1$d Letters or More</string>
@@ -139,5 +147,8 @@
     <string name="helper_rate_message">Rate %1$s with %2$s Points, is it OK?</string>
     <string name="helper_rate_ok_button">OK</string>
     <string name="helper_rate_change_button">Change</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

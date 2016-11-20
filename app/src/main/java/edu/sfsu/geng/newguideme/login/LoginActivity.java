@@ -37,8 +37,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        email = (AppCompatEditText)findViewById(R.id.email);
-        password = (AppCompatEditText)findViewById(R.id.password);
+        email = (AppCompatEditText)findViewById(R.id.email_edittext);
+        password = (AppCompatEditText)findViewById(R.id.password_edittext);
         login = (AppCompatButton)findViewById(R.id.loginbtn);
         register = (AppCompatButton)findViewById(R.id.register);
         forpass = (AppCompatButton)findViewById(R.id.forgotpass);
@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         /* If already login in, go to home activity */
         if (pref.getBoolean("logged", false)) {
             String id = pref.getString("id", "");
-//            String grav = pref.getString("grav", "");
+//            String grav = preference.getString("grav", "");
             String username = pref.getString("username", "");
             String role = pref.getString("role", "");
             String rate = pref.getString("rate", "");

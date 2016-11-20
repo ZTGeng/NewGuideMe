@@ -2,33 +2,38 @@
 
 <android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="300dp"
+    android:layout_width="match_parent"
     android:layout_gravity="center"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.AppCompatEditText
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/reset_email_inputlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:hint="@string/login_email_hint"
-        android:id="@+id/email"
-        android:layout_gravity="center" />
+        android:layout_marginTop="@dimen/space_3x">
+
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/reset_email_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/login_email_hint"/>
+
+    </android.support.design.widget.TextInputLayout>
 
     <android.support.v7.widget.AppCompatButton
+        android:id="@+id/reset_continue_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/resbtn"
-        android:textColor="#ffffff"
+        android:layout_marginTop="@dimen/space_3x"
         android:textAlignment="center"
-        android:text="@string/login_continue_button"/>
+        android:text="@string/login_continue"/>
 
     <android.support.v7.widget.AppCompatButton
+        android:id="@+id/reset_cancel_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="40dp"
-        android:id="@+id/cancelbtn"
-        android:textColor="#ffffff"
+        android:layout_marginTop="@dimen/space_1x"
+        android:layout_marginBottom="@dimen/space_3x"
         android:textAlignment="center"
-        android:text="@string/login_cancel_button"/>
+        android:text="@string/login_cancel"/>
 </android.support.v7.widget.LinearLayoutCompat>

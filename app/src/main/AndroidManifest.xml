@@ -47,8 +47,8 @@
         <activity
             android:name=".blind.BlindVideoActivity"
             android:label="@string/title_activity_blind_video"
-            android:screenOrientation="locked"
             android:noHistory="true"
+            android:screenOrientation="locked"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".blind.BlindRateActivity"
@@ -68,8 +68,8 @@
         <activity
             android:name=".helper.HelperVideoActivity"
             android:label="@string/title_activity_helper_video"
-            android:screenOrientation="locked"
             android:noHistory="true"
+            android:screenOrientation="locked"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".helper.HelperRateActivity"
@@ -113,6 +113,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
+        <activity android:name=".login.WelcomeActivity"></activity>
     </application>
 
 </manifest>
