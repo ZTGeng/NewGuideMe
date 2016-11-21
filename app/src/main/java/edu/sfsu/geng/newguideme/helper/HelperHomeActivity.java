@@ -9,9 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -32,7 +30,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.Toast;
 
@@ -52,7 +49,7 @@ import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.MyRequest;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
-import edu.sfsu.geng.newguideme.login.LoginActivity;
+import edu.sfsu.geng.newguideme.login.WelcomeActivity;
 
 /**
  * Created by geng on 7/15/16.
@@ -229,7 +226,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
 //                edit.putString("id", "");
                 edit.putBoolean("logged", false);
                 edit.apply();
-                Intent loginactivity = new Intent(HelperHomeActivity.this, LoginActivity.class);
+                Intent loginactivity = new Intent(HelperHomeActivity.this, WelcomeActivity.class);
                 startActivity(loginactivity);
                 finish();
                 return true;

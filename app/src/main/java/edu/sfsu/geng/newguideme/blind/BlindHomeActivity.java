@@ -32,7 +32,7 @@ import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.MyRequest;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
-import edu.sfsu.geng.newguideme.login.LoginActivity;
+import edu.sfsu.geng.newguideme.login.WelcomeActivity;
 
 /**
  * Created by geng on 7/15/16.
@@ -323,7 +323,7 @@ public class BlindHomeActivity extends AppCompatActivity
 //                edit.putString("id", "");
                 edit.putBoolean("logged", false);
                 edit.apply();
-                Intent loginactivity = new Intent(BlindHomeActivity.this, LoginActivity.class);
+                Intent loginactivity = new Intent(BlindHomeActivity.this, WelcomeActivity.class);
 
                 startActivity(loginactivity);
                 finish();
