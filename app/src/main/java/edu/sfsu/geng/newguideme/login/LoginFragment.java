@@ -7,7 +7,9 @@ import android.support.v7.app.AppCompatDialog;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatTextView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,10 +44,39 @@ public class LoginFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        emailEditText = (AppCompatEditText) view.findViewById(R.id.email_edittext);
-        passwordEditText = (AppCompatEditText) view.findViewById(R.id.password_edittext);
         emailInputLayout = (TextInputLayout) view.findViewById(R.id.email_inputlayout);
+        emailEditText = (AppCompatEditText) view.findViewById(R.id.email_edittext);
+        emailEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (emailInputLayout != null) {
+                    emailInputLayout.setError("");
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
         passwordInputLayout = (TextInputLayout) view.findViewById(R.id.password_inputlayout);
+        passwordEditText = (AppCompatEditText) view.findViewById(R.id.password_edittext);
+        passwordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (passwordInputLayout != null) {
+                    passwordInputLayout.setError("");
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 
         AppCompatButton loginButton = (AppCompatButton) view.findViewById(R.id.login_button);
         AppCompatTextView forgotPasswordButton = (AppCompatTextView) view.findViewById(R.id.forgot_password_button);
@@ -233,7 +264,7 @@ public class LoginFragment extends Fragment {
     }
 
     private boolean isValidPassword(CharSequence target) {
-        return !TextUtils.isEmpty(target) && target.length() > PASSWORDLIMIT;
+        return !TextUtils.isEmpty(target) && target.length() >= PASSWORDLIMIT;
     }
 
 }

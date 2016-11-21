@@ -6,7 +6,9 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,14 +46,76 @@ public class RegisterFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        emailEditText = (AppCompatEditText) view.findViewById(R.id.register_email_edittext);
         emailInputLayout = (TextInputLayout) view.findViewById(R.id.register_email_inputlayout);
-        usernameEditText = (AppCompatEditText) view.findViewById(R.id.register_username_edittext);
+        emailEditText = (AppCompatEditText) view.findViewById(R.id.register_email_edittext);
+        emailEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (emailInputLayout != null) {
+                    emailInputLayout.setError("");
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
         usernameInputLayout = (TextInputLayout) view.findViewById(R.id.register_username_inputlayout);
-        passwordEditText = (AppCompatEditText) view.findViewById(R.id.register_password_edittext);
+        usernameEditText = (AppCompatEditText) view.findViewById(R.id.register_username_edittext);
+        usernameEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (usernameInputLayout != null) {
+                    usernameInputLayout.setError("");
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
         passwordInputLayout = (TextInputLayout) view.findViewById(R.id.register_password_inputlayout);
-        confirmPasswordEditText = (AppCompatEditText) view.findViewById(R.id.register_confirm_password_edittext);
         confirmPasswordInputLayout = (TextInputLayout) view.findViewById(R.id.register_confirm_password_inputlayout);
+        passwordEditText = (AppCompatEditText) view.findViewById(R.id.register_password_edittext);
+        passwordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (passwordInputLayout != null) {
+                    passwordInputLayout.setError("");
+                }
+                if (confirmPasswordInputLayout != null) {
+                    confirmPasswordInputLayout.setError("");
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        confirmPasswordEditText = (AppCompatEditText) view.findViewById(R.id.register_confirm_password_edittext);
+        confirmPasswordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (confirmPasswordInputLayout != null) {
+                    confirmPasswordInputLayout.setError("");
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 
         AppCompatButton registerButtonV = (AppCompatButton) view.findViewById(R.id.register_button_v);
         if (registerButtonV != null) {
@@ -64,8 +128,8 @@ public class RegisterFragment extends Fragment {
         }
 
         AppCompatButton registerButtonH = (AppCompatButton) view.findViewById(R.id.register_button_h);
-        if (registerButtonV != null) {
-            registerButtonV.setOnClickListener(new View.OnClickListener() {
+        if (registerButtonH != null) {
+            registerButtonH.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     register(Role.helper);
@@ -132,7 +196,7 @@ public class RegisterFragment extends Fragment {
     }
 
     private boolean isValidPassword(CharSequence target) {
-        return !TextUtils.isEmpty(target) && target.length() > PASSWORDLIMIT;
+        return !TextUtils.isEmpty(target) && target.length() >= PASSWORDLIMIT;
     }
 
 }

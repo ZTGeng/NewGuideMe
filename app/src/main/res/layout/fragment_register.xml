@@ -12,13 +12,13 @@
         <android.support.design.widget.TextInputLayout
             android:id="@+id/register_email_inputlayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2x">
 
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/register_email_edittext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_3x"
                 android:inputType="textEmailAddress"
                 android:hint="@string/login_email_hint"/>
 
@@ -33,6 +33,7 @@
                 android:id="@+id/register_username_edittext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLines="1"
                 android:hint="@string/login_username_hint"/>
 
         </android.support.design.widget.TextInputLayout>
@@ -69,7 +70,7 @@
             android:id="@+id/register_button_v"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_3x"
+            android:layout_marginTop="@dimen/space_2x"
             android:textAlignment="center"
             android:text="@string/login_register_button_v"/>
 

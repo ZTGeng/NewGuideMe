@@ -7,14 +7,13 @@
     <android.support.v7.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:id="@+id/linearLayoutCompat2">
+        android:orientation="vertical">
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/email_inputlayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_3x">
+            android:layout_marginTop="@dimen/space_2x">
 
             <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/email_edittext"
@@ -28,8 +27,7 @@
         <android.support.design.widget.TextInputLayout
             android:id="@+id/password_inputlayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_1x">
+            android:layout_height="wrap_content">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/password_edittext"
@@ -44,7 +42,7 @@
             android:id="@+id/login_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_3x"
+            android:layout_marginTop="@dimen/space_2x"
             android:text="@string/login_login"
             android:textAlignment="center"/>
 
@@ -52,7 +50,7 @@
             android:id="@+id/forgot_password_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_3x"
+            android:layout_marginTop="@dimen/space_2x"
             android:text="@string/login_forgot_password"
             android:clickable="true"/>
 
