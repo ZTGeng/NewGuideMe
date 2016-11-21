@@ -1,7 +1,5 @@
 package edu.sfsu.geng.newguideme.login;
 
-
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
@@ -9,7 +7,7 @@ import android.support.v7.app.AppCompatDialog;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatTextView;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +16,11 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
-import edu.sfsu.geng.newguideme.Role;
 import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
 
-import static android.content.Context.MODE_PRIVATE;
+import static edu.sfsu.geng.newguideme.Config.PASSWORDLIMIT;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,8 +31,7 @@ public class LoginFragment extends Fragment {
     private TextInputLayout emailInputLayout, passwordInputLayout;
     private AppCompatDialog resetDialog;
 
-    private Listener listener;
-    private SharedPreferences pref;
+    private LoginListener loginListener;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -55,57 +50,26 @@ public class LoginFragment extends Fragment {
         AppCompatButton loginButton = (AppCompatButton) view.findViewById(R.id.login_button);
         AppCompatTextView forgotPasswordButton = (AppCompatTextView) view.findViewById(R.id.forgot_password_button);
 
-        pref = getActivity().getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String emailText = emailEditText.getText().toString();
-                if (emailText.isEmpty()) {
-                    emailInputLayout.setError(getString(R.string.login_email_empty_error));
+                if (!isValidEmail(emailEditText.getText())) {
+                    emailInputLayout.setError(getString(R.string.login_email_invalid_error));
                     return;
                 }
+                String emailText = emailEditText.getText().toString();
+
                 String passwordText = passwordEditText.getText().toString();
                 if (passwordText.isEmpty()) {
                     passwordInputLayout.setError(getString(R.string.login_password_empty_error));
                     return;
                 }
 
-                if (listener == null) {
+                if (loginListener == null) {
                     return;
                 }
 
-                ServerApi.login(emailText, passwordText, new ServerRequest.DataListener() {
-                    @Override
-                    public void onReceiveData(String data) {
-                        try{
-                            JSONObject json = new JSONObject(data);
-                            if(json.getBoolean("res")){
-                                String token = json.getString("token"); // token is id
-                                String username = json.getString("username");
-                                String role = json.getString("role");
-                                String rate = json.getString("rate");
-
-                                SharedPreferences.Editor edit = pref.edit();
-                                edit.putString("token", token);
-                                edit.putString("username", username);
-                                edit.putString("role", role);
-                                edit.putString("rate", rate);
-                                edit.apply();
-
-                                listener.goHome(Role.valueOf(role));
-                            } else {
-                                String jsonStr = json.getString("response");
-                                Toast.makeText(getContext(), jsonStr, Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onClose() {}
-                });
+                loginListener.login(emailText, passwordText);
             }
         });
 
@@ -120,8 +84,8 @@ public class LoginFragment extends Fragment {
         return view;
     }
 
-    void setListener(Listener listener) {
-        this.listener = listener;
+    void setListener(LoginListener listener) {
+        this.loginListener = listener;
     }
 
     private void createResetDialog() {
@@ -215,20 +179,14 @@ public class LoginFragment extends Fragment {
                                     return;
                                 }
 
+                                if (!isValidPassword(newPasswordEditText.getText())) {
+                                    newPasswordInputLayout.setError(getString(R.string.login_password_short_error));
+                                    return;
+                                }
                                 String newPassword = newPasswordEditText.getText().toString();
-                                if (newPassword.isEmpty()) {
-                                    newPasswordInputLayout.setError(getString(R.string.login_password_empty_error));
-                                    return;
-                                }
 
-                                String confirmPassword = confirmPasswordEditText.getText().toString();
-                                if (confirmPassword.isEmpty()) {
-                                    confirmPasswordInputLayout.setError(getString(R.string.login_password_empty_error));
-                                    return;
-                                }
-
-                                if (!newPassword.equals(confirmPassword)) {
-                                    confirmPasswordInputLayout.setError(getString(R.string.reset_password_not_match_error));
+                                if (!newPassword.equals(confirmPasswordEditText.getText().toString())) {
+                                    confirmPasswordInputLayout.setError(getString(R.string.login_password_not_match_error));
                                     return;
                                 }
 //                                                        Log.d("Code", code_txt);
@@ -270,7 +228,12 @@ public class LoginFragment extends Fragment {
         };
     }
 
-    interface Listener {
-        void goHome(Role role);
+    private boolean isValidEmail(CharSequence target) {
+        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
+
+    private boolean isValidPassword(CharSequence target) {
+        return !TextUtils.isEmpty(target) && target.length() > PASSWORDLIMIT;
+    }
+
 }

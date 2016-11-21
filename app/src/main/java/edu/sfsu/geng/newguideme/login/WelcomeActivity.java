@@ -9,6 +9,10 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +22,10 @@ import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.Role;
 import edu.sfsu.geng.newguideme.blind.BlindHomeActivity;
 import edu.sfsu.geng.newguideme.helper.HelperHomeActivity;
+import edu.sfsu.geng.newguideme.http.ServerApi;
+import edu.sfsu.geng.newguideme.http.ServerRequest;
 
-public class WelcomeActivity extends AppCompatActivity implements LoginFragment.Listener {
+public class WelcomeActivity extends AppCompatActivity implements LoginListener {
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -60,13 +66,51 @@ public class WelcomeActivity extends AppCompatActivity implements LoginFragment.
 
         LoginFragment loginFragment = new LoginFragment();
         loginFragment.setListener(this);
-        adapter.addFragment(loginFragment, "LOGIN");
+        adapter.addFragment(loginFragment, getString(R.string.login_login));
+
+        RegisterFragment registerFragment = new RegisterFragment();
+        registerFragment.setListener(this);
+        adapter.addFragment(registerFragment, getString(R.string.login_register));
 
         viewPager.setAdapter(adapter);
     }
 
     @Override
-    public void goHome(Role role) {
+    public void login(String email, String password) {
+        ServerApi.login(email, password, new ServerRequest.DataListener() {
+            @Override
+            public void onReceiveData(String data) {
+                try{
+                    JSONObject json = new JSONObject(data);
+                    if(json.getBoolean("res")){
+                        String token = json.getString("token"); // token is id
+                        String username = json.getString("username");
+                        String role = json.getString("role");
+                        String rate = json.getString("rate");
+
+                        SharedPreferences.Editor edit = pref.edit();
+                        edit.putString("token", token);
+                        edit.putString("username", username);
+                        edit.putString("role", role);
+                        edit.putString("rate", rate);
+                        edit.apply();
+
+                        goHome(Role.valueOf(role));
+                    } else {
+                        String jsonStr = json.getString("response");
+                        Toast.makeText(WelcomeActivity.this, jsonStr, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onClose() {}
+        });
+    }
+
+    private void goHome(Role role) {
         Intent homeActivity = null;
         switch (role) {
             case blind:

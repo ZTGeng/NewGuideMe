@@ -5,6 +5,8 @@ package edu.sfsu.geng.newguideme;
  */
 public class Config {
 
+    public static final int PASSWORDLIMIT = 8;
+
     public static final String PREF_KEY = "new_guide_me_app";
 
     public static final String SERVER_ADDRESS = "http://52.40.95.93:24677";

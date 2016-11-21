@@ -74,7 +74,7 @@
                 android:layout_width="140dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@string/login_register_button"
+                android:text="@string/login_register"
                 android:textAlignment="center"
                 android:textColor="#ffffff" />
 
