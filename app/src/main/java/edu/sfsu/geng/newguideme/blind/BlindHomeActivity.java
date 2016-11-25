@@ -183,7 +183,7 @@ public class BlindHomeActivity extends AppCompatActivity
         if (selectedFriends.isEmpty()) {
             callStrangers();
         } else {
-            String friendsStr = "";
+            String friendsStr = "";// TODO Use StringBuilder
             for (int i : selectedFriends) {
                 if (i < friendIds.length) {
                     friendsStr += ",";
