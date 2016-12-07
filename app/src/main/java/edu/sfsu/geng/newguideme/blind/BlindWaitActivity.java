@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
@@ -30,24 +31,23 @@ import java.util.List;
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.MyRequest;
+import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 /**
  * Created by geng on 7/16/16.
  */
 public class BlindWaitActivity extends AppCompatActivity implements
-        AdapterView.OnItemClickListener,
-        ServerRequest.DataListener
+        AdapterView.OnItemClickListener
 {
 
     private static final String TAG = "VIWait";
 
-    private String id;
+    private String token;
     private SharedPreferences pref;
 
     private ListViewCompat waitingHelperList;
     private HelperListAdapter helperListAdapter;
-    private AppCompatButton quitButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,19 +55,19 @@ public class BlindWaitActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_blind_wait);
 
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        id = pref.getString("token", "");
+        token = pref.getString("token", "");
 
         waitingHelperList = (ListViewCompat) findViewById(R.id.waiting_helper_list);
         helperListAdapter = new HelperListAdapter(this, -1, new ArrayList<JSONObject>());
         waitingHelperList.setAdapter(helperListAdapter);
         waitingHelperList.setOnItemClickListener(this);
 
-        quitButton = (AppCompatButton) findViewById(R.id.vi_wait_quit_btn);
+        AppCompatButton quitButton = (AppCompatButton) findViewById(R.id.vi_wait_quit_btn);
         if (quitButton != null) {
             quitButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onQuitClicked(v);
+                    onQuitClicked();
                 }
             });
         }
@@ -76,8 +76,17 @@ public class BlindWaitActivity extends AppCompatActivity implements
     }
 
     private void keepResAlive() {
-        MyRequest myRequest = new MyRequest();
-        myRequest.blindJoin(id, BlindWaitActivity.this);
+        ServerApi.blindKeepAlive(token, new ServerRequest.DataListener() {
+            @Override
+            public void onReceiveData(String helperListJSON) {
+                refresh(helperListJSON);
+            }
+
+            @Override
+            public void onClose() {
+                Log.d(TAG, "blind user response is closed");
+            }
+        });
     }
 
     /**
@@ -93,6 +102,10 @@ public class BlindWaitActivity extends AppCompatActivity implements
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.d(TAG, "Blind click on a helper on the list");
         final JSONObject helper = ((HelperListAdapter) parent.getAdapter()).getItem(position);
+        if (helper == null) {
+            return;
+        }
+
         try {
             final String helperName = helper.getString("username");
             final String helperId = helper.getString("token");
@@ -102,7 +115,7 @@ public class BlindWaitActivity extends AppCompatActivity implements
                 public void onClick(DialogInterface dialog, int id) {
                     // call select, go to videoactivity, NO NEED TO delete room
                     MyRequest myRequest = new MyRequest();
-                    myRequest.add("blind_id", BlindWaitActivity.this.id);
+                    myRequest.add("blind_id", BlindWaitActivity.this.token);
                     myRequest.add("helper_id", helperId);
                     myRequest.getJSON("/api/select", new ServerRequest.DataListener() {
                         @Override
@@ -114,8 +127,8 @@ public class BlindWaitActivity extends AppCompatActivity implements
                                     String videoToken = json.getString("token");
 
                                     Intent videoActivity = new Intent(BlindWaitActivity.this, BlindVideoActivity.class);
-                                    videoActivity.putExtra("session", videoSession);
-                                    videoActivity.putExtra("token", videoToken);
+                                    videoActivity.putExtra("sessionId", videoSession);
+                                    videoActivity.putExtra("videoToken", videoToken);
                                     videoActivity.putExtra("helperId", helperId);
                                     videoActivity.putExtra("helperName", helperName);
                                     startActivity(videoActivity);
@@ -167,7 +180,7 @@ public class BlindWaitActivity extends AppCompatActivity implements
         }
     }
 
-    public void onQuitClicked(final View view) {
+    private void onQuitClicked() {
         Log.d(TAG, "Quit button onClicked");
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.vi_wait_quit_confirm_message);
@@ -179,19 +192,21 @@ public class BlindWaitActivity extends AppCompatActivity implements
         });
         builder.setNegativeButton(R.string.vi_wait_quit_cancel_button, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-            }
+            public void onClick(DialogInterface dialog, int which) {}
         });
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
     private void quit() {
-        Log.d(TAG, "Quit");
-        MyRequest myRequest = new MyRequest();
-        myRequest.add("token", id);
-        myRequest.getJSON("/api/deleteroom", null);
+        ServerApi.blindDeleteRoom(token, new ServerRequest.DataListener() {
+            @Override
+            public void onReceiveData(String data) {}
+
+            @Override
+            public void onClose() {}
+        });
+
         Intent homeActivity = new Intent(BlindWaitActivity.this, BlindHomeActivity.class);
         startActivity(homeActivity);
         finish();
@@ -201,18 +216,6 @@ public class BlindWaitActivity extends AppCompatActivity implements
     public void onBackPressed() {
         quit();
     }
-
-    /* DataListener */
-    @Override
-    public void onReceiveData(String helperListJSON) {
-        refresh(helperListJSON);
-    }
-
-    @Override
-    public void onClose() {
-        Log.d(TAG, "blind user response is closed");
-    }
-
 
     private class HelperListAdapter extends ArrayAdapter<JSONObject> {
 
@@ -227,14 +230,15 @@ public class BlindWaitActivity extends AppCompatActivity implements
          *                 instantiating views.
          * @param objects  The objects to represent in the ListView.
          */
-        public HelperListAdapter(Context context, int resource, List<JSONObject> objects) {
+        HelperListAdapter(Context context, int resource, List<JSONObject> objects) {
             super(context, resource, objects);
             this.context = context;
             this.helpers = objects;
         }
 
+        @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View rowView = inflater.inflate(R.layout.helper_list_item, parent, false);
             AppCompatTextView usernameText = (AppCompatTextView) rowView.findViewById(R.id.helper_item_username);

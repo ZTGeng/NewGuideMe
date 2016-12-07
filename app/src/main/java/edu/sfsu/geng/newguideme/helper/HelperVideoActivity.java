@@ -168,7 +168,6 @@ public class HelperVideoActivity extends AppCompatActivity implements
         mSession.setSessionListener(this);
         mSession.setSignalListener(this);
         mSession.connect(videoToken);
-
     }
 
     private void quit() {

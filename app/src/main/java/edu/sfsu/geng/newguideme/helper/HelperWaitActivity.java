@@ -92,17 +92,7 @@ public class HelperWaitActivity extends AppCompatActivity {
         builder.setPositiveButton(R.string.helper_wait_quit_confirm_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ServerApi.helperLeaveRoom(token, roomId, new ServerRequest.DataListener() {
-                    @Override
-                    public void onReceiveData(String data) {}
-
-                    @Override
-                    public void onClose() {}
-                });
-
-                Intent homeActivity = new Intent(HelperWaitActivity.this, HelperHomeActivity.class);
-                startActivity(homeActivity);
-                finish();
+                quit();
             }
         });
         builder.setNegativeButton(R.string.helper_wait_quit_cancel_button, new DialogInterface.OnClickListener() {
@@ -114,5 +104,24 @@ public class HelperWaitActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
 
+    }
+
+    private void quit() {
+        ServerApi.helperLeaveRoom(token, roomId, new ServerRequest.DataListener() {
+            @Override
+            public void onReceiveData(String data) {}
+
+            @Override
+            public void onClose() {}
+        });
+
+        Intent homeActivity = new Intent(HelperWaitActivity.this, HelperHomeActivity.class);
+        startActivity(homeActivity);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        quit();
     }
 }

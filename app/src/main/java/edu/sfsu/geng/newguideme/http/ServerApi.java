@@ -115,4 +115,10 @@ public class ServerApi {
         params.add(new BasicNameValuePair("des", description));
         ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/callfriendsbyid", params, listener);
     }
+
+    public static void blindDeleteRoom(String token, ServerRequest.DataListener listener) {
+        ArrayList<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("token", token));
+        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/deleteroom", params, listener);
+    }
 }

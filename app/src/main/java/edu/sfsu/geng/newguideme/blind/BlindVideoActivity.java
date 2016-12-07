@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -72,7 +71,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
     private ToggleButton muteToggle, navigationToggle;
     private SharedPreferences pref;
 
-    private String sessionId, token, id, helperId, helperName;
+    private String sessionId, videoToken, token, helperId, helperName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +80,10 @@ public class BlindVideoActivity extends AppCompatActivity implements
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        id = pref.getString("token", "");
+        token = pref.getString("token", "");
 
-        sessionId = getIntent().getStringExtra("session");
-        token = getIntent().getStringExtra("token");
+        sessionId = getIntent().getStringExtra("sessionId");
+        videoToken = getIntent().getStringExtra("videoToken");
         helperId = getIntent().getStringExtra("helperId");
         helperName = getIntent().getStringExtra("helperName");
 
@@ -179,7 +178,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
         mSession = new Session(this, Config.APIKEY, sessionId);
         mSession.setSessionListener(this);
         mSession.setSignalListener(this);
-        mSession.connect(token);
+//        mSession.connect(videoToken);
 
     }
 
@@ -187,7 +186,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         if (mSession != null) {
-            mSession.connect(token);
+            mSession.connect(videoToken);
         }
     }
 
@@ -435,7 +434,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         MyRequest myRequest = new MyRequest();
-                        myRequest.add("m_id", id);
+                        myRequest.add("m_id", token);
                         myRequest.add("f_id", helperId);
                         myRequest.getJSON("/api/addfriend", new ServerRequest.DataListener() {
                             @Override

@@ -28,7 +28,7 @@ import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 public class WelcomeActivity extends AppCompatActivity implements LoginListener {
 
-    private static final String TAG = "HelperHome";
+    private static final String TAG = "Welcome";
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -40,7 +40,6 @@ public class WelcomeActivity extends AppCompatActivity implements LoginListener 
         super.onCreate(savedInstanceState);
 
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        Log.d(TAG, "============== " + pref.getBoolean("logged", false));
         /* If already login in, go to home activity */
         if (pref.getBoolean("logged", false)) {
             String token = pref.getString("token", "");
