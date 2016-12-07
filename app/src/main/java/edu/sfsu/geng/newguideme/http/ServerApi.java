@@ -86,7 +86,6 @@ public class ServerApi {
         ServerRequest.keepResAlive(Config.SERVER_ADDRESS + "/api/helperkeepalive/" + token + "/" + roomId, listener);
     }
 
-
     public static void helperLeaveRoom(String token, String roomId, ServerRequest.DataListener listener) {
         ArrayList<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("token", token));
@@ -102,9 +101,18 @@ public class ServerApi {
         ServerRequest.getJSON(url, new ArrayList<NameValuePair>(), listener);
     }
 
-    public static void getRoute(double olat, double olng, double dlat, double dlng, ServerRequest.DataListener listener) {
-        String url = "http://maps.googleapis.com/maps/api/directions/json?origin="
-                + olat + "," + olng + "&destination=" + dlat + "," + dlng + "&sensor=false&mode=walking";
-        ServerRequest.getJSON(url, new ArrayList<NameValuePair>(), listener);
+    public static void createPublicRoom(String token, String description, ServerRequest.DataListener listener) {
+        ArrayList<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("token", token));
+        params.add(new BasicNameValuePair("des", description));
+        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/createpublicroom", params, listener);
+    }
+
+    public static void callFriendsById(String token, String friends, String description, ServerRequest.DataListener listener) {
+        ArrayList<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("token", token));
+        params.add(new BasicNameValuePair("friends", friends));
+        params.add(new BasicNameValuePair("des", description));
+        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/callfriendsbyid", params, listener);
     }
 }

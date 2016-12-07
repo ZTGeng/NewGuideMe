@@ -62,7 +62,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
     private static final String TAG = "HelperHome";
 
     private SharedPreferences pref;
-    private String token, oldPassword, newPassword;
+    private String token;
     private HashSet<String> friends;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -346,12 +346,12 @@ public class HelperHomeActivity extends AppCompatActivity implements
                     return;
                 }
 
-                oldPassword = oldPasswordEditText.getText().toString();
+                String oldPassword = oldPasswordEditText.getText().toString();
                 if (oldPassword.isEmpty()) {
                     oldPasswordInputLayout.setError(getString(R.string.login_password_empty_error));
                     return;
                 }
-                newPassword = newPasswordEditText.getText().toString();
+                String newPassword = newPasswordEditText.getText().toString();
                 if (newPassword.isEmpty()) {
                     newPasswordInputLayout.setError(getString(R.string.login_password_empty_error));
                     return;
