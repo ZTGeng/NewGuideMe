@@ -1,5 +1,7 @@
 package edu.sfsu.geng.newguideme.http;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -74,5 +76,35 @@ public class ServerApi {
         ArrayList<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("token", token));
         ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/getfriendlist", params, listener);
+    }
+
+    public static void blindKeepAlive(String token, ServerRequest.DataListener listener) {
+        ServerRequest.keepResAlive(Config.SERVER_ADDRESS + "/api/blindkeepalive/" + token, listener);
+    }
+
+    public static void helperKeepAlive(String token, String roomId, ServerRequest.DataListener listener) {
+        ServerRequest.keepResAlive(Config.SERVER_ADDRESS + "/api/helperkeepalive/" + token + "/" + roomId, listener);
+    }
+
+
+    public static void helperLeaveRoom(String token, String roomId, ServerRequest.DataListener listener) {
+        ArrayList<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("token", token));
+        params.add(new BasicNameValuePair("room_id", roomId));
+        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/helperleaveroom", params, listener);
+    }
+
+    public static void getRoute(LatLng start, LatLng end, ServerRequest.DataListener listener) {
+        String url = "http://maps.googleapis.com/maps/api/directions/json" +
+                "?origin=" + start.latitude + "," + start.longitude +
+                "&destination=" + end.latitude + "," + end.longitude +
+                "&sensor=false&mode=walking";
+        ServerRequest.getJSON(url, new ArrayList<NameValuePair>(), listener);
+    }
+
+    public static void getRoute(double olat, double olng, double dlat, double dlng, ServerRequest.DataListener listener) {
+        String url = "http://maps.googleapis.com/maps/api/directions/json?origin="
+                + olat + "," + olng + "&destination=" + dlat + "," + dlng + "&sensor=false&mode=walking";
+        ServerRequest.getJSON(url, new ArrayList<NameValuePair>(), listener);
     }
 }

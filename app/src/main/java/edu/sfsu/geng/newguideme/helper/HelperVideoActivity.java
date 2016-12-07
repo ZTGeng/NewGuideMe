@@ -49,6 +49,7 @@ import java.util.Set;
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.MyRequest;
+import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 public class HelperVideoActivity extends AppCompatActivity implements
@@ -71,13 +72,12 @@ public class HelperVideoActivity extends AppCompatActivity implements
     private Polyline polyLine;
 
     private LinearLayoutCompat subscriberView;
-    private FloatingActionButton quitButton;
-    private SwitchCompat muteSwitch;
+//    private SwitchCompat muteSwitch;
     private AppCompatButton addButton;
     private SharedPreferences pref;
 
-    private String sessionId, token, id, blindId, blindName;
-    private boolean mapInitialed, delayGetRoute;
+    private String sessionId, videoToken, id, blindId, blindName;
+    private boolean mapInitialed;//, delayGetRoute;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,49 +88,53 @@ public class HelperVideoActivity extends AppCompatActivity implements
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
         id = pref.getString("token", "");
 
-        sessionId = getIntent().getStringExtra("session");
-        token = getIntent().getStringExtra("token");
+        sessionId = getIntent().getStringExtra("sessionId");
+        videoToken = getIntent().getStringExtra("videoToken");
         blindId = getIntent().getStringExtra("blindId");
         blindName = getIntent().getStringExtra("blindName");
 
         mapInitialed = false;
-        delayGetRoute = false;
+//        delayGetRoute = false;
 
         // video screen
         subscriberView = (LinearLayoutCompat) findViewById(R.id.helper_video_screen);
 
         // buttons
-        quitButton = (FloatingActionButton) findViewById(R.id.helper_video_quit_btn);
-        quitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "Quit button onClicked");
-                AlertDialog.Builder builder = new AlertDialog.Builder(HelperVideoActivity.this);
-                builder.setMessage(R.string.helper_video_quit_confirm_message);
-                builder.setPositiveButton(R.string.helper_video_quit_confirm_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        quit();
-                    }
-                });
-                builder.setNegativeButton(R.string.helper_video_quit_cancel_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+        FloatingActionButton quitButton = (FloatingActionButton) findViewById(R.id.helper_video_quit_btn);
+        if (quitButton != null) {
+            quitButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.d(TAG, "Quit button onClicked");
+                    AlertDialog.Builder builder = new AlertDialog.Builder(HelperVideoActivity.this);
+                    builder.setMessage(R.string.helper_video_quit_confirm_message);
+                    builder.setPositiveButton(R.string.helper_video_quit_confirm_button,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    quit();
+                                }
+                            });
+                    builder.setNegativeButton(R.string.helper_video_quit_cancel_button,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {}
+                            });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+            });
+        }
 
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        });
-
-        muteSwitch = (SwitchCompat) findViewById(R.id.helper_video_mute_switch);
-        muteSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mPublisher.setPublishAudio(!isChecked);
-            }
-        });
+        SwitchCompat muteSwitch = (SwitchCompat) findViewById(R.id.helper_video_mute_switch);
+        if (muteSwitch != null) {
+            muteSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    mPublisher.setPublishAudio(!isChecked);
+                }
+            });
+        }
 
         addButton = (AppCompatButton) findViewById(R.id.helper_video_add_btn);
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -147,9 +151,7 @@ public class HelperVideoActivity extends AppCompatActivity implements
                 });
                 builder.setNegativeButton(R.string.helper_video_add_cancel_button, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
+                    public void onClick(DialogInterface dialog, int which) {}
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -165,7 +167,7 @@ public class HelperVideoActivity extends AppCompatActivity implements
         mSession = new Session(this, Config.APIKEY, sessionId);
         mSession.setSessionListener(this);
         mSession.setSignalListener(this);
-        mSession.connect(token);
+        mSession.connect(videoToken);
 
     }
 
@@ -174,10 +176,8 @@ public class HelperVideoActivity extends AppCompatActivity implements
             mSession.disconnect();
         }
 
-        Intent rateActivity = new Intent(HelperVideoActivity.this, HelperRateActivity.class);
-        rateActivity.putExtra("blindId", blindId);
-        rateActivity.putExtra("blindName", blindName);
-        startActivity(rateActivity);
+        Intent homeActivity = new Intent(HelperVideoActivity.this, HelperHomeActivity.class);
+        startActivity(homeActivity);
         finish();
     }
 
@@ -211,6 +211,10 @@ public class HelperVideoActivity extends AppCompatActivity implements
     private void setDestination(String destination) {
         if (mMap == null) return;
 
+        if (destinationMarker != null) {
+            destinationMarker.remove();
+        }
+
         Geocoder geocoder = new Geocoder(this);
         List<Address> addresses;
         try {
@@ -220,9 +224,6 @@ public class HelperVideoActivity extends AppCompatActivity implements
                 return;
             }
             Address address = addresses.get(0);
-            if (destinationMarker != null) {
-                destinationMarker.remove();
-            }
             destinationMarker = mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(address.getLatitude(), address.getLongitude()))
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
@@ -236,16 +237,11 @@ public class HelperVideoActivity extends AppCompatActivity implements
 
     private void setDirection() {
         if (curLocationMarker == null || destinationMarker == null) {
-            delayGetRoute = true;
+//            delayGetRoute = true;
             return;
         }
-        delayGetRoute = false;
-        double olat = curLocationMarker.getPosition().latitude;
-        double olng = curLocationMarker.getPosition().longitude;
-        double dlat = destinationMarker.getPosition().latitude;
-        double dlng = destinationMarker.getPosition().longitude;
-        MyRequest myRequest = new MyRequest();
-        myRequest.getRoute(olat, olng, dlat, dlng, new ServerRequest.DataListener() {
+//        delayGetRoute = false;
+        ServerApi.getRoute(curLocationMarker.getPosition(), destinationMarker.getPosition(), new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {
@@ -272,7 +268,7 @@ public class HelperVideoActivity extends AppCompatActivity implements
                     }
                     polyLine = mMap.addPolyline(new PolylineOptions().addAll(lines).width(5).color(Color.BLUE));
                 } catch (JSONException e) {
-                    Log.e(TAG, "Error while get route from Google");
+                    Log.e(TAG, "Error while getting route from Google");
                     e.printStackTrace();
                 }
             }

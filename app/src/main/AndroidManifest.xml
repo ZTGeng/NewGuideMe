@@ -67,11 +67,6 @@
             android:noHistory="true"
             android:screenOrientation="locked"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".helper.HelperRateActivity"
-            android:label="@string/title_activity_helper_rate"
-            android:noHistory="true"
-            android:theme="@style/AppTheme.NoActionBar" />
 
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"

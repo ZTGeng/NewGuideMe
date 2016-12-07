@@ -32,7 +32,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.RatingBar;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -43,13 +42,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
-import edu.sfsu.geng.newguideme.http.MyRequest;
 import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
 import edu.sfsu.geng.newguideme.utils.ErrorCleanTextWatcher;
@@ -204,7 +201,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
                                 JSONObject json = new JSONObject(data);
                                 if (json.getBoolean("res")) {
                                     Intent helperWaitActivity = new Intent(HelperHomeActivity.this, HelperWaitActivity.class);
-                                    helperWaitActivity.putExtra("blindId", roomId);
+                                    helperWaitActivity.putExtra("roomId", roomId);
                                     helperWaitActivity.putExtra("blindName", blindName);
                                     startActivity(helperWaitActivity);
                                     finish();

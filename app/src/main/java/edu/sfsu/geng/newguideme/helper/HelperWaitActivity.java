@@ -15,10 +15,10 @@ import org.json.JSONObject;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
-import edu.sfsu.geng.newguideme.http.MyRequest;
+import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
 
-public class HelperWaitActivity extends AppCompatActivity implements ServerRequest.DataListener{
+public class HelperWaitActivity extends AppCompatActivity {
 
     private static final String TAG = "HelperWait";
 
@@ -33,7 +33,7 @@ public class HelperWaitActivity extends AppCompatActivity implements ServerReque
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
         token = pref.getString("token", "");
 
-        roomId = getIntent().getStringExtra("blindId");
+        roomId = getIntent().getStringExtra("roomId");
         blindName = getIntent().getStringExtra("blindName");
 
         FloatingActionButton quitBtn = (FloatingActionButton) findViewById(R.id.helper_wait_quit_btn);
@@ -51,8 +51,38 @@ public class HelperWaitActivity extends AppCompatActivity implements ServerReque
     }
 
     private void keepResAlive() {
-        MyRequest myRequest = new MyRequest();
-        myRequest.helperJoin(token, roomId, HelperWaitActivity.this);
+        ServerApi.helperKeepAlive(token, roomId, new ServerRequest.DataListener() {
+            @Override
+            public void onReceiveData(String data) {
+                JSONObject select;
+                try {
+                    select = new JSONObject(data);
+                    if (select.getBoolean("select")) {
+                        String videoSession = select.getString("session");
+                        String videoToken = select.getString("token");
+
+                        Intent videoActivity = new Intent(HelperWaitActivity.this, HelperVideoActivity.class);
+                        videoActivity.putExtra("sessionId", videoSession);
+                        videoActivity.putExtra("videoToken", videoToken);
+                        videoActivity.putExtra("blindId", roomId);
+                        videoActivity.putExtra("blindName", blindName);
+                        startActivity(videoActivity);
+                        finish();
+                    } else {
+                        Intent homeActivity = new Intent(HelperWaitActivity.this, HelperHomeActivity.class);
+                        startActivity(homeActivity);
+                        finish();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onClose() {
+                Log.d(TAG, "helper response is closed");
+            }
+        });
     }
 
     private void onQuitClicked() {
@@ -62,7 +92,17 @@ public class HelperWaitActivity extends AppCompatActivity implements ServerReque
         builder.setPositiveButton(R.string.helper_wait_quit_confirm_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                quit();
+                ServerApi.helperLeaveRoom(token, roomId, new ServerRequest.DataListener() {
+                    @Override
+                    public void onReceiveData(String data) {}
+
+                    @Override
+                    public void onClose() {}
+                });
+
+                Intent homeActivity = new Intent(HelperWaitActivity.this, HelperHomeActivity.class);
+                startActivity(homeActivity);
+                finish();
             }
         });
         builder.setNegativeButton(R.string.helper_wait_quit_cancel_button, new DialogInterface.OnClickListener() {
@@ -74,48 +114,5 @@ public class HelperWaitActivity extends AppCompatActivity implements ServerReque
         AlertDialog dialog = builder.create();
         dialog.show();
 
-    }
-
-    private void quit() {
-        MyRequest myRequest = new MyRequest();
-        myRequest.add("token", token);
-        myRequest.add("room_id", roomId);
-        myRequest.getJSON("/api/helperleaveroom", null);
-
-        Intent homeActivity = new Intent(HelperWaitActivity.this, HelperHomeActivity.class);
-        startActivity(homeActivity);
-        finish();
-    }
-
-    /* DataListener */
-    @Override
-    public void onReceiveData(String selectJSON) {
-        JSONObject select;
-        try {
-            select = new JSONObject(selectJSON);
-            if (select.getBoolean("select")) {
-                String videoSession = select.getString("session");
-                String videoToken = select.getString("token");
-
-                Intent videoActivity = new Intent(HelperWaitActivity.this, HelperVideoActivity.class);
-                videoActivity.putExtra("session", videoSession);
-                videoActivity.putExtra("token", videoToken);
-                videoActivity.putExtra("blindId", roomId);
-                videoActivity.putExtra("blindName", blindName);
-                startActivity(videoActivity);
-                finish();
-            } else {
-                Intent homeActivity = new Intent(HelperWaitActivity.this, HelperHomeActivity.class);
-                startActivity(homeActivity);
-                finish();
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onClose() {
-        Log.d(TAG, "helper response is closed");
     }
 }
