@@ -51,7 +51,6 @@ public class WelcomeActivity extends AppCompatActivity implements LoginListener 
 
         setContentView(R.layout.activity_welcome);
 
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         viewPager = (ViewPager) findViewById(R.id.welcome_viewpager);
         setupViewPager(viewPager);
 
@@ -83,7 +82,7 @@ public class WelcomeActivity extends AppCompatActivity implements LoginListener 
                 try{
                     JSONObject json = new JSONObject(data);
                     if(json.getBoolean("res")){
-                        String token = json.getString("token"); // token is id
+                        String token = json.getString("token");
                         String username = json.getString("username");
                         String role = json.getString("role");
                         String rate = json.getString("rate");

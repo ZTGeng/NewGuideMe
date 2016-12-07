@@ -26,7 +26,8 @@ public class ServerApi {
         ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/resetpass", params, listener);
     }
 
-    public static void changePassword(String email, String code, String newPassword, ServerRequest.DataListener listener) {
+    public static void resetPasswordWithCode(String email, String code, String newPassword, ServerRequest.DataListener
+            listener) {
         ArrayList<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("email", email));
         params.add(new BasicNameValuePair("code", code));

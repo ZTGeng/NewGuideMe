@@ -31,8 +31,8 @@ import static edu.sfsu.geng.newguideme.Config.PASSWORDLIMIT;
  */
 public class RegisterFragment extends Fragment {
 
-    private AppCompatEditText emailEditText, usernameEditText, passwordEditText, confirmPasswordEditText;
-    private TextInputLayout emailInputLayout, usernameInputLayout, passwordInputLayout, confirmPasswordInputLayout;
+    private AppCompatEditText emailEditText, usernameEditText, passwordEditText;
+    private TextInputLayout emailInputLayout, usernameInputLayout, passwordInputLayout;
 
     private LoginListener loginListener;
 
@@ -48,74 +48,21 @@ public class RegisterFragment extends Fragment {
 
         emailInputLayout = (TextInputLayout) view.findViewById(R.id.register_email_inputlayout);
         emailEditText = (AppCompatEditText) view.findViewById(R.id.register_email_edittext);
-        emailEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (emailInputLayout != null) {
-                    emailInputLayout.setError("");
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
+        if (emailEditText != null && emailInputLayout != null) {
+            emailEditText.addTextChangedListener(new ErrorCleanTextWatcher(emailInputLayout));
+        }
 
         usernameInputLayout = (TextInputLayout) view.findViewById(R.id.register_username_inputlayout);
         usernameEditText = (AppCompatEditText) view.findViewById(R.id.register_username_edittext);
-        usernameEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (usernameInputLayout != null) {
-                    usernameInputLayout.setError("");
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
+        if (usernameEditText != null && usernameInputLayout != null) {
+            usernameEditText.addTextChangedListener(new ErrorCleanTextWatcher(usernameInputLayout));
+        }
 
         passwordInputLayout = (TextInputLayout) view.findViewById(R.id.register_password_inputlayout);
-        confirmPasswordInputLayout = (TextInputLayout) view.findViewById(R.id.register_confirm_password_inputlayout);
         passwordEditText = (AppCompatEditText) view.findViewById(R.id.register_password_edittext);
-        passwordEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (passwordInputLayout != null) {
-                    passwordInputLayout.setError("");
-                }
-                if (confirmPasswordInputLayout != null) {
-                    confirmPasswordInputLayout.setError("");
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
-
-        confirmPasswordEditText = (AppCompatEditText) view.findViewById(R.id.register_confirm_password_edittext);
-        confirmPasswordEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (confirmPasswordInputLayout != null) {
-                    confirmPasswordInputLayout.setError("");
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
+        if (passwordEditText != null && passwordInputLayout != null) {
+            passwordEditText.addTextChangedListener(new ErrorCleanTextWatcher(passwordInputLayout));
+        }
 
         AppCompatButton registerButtonV = (AppCompatButton) view.findViewById(R.id.register_button_v);
         if (registerButtonV != null) {
@@ -145,11 +92,11 @@ public class RegisterFragment extends Fragment {
     }
 
     private void register(Role role) {
-        if (!isValidEmail(emailEditText.getText())) {
-            emailInputLayout.setError(getString(R.string.login_email_invalid_error));
+        final String emailText = emailEditText.getText().toString();
+        if (emailText.isEmpty()) {
+            emailInputLayout.setError(getString(R.string.login_email_empty_error));
             return;
         }
-        final String emailText = emailEditText.getText().toString();
 
         String usernameText = usernameEditText.getText().toString();
         if (usernameText.isEmpty()) {
@@ -157,15 +104,9 @@ public class RegisterFragment extends Fragment {
             return;
         }
 
-        if (!isValidPassword(passwordEditText.getText())) {
-            passwordInputLayout.setError(String.format(Locale.getDefault(),
-                    getString(R.string.login_password_short_error), PASSWORDLIMIT));
-            return;
-        }
         final String passwordText = passwordEditText.getText().toString();
-
-        if (!passwordText.equals(confirmPasswordEditText.getText().toString())) {
-            confirmPasswordInputLayout.setError(getString(R.string.login_password_not_match_error));
+        if (passwordText.isEmpty()) {
+            passwordInputLayout.setError(getString(R.string.login_password_empty_error));
             return;
         }
 
@@ -174,12 +115,25 @@ public class RegisterFragment extends Fragment {
             public void onReceiveData(String data) {
                 try{
                     JSONObject json = new JSONObject(data);
-                    String jsonStr = json.getString("response");
+                    String message = json.getString("response");
 
                     if (json.getBoolean("res")) {
                         loginListener.login(emailText, passwordText);
                     } else {
-                        Toast.makeText(getContext(), jsonStr, Toast.LENGTH_SHORT).show();
+                        String field = json.getString("field");
+                        switch (field) {
+                            case "email":
+                                emailInputLayout.setError(message);
+                                break;
+                            case "username":
+                                usernameInputLayout.setError(message);
+                                break;
+                            case "password":
+                                passwordInputLayout.setError(message);
+                                break;
+                            default:
+                                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -189,14 +143,6 @@ public class RegisterFragment extends Fragment {
             @Override
             public void onClose() {}
         });
-    }
-
-    private boolean isValidEmail(CharSequence target) {
-        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
-    }
-
-    private boolean isValidPassword(CharSequence target) {
-        return !TextUtils.isEmpty(target) && target.length() >= PASSWORDLIMIT;
     }
 
 }

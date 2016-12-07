@@ -1,6 +1,7 @@
 package edu.sfsu.geng.newguideme.login;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatDialog;
@@ -46,37 +47,15 @@ public class LoginFragment extends Fragment {
 
         emailInputLayout = (TextInputLayout) view.findViewById(R.id.email_inputlayout);
         emailEditText = (AppCompatEditText) view.findViewById(R.id.email_edittext);
-        emailEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (emailInputLayout != null) {
-                    emailInputLayout.setError("");
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
+        if (emailEditText != null && emailInputLayout != null) {
+            emailEditText.addTextChangedListener(new ErrorCleanTextWatcher(emailInputLayout));
+        }
 
         passwordInputLayout = (TextInputLayout) view.findViewById(R.id.password_inputlayout);
         passwordEditText = (AppCompatEditText) view.findViewById(R.id.password_edittext);
-        passwordEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (passwordInputLayout != null) {
-                    passwordInputLayout.setError("");
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
+        if (passwordEditText != null && passwordInputLayout != null) {
+            passwordEditText.addTextChangedListener(new ErrorCleanTextWatcher(passwordInputLayout));
+        }
 
         AppCompatButton loginButton = (AppCompatButton) view.findViewById(R.id.login_button);
         AppCompatTextView forgotPasswordButton = (AppCompatTextView) view.findViewById(R.id.forgot_password_button);
@@ -84,10 +63,6 @@ public class LoginFragment extends Fragment {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!isValidEmail(emailEditText.getText())) {
-                    emailInputLayout.setError(getString(R.string.login_email_invalid_error));
-                    return;
-                }
                 String emailText = emailEditText.getText().toString();
 
                 String passwordText = passwordEditText.getText().toString();
@@ -136,41 +111,50 @@ public class LoginFragment extends Fragment {
 
         final AppCompatEditText resetEmailEditText = (AppCompatEditText) resetDialog.findViewById(R.id.reset_email_edittext);
         final TextInputLayout resetEmailInputLayout = (TextInputLayout) resetDialog.findViewById(R.id.reset_email_inputlayout);
+        if (resetEmailEditText != null && resetEmailInputLayout != null) {
+            resetEmailEditText.addTextChangedListener(new ErrorCleanTextWatcher(resetEmailInputLayout));
+        }
 
         AppCompatButton continueButton = (AppCompatButton) resetDialog.findViewById(R.id.reset_continue_button);
         if (continueButton != null) {
             continueButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (resetEmailEditText == null) {
+                    if (resetEmailEditText == null || resetEmailInputLayout == null) {
                         return;
                     }
-                    final String email = resetEmailEditText.getText().toString();
 
-                    if (email.isEmpty() && resetEmailInputLayout != null) {
+                    final String email = resetEmailEditText.getText().toString();
+                    if (email.isEmpty()) {
                         resetEmailInputLayout.setError(getString(R.string.login_email_empty_error));
                         return;
                     }
 
-                    ServerApi.requestResetCode(email, createRequestCodeDataListener(email));
+                    ServerApi.requestResetCode(email, createRequestCodeDataListener(email, resetEmailInputLayout));
                 }
             });
         }
     }
 
-    private ServerRequest.DataListener createRequestCodeDataListener(final String email) {
+    private ServerRequest.DataListener createRequestCodeDataListener(
+            @NonNull final String email,
+            @NonNull final TextInputLayout resetEmailInputLayout) {
         return new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {
                     JSONObject json = new JSONObject(data);
-                    String jsonStr = json.getString("response");
+                    String message = json.getString("response");
                     if (!json.getBoolean("res")) {
-                        Toast.makeText(getContext(), jsonStr, Toast.LENGTH_SHORT).show();
+                        String field = json.getString("field");
+                        if ("email".equals(field)) {
+                            resetEmailInputLayout.setError(message);
+                        } else {
+                            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                        }
                         return;
                     }
-//                                            Log.d("JSON", jsonStr);
-//                                Toast.makeText(getContext(), jsonStr, Toast.LENGTH_LONG).show();
+
                     resetDialog.setContentView(R.layout.reset_pass_code);
 
                     AppCompatButton cancelButton = (AppCompatButton) resetDialog.findViewById(R.id.reset_cancel_button);
@@ -185,10 +169,15 @@ public class LoginFragment extends Fragment {
 
                     final AppCompatEditText codeEditText = (AppCompatEditText) resetDialog.findViewById(R.id.reset_code_edittext);
                     final TextInputLayout codeInputLayout = (TextInputLayout) resetDialog.findViewById(R.id.reset_code_inputlayout);
+                    if (codeEditText != null && codeInputLayout != null) {
+                        codeEditText.addTextChangedListener(new ErrorCleanTextWatcher(codeInputLayout));
+                    }
+
                     final AppCompatEditText newPasswordEditText = (AppCompatEditText) resetDialog.findViewById(R.id.reset_new_password_edittext);
                     final TextInputLayout newPasswordInputLayout = (TextInputLayout) resetDialog.findViewById(R.id.reset_new_password_inputlayout);
-                    final AppCompatEditText confirmPasswordEditText = (AppCompatEditText) resetDialog.findViewById(R.id.reset_confirm_password_edittext);
-                    final TextInputLayout confirmPasswordInputLayout = (TextInputLayout) resetDialog.findViewById(R.id.reset_confirm_password_inputlayout);
+                    if (newPasswordEditText != null && newPasswordInputLayout != null) {
+                        newPasswordEditText.addTextChangedListener(new ErrorCleanTextWatcher(newPasswordInputLayout));
+                    }
 
                     AppCompatButton okButton = (AppCompatButton) resetDialog.findViewById(R.id.reset_ok_button);
                     if (okButton != null) {
@@ -198,9 +187,7 @@ public class LoginFragment extends Fragment {
                                 if (codeEditText == null
                                         || codeInputLayout == null
                                         || newPasswordEditText == null
-                                        || newPasswordInputLayout == null
-                                        || confirmPasswordEditText == null
-                                        || confirmPasswordInputLayout == null) {
+                                        || newPasswordInputLayout == null) {
                                     return;
                                 }
 
@@ -210,19 +197,14 @@ public class LoginFragment extends Fragment {
                                     return;
                                 }
 
-                                if (!isValidPassword(newPasswordEditText.getText())) {
-                                    newPasswordInputLayout.setError(getString(R.string.login_password_short_error));
-                                    return;
-                                }
                                 String newPassword = newPasswordEditText.getText().toString();
-
-                                if (!newPassword.equals(confirmPasswordEditText.getText().toString())) {
-                                    confirmPasswordInputLayout.setError(getString(R.string.login_password_not_match_error));
+                                if (newPassword.isEmpty()) {
+                                    newPasswordInputLayout.setError(getString(R.string.login_password_empty_error));
                                     return;
                                 }
-//                                                        Log.d("Code", code_txt);
-//                                                        Log.d("New pass", npass_txt);
-                                ServerApi.changePassword(email, code, newPassword, createChangePasswordDataListener());
+
+                                ServerApi.resetPasswordWithCode(email, code, newPassword,
+                                        createChangePasswordDataListener(codeInputLayout, newPasswordInputLayout));
                             }
                         });
                     }
@@ -237,17 +219,31 @@ public class LoginFragment extends Fragment {
         };
     }
 
-    private ServerRequest.DataListener createChangePasswordDataListener() {
+    private ServerRequest.DataListener createChangePasswordDataListener(
+            @NonNull final TextInputLayout codeInputLayout,
+            @NonNull final TextInputLayout newPasswordInputLayout) {
         return new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {
                     JSONObject json = new JSONObject(data);
-                    String jsonStr = json.getString("response");
+                    String message = json.getString("response");
                     if (json.getBoolean("res")) {
                         resetDialog.dismiss();
+                        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                    Toast.makeText(getContext(), jsonStr, Toast.LENGTH_SHORT).show();
+                    String field = json.getString("field");
+                    switch (field) {
+                        case "code":
+                            codeInputLayout.setError(message);
+                            break;
+                        case "password":
+                            newPasswordInputLayout.setError(message);
+                            break;
+                        default:
+                            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -257,14 +253,6 @@ public class LoginFragment extends Fragment {
             public void onClose() {
             }
         };
-    }
-
-    private boolean isValidEmail(CharSequence target) {
-        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
-    }
-
-    private boolean isValidPassword(CharSequence target) {
-        return !TextUtils.isEmpty(target) && target.length() >= PASSWORDLIMIT;
     }
 
 }
