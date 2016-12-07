@@ -8,9 +8,6 @@ import android.support.v7.app.AppCompatDialog;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatTextView;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +19,7 @@ import org.json.JSONObject;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
-
-import static edu.sfsu.geng.newguideme.Config.PASSWORDLIMIT;
+import edu.sfsu.geng.newguideme.utils.ErrorCleanTextWatcher;
 
 /**
  * A simple {@link Fragment} subclass.

@@ -6,9 +6,6 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,14 +14,11 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Locale;
-
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.Role;
 import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
-
-import static edu.sfsu.geng.newguideme.Config.PASSWORDLIMIT;
+import edu.sfsu.geng.newguideme.utils.ErrorCleanTextWatcher;
 
 /**
  * A simple {@link Fragment} subclass.

@@ -55,7 +55,7 @@ public class BlindWaitActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_blind_wait);
 
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        id = pref.getString("id", "");
+        id = pref.getString("token", "");
 
         waitingHelperList = (ListViewCompat) findViewById(R.id.waiting_helper_list);
         helperListAdapter = new HelperListAdapter(this, -1, new ArrayList<JSONObject>());
@@ -87,7 +87,7 @@ public class BlindWaitActivity extends AppCompatActivity implements
      * @param view     The view within the AdapterView that was clicked (this
      *                 will be a view provided by the adapter)
      * @param position The position of the view in the adapter.
-     * @param id       The row id of the item that was clicked.
+     * @param id       The row token of the item that was clicked.
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -95,7 +95,7 @@ public class BlindWaitActivity extends AppCompatActivity implements
         final JSONObject helper = ((HelperListAdapter) parent.getAdapter()).getItem(position);
         try {
             final String helperName = helper.getString("username");
-            final String helperId = helper.getString("id");
+            final String helperId = helper.getString("token");
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(String.format(getResources().getString(R.string.vi_wait_confirm_accept_helper), helperName));
             builder.setPositiveButton(R.string.vi_wait_accept_button, new DialogInterface.OnClickListener() {
@@ -190,7 +190,7 @@ public class BlindWaitActivity extends AppCompatActivity implements
     private void quit() {
         Log.d(TAG, "Quit");
         MyRequest myRequest = new MyRequest();
-        myRequest.add("id", id);
+        myRequest.add("token", id);
         myRequest.getJSON("/api/deleteroom", null);
         Intent homeActivity = new Intent(BlindWaitActivity.this, BlindHomeActivity.class);
         startActivity(homeActivity);

@@ -86,7 +86,7 @@ public class HelperVideoActivity extends AppCompatActivity implements
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        id = pref.getString("id", "");
+        id = pref.getString("token", "");
 
         sessionId = getIntent().getStringExtra("session");
         token = getIntent().getStringExtra("token");

@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -48,7 +50,9 @@ import java.util.List;
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.MyRequest;
+import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
+import edu.sfsu.geng.newguideme.utils.ErrorCleanTextWatcher;
 import edu.sfsu.geng.newguideme.login.WelcomeActivity;
 
 /**
@@ -56,26 +60,19 @@ import edu.sfsu.geng.newguideme.login.WelcomeActivity;
  */
 public class HelperHomeActivity extends AppCompatActivity implements
         AdapterView.OnItemClickListener,
-        ServerRequest.DataListener,
-        SwipeRefreshLayout.OnRefreshListener
-{
+        SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "HelperHome";
 
-    SharedPreferences pref;
-    String id, usernameStr, oldpassStr, newpassStr, rateStr;
-    String[] friends;
-    AppCompatButton chgpassfrBtn, cancelBtn;//, getRoomListBtn;
-    Dialog dlg;
-    AppCompatEditText oldpassEditText, newpassEditText;
-    SwipeRefreshLayout swipeRefreshLayout;
+    private SharedPreferences pref;
+    private String token, oldPassword, newPassword;
+    private HashSet<String> friends;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
-    ListViewCompat roomList;
-    RoomListAdapter roomListAdapter;
+    private RoomListAdapter roomListAdapter;
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
-//    private ProgressBar mRegistrationProgressBar;
     private boolean isReceiverRegistered;
 
     @Override
@@ -86,37 +83,26 @@ public class HelperHomeActivity extends AppCompatActivity implements
         setSupportActionBar(myToolbar);
 
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        id = pref.getString("id", "");
-//        grav = pref.getString("grav", "");
-        usernameStr = pref.getString("username", "");
-        rateStr = pref.getString("rate", "5.0");
+        token = pref.getString("token", "");
+        String username = pref.getString("username", "");
         pref.edit().putBoolean("logged", true).apply();
 
-        setTitle("Hi, " + usernameStr);
+        setTitle("Hi, " + username);
 
-        roomList = (ListViewCompat) findViewById(R.id.room_list);
+        ListViewCompat roomList = (ListViewCompat) findViewById(R.id.room_list);
         roomListAdapter = new RoomListAdapter(this, -1, new ArrayList<JSONObject>());
-        roomList.setAdapter(roomListAdapter);
+        if (roomList != null) {
+            roomList.setAdapter(roomListAdapter);
+            roomList.setOnItemClickListener(this);
+        }
 
-        roomList.setOnItemClickListener(this);
-
-//        getRoomListBtn = (AppCompatButton) findViewById(R.id.get_room_list_btn);
-//        getRoomListBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                asyncUpdateRooms();
-//            }
-//        });
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
         if (swipeRefreshLayout != null)
             swipeRefreshLayout.setOnRefreshListener(this);
 
-//        mRegistrationProgressBar = (ProgressBar) findViewById(R.id.registrationProgressBar);
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-//                mRegistrationProgressBar.setVisibility(ProgressBar.GONE);
-//                SharedPreferences sharedPreferences = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
                 boolean sentToken = pref.getBoolean(RegistrationIntentService.SENT_TOKEN_TO_SERVER, false);
                 if (!sentToken) {
                     Toast.makeText(getApplicationContext(), R.string.token_error_message_short, Toast.LENGTH_SHORT).show();
@@ -157,7 +143,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
         super.onPause();
     }
 
-    /* option menu */
+    /* 3 bars option menu */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -170,64 +156,14 @@ public class HelperHomeActivity extends AppCompatActivity implements
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.change_password_menu:
-                dlg = new Dialog(HelperHomeActivity.this);
-                dlg.setContentView(R.layout.change_password_frag);
-                dlg.setTitle("Change Password");
-                chgpassfrBtn = (AppCompatButton) dlg.findViewById(R.id.change_btn);
-
-                chgpassfrBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        oldpassEditText = (AppCompatEditText) dlg.findViewById(R.id.oldpass);
-                        newpassEditText = (AppCompatEditText) dlg.findViewById(R.id.newpass);
-                        oldpassStr = oldpassEditText.getText().toString();
-                        newpassStr = newpassEditText.getText().toString();
-
-                        MyRequest myRequest = new MyRequest();
-                        myRequest.add("id", id);
-                        myRequest.add("oldpass", oldpassStr);
-                        myRequest.add("newpass", newpassStr);
-
-                        myRequest.getJSON("/api/chgpass", new ServerRequest.DataListener() {
-                            @Override
-                            public void onReceiveData(String data) {
-                                try {
-                                    JSONObject json = new JSONObject(data);
-                                    String jsonStr = json.getString("response");
-                                    Toast.makeText(getApplication(), jsonStr, Toast.LENGTH_SHORT).show();
-                                    if (json.getBoolean("res")) {
-                                        dlg.dismiss();
-                                    }
-                                } catch (JSONException e) {
-                                    e.getStackTrace();
-                                }
-                            }
-
-                            @Override
-                            public void onClose() {
-
-                            }
-                        });
-
-                    }
-                });
-                cancelBtn = (AppCompatButton) dlg.findViewById(R.id.cancelbtn);
-                cancelBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dlg.dismiss();
-                    }
-                });
-                dlg.show();
+                Dialog changePasswordDialog = createChangePasswordDialog();
+                changePasswordDialog.show();
                 return true;
             case R.id.logout_menu:
-                SharedPreferences.Editor edit = pref.edit();
-                //Storing Data using SharedPreferences
-//                edit.putString("id", "");
-                edit.putBoolean("logged", false);
-                edit.apply();
-                Intent loginactivity = new Intent(HelperHomeActivity.this, WelcomeActivity.class);
-                startActivity(loginactivity);
+                pref.edit().putBoolean("logged", false).apply();
+
+                Intent welcomeActivity = new Intent(HelperHomeActivity.this, WelcomeActivity.class);
+                startActivity(welcomeActivity);
                 finish();
                 return true;
             default:
@@ -243,31 +179,32 @@ public class HelperHomeActivity extends AppCompatActivity implements
      * @param view     The view within the AdapterView that was clicked (this
      *                 will be a view provided by the adapter)
      * @param position The position of the view in the adapter.
-     * @param itemId   The row id of the item that was clicked.
+     * @param itemId   The row token of the item that was clicked.
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long itemId) {
         Log.v(TAG, "Helper click on a room");
         final JSONObject room = ((RoomListAdapter) parent.getAdapter()).getItem(position);
+        if (room == null) {
+            return;
+        }
+
         try {
-            final String blindId = room.getString("room_id");
+            final String roomId = room.getString("room_id");
             final String blindName = room.getString("username");
-            final String myId = id;
+            final String token = this.token;
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(String.format(getResources().getString(R.string.room_confirm_message), blindName));
             builder.setPositiveButton(R.string.room_enter_button, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    MyRequest myRequest = new MyRequest();
-                    myRequest.add("id", myId);
-                    myRequest.add("room_id", blindId);
-                    myRequest.getJSON("/api/helperjoinroom", new ServerRequest.DataListener() {
+                    ServerApi.helperJoinRoom(token, roomId, new ServerRequest.DataListener() {
                         @Override
                         public void onReceiveData(String data) {
                             try {
                                 JSONObject json = new JSONObject(data);
                                 if (json.getBoolean("res")) {
                                     Intent helperWaitActivity = new Intent(HelperHomeActivity.this, HelperWaitActivity.class);
-                                    helperWaitActivity.putExtra("blindId", blindId);
+                                    helperWaitActivity.putExtra("blindId", roomId);
                                     helperWaitActivity.putExtra("blindName", blindName);
                                     startActivity(helperWaitActivity);
                                     finish();
@@ -298,23 +235,48 @@ public class HelperHomeActivity extends AppCompatActivity implements
         }
     }
 
+    /* OnRefreshListener */
+    @Override
+    public void onRefresh() {
+        asyncUpdateRooms();
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    /* private methods */
     private void asyncUpdateRooms() {
-        MyRequest myRequest = new MyRequest();
-        myRequest.add("id", id);
-        myRequest.getJSON("/api/getroomlist", this);
+        ServerApi.getRoomList(token, new ServerRequest.DataListener() {
+            @Override
+            public void onReceiveData(String data) {
+                roomListAdapter.clear();
+                try {
+                    JSONObject roomList = new JSONObject(data);
+                    int size = roomList.getInt("size");
+                    if (size == 0) {
+                        Toast.makeText(getApplicationContext(), R.string.empty_list, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    JSONArray listJson = new JSONArray(roomList.getString("list"));
+                    for (int i = 0; i < size; i++) {
+                        roomListAdapter.add(listJson.getJSONObject(i));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onClose() {}
+        });
     }
 
     private void asyncUpdateMyRate() {
-        MyRequest myRequest = new MyRequest();
-        myRequest.add("id", id);
-        myRequest.getJSON("/api/getrate", new ServerRequest.DataListener() {
+        ServerApi.getRate(token, new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {
                     JSONObject json = new JSONObject(data);
                     if (json.getBoolean("res")) {
                         String newRate = String.valueOf(json.getDouble("rate"));
-                        rateStr = newRate;
                         pref.edit().putString("rate", newRate).apply();
                     }
                 } catch (JSONException e) {
@@ -329,28 +291,20 @@ public class HelperHomeActivity extends AppCompatActivity implements
 
     // friends array should not be null after this method
     private void asyncGetFriendsList() {
-        MyRequest myRequest = new MyRequest();
-        myRequest.add("id", id);
-
-        myRequest.getJSON("/api/getfriendlist", new ServerRequest.DataListener() {
+        ServerApi.getFriends(token, new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {
                     JSONObject json = new JSONObject(data);
                     if (json.getBoolean("res")) {
-                        JSONArray friendsJSONArray =  json.getJSONArray("friends");
-                        if (friendsJSONArray == null) {
-                            Log.d(TAG, "Friend list is Null!");
-                        } else {
-                            friends = new String[friendsJSONArray.length()];
-                            for (int i = 0; i < friendsJSONArray.length(); i++) {
-                                String friendJSON = friendsJSONArray.getString(i);
-                                JSONObject friend = new JSONObject(friendJSON);
-                                friends[i] = friend.getString("id");
-                            }
-                            pref.edit().putStringSet("friends", new HashSet<>(Arrays.asList(friends))).apply();
-                            Log.d(TAG, "Friend list: " + Arrays.toString(friends));
+                        JSONArray friendsJSONArray = json.getJSONArray("friends");
+                        friends = new HashSet<>();
+                        for (int i = 0; i < friendsJSONArray.length(); i++) {
+                            String friendJSON = friendsJSONArray.getString(i);
+                            JSONObject friend = new JSONObject(friendJSON);
+                            friends.add(friend.getString("token"));
                         }
+                        pref.edit().putStringSet("friends", friends).apply();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -362,78 +316,93 @@ public class HelperHomeActivity extends AppCompatActivity implements
         });
     }
 
-    /* OnRefreshListener */
-    @Override
-    public void onRefresh() {
-        asyncUpdateRooms();
-        swipeRefreshLayout.setRefreshing(false);
-    }
+    @NonNull
+    private Dialog createChangePasswordDialog() {
+        final Dialog changePasswordDialog = new Dialog(HelperHomeActivity.this);
+        changePasswordDialog.setContentView(R.layout.dialog_change_password);
+        changePasswordDialog.setTitle("Change Password");
 
-    /* DataListener */
-    @Override
-    public void onReceiveData(String data) {
-        if (data.isEmpty()) return;
-
-        roomListAdapter.clear();
-        try {
-            JSONObject roomList = new JSONObject(data);
-            int size = roomList.getInt("size");
-            if (size == 0) {
-                Toast.makeText(getApplication(), R.string.empty_list, Toast.LENGTH_LONG).show();
-                return;
-            }
-            JSONArray listJson = new JSONArray(roomList.getString("list"));
-            for (int i = 0; i < size; i++) {
-                roomListAdapter.add(listJson.getJSONObject(i));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onClose() {}
-
-
-    private class RoomListAdapter extends ArrayAdapter<JSONObject> {
-
-        private final Context context;
-        private final List<JSONObject> rooms;
-
-        /**
-         * Constructor
-         *
-         * @param context  The current context.
-         * @param resource The resource ID for a layout file containing a TextView to use when
-         *                 instantiating views.
-         * @param objects  The objects to represent in the ListView.
-         */
-        public RoomListAdapter(Context context, int resource, List<JSONObject> objects) {
-            super(context, resource, objects);
-            this.context = context;
-            this.rooms = objects;
+        final AppCompatEditText oldPasswordEditText = (AppCompatEditText) changePasswordDialog
+                .findViewById(R.id.change_password_old_edittext);
+        final TextInputLayout oldPasswordInputLayout = (TextInputLayout) changePasswordDialog
+                .findViewById(R.id.change_password_old_inputlayout);
+        if (oldPasswordEditText != null && oldPasswordInputLayout != null) {
+            oldPasswordEditText.addTextChangedListener(new ErrorCleanTextWatcher(oldPasswordInputLayout));
         }
 
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = inflater.inflate(R.layout.room_list_item, parent, false);
-            AppCompatTextView usernameText = (AppCompatTextView) rowView.findViewById(R.id.room_item_username);
-            RatingBar ratingBar = (RatingBar) rowView.findViewById(R.id.room_item_ratingBar);
-            AppCompatTextView desText = (AppCompatTextView) rowView.findViewById(R.id.room_item_des);
-
-            try {
-                JSONObject room = rooms.get(position);
-                usernameText.setText(room.getString("username"));
-                desText.setText(room.getString("des"));
-                ratingBar.setRating((float) room.getDouble("rate"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            return rowView;
+        final AppCompatEditText newPasswordEditText = (AppCompatEditText) changePasswordDialog
+                .findViewById(R.id.change_password_new_edittext);
+        final TextInputLayout newPasswordInputLayout = (TextInputLayout) changePasswordDialog
+                .findViewById(R.id.change_password_new_inputlayout);
+        if (newPasswordEditText != null && newPasswordInputLayout != null) {
+            newPasswordEditText.addTextChangedListener(new ErrorCleanTextWatcher(newPasswordInputLayout));
         }
+
+        AppCompatButton changePasswordButton = (AppCompatButton) changePasswordDialog.findViewById(R.id.change_password_button);
+        changePasswordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (oldPasswordEditText == null
+                        || oldPasswordInputLayout == null
+                        || newPasswordEditText == null
+                        || newPasswordInputLayout == null) {
+                    return;
+                }
+
+                oldPassword = oldPasswordEditText.getText().toString();
+                if (oldPassword.isEmpty()) {
+                    oldPasswordInputLayout.setError(getString(R.string.login_password_empty_error));
+                    return;
+                }
+                newPassword = newPasswordEditText.getText().toString();
+                if (newPassword.isEmpty()) {
+                    newPasswordInputLayout.setError(getString(R.string.login_password_empty_error));
+                    return;
+                }
+
+                ServerApi.changePassword(token, oldPassword, newPassword, new ServerRequest.DataListener() {
+                    @Override
+                    public void onReceiveData(String data) {
+                        try {
+                            JSONObject json = new JSONObject(data);
+                            String message = json.getString("response");
+
+                            if (json.getBoolean("res")) {
+                                changePasswordDialog.dismiss();
+                                Toast.makeText(getApplication(), message, Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            String field = json.getString("field");
+                            switch (field) {
+                                case "old_password":
+                                    oldPasswordInputLayout.setError(message);
+                                    break;
+                                case "new_password":
+                                    newPasswordInputLayout.setError(message);
+                                    break;
+                                default:
+                                    Toast.makeText(getApplication(), message, Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            e.getStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onClose() {}
+                });
+            }
+        });
+
+        AppCompatButton cancelButton = (AppCompatButton) changePasswordDialog.findViewById(R.id.change_password_cancel_button);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changePasswordDialog.dismiss();
+            }
+        });
+
+        return changePasswordDialog;
     }
 
     private void registerReceiver(){
@@ -463,4 +432,42 @@ public class HelperHomeActivity extends AppCompatActivity implements
         return true;
     }
 
+    private class RoomListAdapter extends ArrayAdapter<JSONObject> {
+
+        private final Context context;
+        private final List<JSONObject> rooms;
+
+        /**
+         * Constructor
+         *
+         * @param context  The current context.
+         * @param resource The resource ID for a layout file containing a TextView to use when
+         *                 instantiating views.
+         * @param objects  The objects to represent in the ListView.
+         */
+        public RoomListAdapter(Context context, int resource, List<JSONObject> objects) {
+            super(context, resource, objects);
+            this.context = context;
+            this.rooms = objects;
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View rowView = inflater.inflate(R.layout.room_list_item, parent, false);
+            AppCompatTextView usernameText = (AppCompatTextView) rowView.findViewById(R.id.room_item_username);
+            AppCompatTextView desText = (AppCompatTextView) rowView.findViewById(R.id.room_item_des);
+
+            try {
+                JSONObject room = rooms.get(position);
+                usernameText.setText(room.getString("username"));
+                desText.setText(room.getString("des"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return rowView;
+        }
+    }
 }

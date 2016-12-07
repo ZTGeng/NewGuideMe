@@ -31,7 +31,7 @@ public class HelperRateActivity extends AppCompatActivity {
         blindId = getIntent().getStringExtra("blindId");
 
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        id = pref.getString("id", "");
+        id = pref.getString("token", "");
 
         ratingBar = (RatingBar) findViewById(R.id.helper_ratingBar);
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
@@ -69,7 +69,7 @@ public class HelperRateActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 MyRequest myRequest = new MyRequest();
-                myRequest.add("id", id);
+                myRequest.add("token", id);
                 myRequest.add("ratee_id", blindId);
                 myRequest.add("rate", String.valueOf(rateFloat));
                 myRequest.getJSON("/api/rate", null);

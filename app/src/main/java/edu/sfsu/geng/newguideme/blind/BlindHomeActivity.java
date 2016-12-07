@@ -44,7 +44,7 @@ public class BlindHomeActivity extends AppCompatActivity
     private static final String TAG = "VIHome";
 
     SharedPreferences pref;
-    String id, usernameStr, oldpassStr, newpassStr, desString, rateStr;
+    String token, usernameStr, oldpassStr, newpassStr, desString, rateStr;
     String[] friendIds, friendNames;
     AppCompatButton callBtn, chgpassfrBtn, cancelBtn;
     Dialog dlg;
@@ -58,8 +58,7 @@ public class BlindHomeActivity extends AppCompatActivity
         setSupportActionBar(myToolbar);
 
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        id = pref.getString("id", "");
-//        grav = pref.getString("grav", "");
+        token = pref.getString("token", "");
         usernameStr = pref.getString("username", "");
         rateStr = pref.getString("rate", "5.0");
         pref.edit().putBoolean("logged", true).apply();
@@ -96,7 +95,7 @@ public class BlindHomeActivity extends AppCompatActivity
     // friends array should not be null after this method
     private void asyncGetFriendsList() {
         MyRequest myRequest = new MyRequest();
-        myRequest.add("id", id);
+        myRequest.add("token", token);
 
         myRequest.getJSON("/api/getfriendlist", new ServerRequest.DataListener() {
             @Override
@@ -113,7 +112,7 @@ public class BlindHomeActivity extends AppCompatActivity
                             for (int i = 0; i < friendsJSONArray.length(); i++) {
                                 String friendJSON = friendsJSONArray.getString(i);
                                 JSONObject friend = new JSONObject(friendJSON);
-                                friendIds[i] = friend.getString("id");
+                                friendIds[i] = friend.getString("token");
                                 friendNames[i] = friend.getString("username");
                             }
                             pref.edit().putStringSet("friendIds", new HashSet<>(Arrays.asList(friendIds))).apply();
@@ -133,7 +132,7 @@ public class BlindHomeActivity extends AppCompatActivity
 
     private void asyncUpdateMyRate() {
         MyRequest myRequest = new MyRequest();
-        myRequest.add("id", id);
+        myRequest.add("token", token);
         myRequest.getJSON("/api/getrate", new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
@@ -204,7 +203,7 @@ public class BlindHomeActivity extends AppCompatActivity
     /* Methods for the Calling */
     private void callStrangers() {
         MyRequest myRequest = new MyRequest();
-        myRequest.add("id", id);
+        myRequest.add("token", token);
         myRequest.add("des", desString);
 
         myRequest.getJSON("/api/createpublicroom", new ServerRequest.DataListener() {
@@ -232,7 +231,7 @@ public class BlindHomeActivity extends AppCompatActivity
 
     private void callFriends(String friendsStr) {
         MyRequest myRequest = new MyRequest();
-        myRequest.add("id", id);
+        myRequest.add("token", token);
         myRequest.add("friends", friendsStr);
         myRequest.add("des", desString);
 
@@ -272,20 +271,20 @@ public class BlindHomeActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.change_password_menu:
                 dlg = new Dialog(BlindHomeActivity.this);
-                dlg.setContentView(R.layout.change_password_frag);
+                dlg.setContentView(R.layout.dialog_change_password);
                 dlg.setTitle("Change Password");
-                chgpassfrBtn = (AppCompatButton) dlg.findViewById(R.id.change_btn);
+                chgpassfrBtn = (AppCompatButton) dlg.findViewById(R.id.change_password_button);
 
                 chgpassfrBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        oldpassEditText = (AppCompatEditText) dlg.findViewById(R.id.oldpass);
-                        newpassEditText = (AppCompatEditText) dlg.findViewById(R.id.newpass);
+                        oldpassEditText = (AppCompatEditText) dlg.findViewById(R.id.change_password_old_edittext);
+                        newpassEditText = (AppCompatEditText) dlg.findViewById(R.id.change_password_new_edittext);
                         oldpassStr = oldpassEditText.getText().toString();
                         newpassStr = newpassEditText.getText().toString();
 
                         MyRequest myRequest = new MyRequest();
-                        myRequest.add("id", id);
+                        myRequest.add("token", token);
                         myRequest.add("oldpass", oldpassStr);
                         myRequest.add("newpass", newpassStr);
                         myRequest.getJSON("/api/chgpass", new ServerRequest.DataListener() {
@@ -308,7 +307,7 @@ public class BlindHomeActivity extends AppCompatActivity
                         });
                     }
                 });
-                cancelBtn = (AppCompatButton) dlg.findViewById(R.id.cancelbtn);
+                cancelBtn = (AppCompatButton) dlg.findViewById(R.id.change_password_cancel_button);
                 cancelBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -320,7 +319,7 @@ public class BlindHomeActivity extends AppCompatActivity
             case R.id.logout_menu:
                 SharedPreferences.Editor edit = pref.edit();
                 //Storing Data using SharedPreferences
-//                edit.putString("id", "");
+//                edit.putString("token", "");
                 edit.putBoolean("logged", false);
                 edit.apply();
                 Intent loginactivity = new Intent(BlindHomeActivity.this, WelcomeActivity.class);

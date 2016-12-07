@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -27,6 +28,8 @@ import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 public class WelcomeActivity extends AppCompatActivity implements LoginListener {
 
+    private static final String TAG = "HelperHome";
+
     private TabLayout tabLayout;
     private ViewPager viewPager;
 
@@ -37,13 +40,14 @@ public class WelcomeActivity extends AppCompatActivity implements LoginListener 
         super.onCreate(savedInstanceState);
 
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
+        Log.d(TAG, "============== " + pref.getBoolean("logged", false));
         /* If already login in, go to home activity */
         if (pref.getBoolean("logged", false)) {
-            String id = pref.getString("id", "");
+            String token = pref.getString("token", "");
             String username = pref.getString("username", "");
             String role = pref.getString("role", "");
             String rate = pref.getString("rate", "");
-            if (!id.isEmpty() && !username.isEmpty() && !role.isEmpty() && !rate.isEmpty()) {
+            if (!token.isEmpty() && !username.isEmpty() && !role.isEmpty() && !rate.isEmpty()) {
                 goHome(Role.valueOf(role));
             }
         }

@@ -23,7 +23,7 @@ public class HelperWaitActivity extends AppCompatActivity implements ServerReque
     private static final String TAG = "HelperWait";
 
     private SharedPreferences pref;
-    private String id, roomId, blindName;
+    private String token, roomId, blindName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +31,7 @@ public class HelperWaitActivity extends AppCompatActivity implements ServerReque
         setContentView(R.layout.activity_helper_wait);
 
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        id = pref.getString("id", "");
+        token = pref.getString("token", "");
 
         roomId = getIntent().getStringExtra("blindId");
         blindName = getIntent().getStringExtra("blindName");
@@ -46,38 +46,13 @@ public class HelperWaitActivity extends AppCompatActivity implements ServerReque
             });
         }
 
-        if (getIntent().getBooleanExtra("needJoin", false)) {
-            MyRequest myRequest = new MyRequest();
-            myRequest.add("id", id);
-            myRequest.add("room_id", roomId);
-            myRequest.getJSON("/api/helperjoinroom", new ServerRequest.DataListener() {
-                @Override
-                public void onReceiveData(String data) {
-                    try {
-                        JSONObject json = new JSONObject(data);
-                        if (json.getBoolean("res")) {
-                            keepResAlive();
-                        } else {
-                            Log.e(TAG, "Error while join room");
-                            quit();
-                        }
-                    } catch (JSONException e) {
-                        e.getStackTrace();
-                    }
-                }
-
-                @Override
-                public void onClose() {}
-            });
-        } else {
-            keepResAlive();
-        }
+        keepResAlive();
 
     }
 
     private void keepResAlive() {
         MyRequest myRequest = new MyRequest();
-        myRequest.helperJoin(id, roomId, HelperWaitActivity.this);
+        myRequest.helperJoin(token, roomId, HelperWaitActivity.this);
     }
 
     private void onQuitClicked() {
@@ -103,7 +78,7 @@ public class HelperWaitActivity extends AppCompatActivity implements ServerReque
 
     private void quit() {
         MyRequest myRequest = new MyRequest();
-        myRequest.add("id", id);
+        myRequest.add("token", token);
         myRequest.add("room_id", roomId);
         myRequest.getJSON("/api/helperleaveroom", null);
 

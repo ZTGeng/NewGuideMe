@@ -37,7 +37,7 @@ public class BlindRateActivity extends AppCompatActivity {
         helperName = getIntent().getStringExtra("helperName");
 
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        id = pref.getString("id", "");
+        id = pref.getString("token", "");
 
         rateFloat = 5.0f;
         rateNumberText = (TextView) findViewById(R.id.vi_rate_number);
@@ -92,7 +92,7 @@ public class BlindRateActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 MyRequest myRequest = new MyRequest();
-                myRequest.add("id", id);
+                myRequest.add("token", id);
                 myRequest.add("ratee_id", helperId);
                 myRequest.add("rate", String.valueOf(rateFloat));
                 myRequest.getJSON("/api/rate", new ServerRequest.DataListener() {

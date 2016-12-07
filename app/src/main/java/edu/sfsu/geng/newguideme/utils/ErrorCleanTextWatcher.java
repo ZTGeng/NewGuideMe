@@ -1,4 +1,4 @@
-package edu.sfsu.geng.newguideme.login;
+package edu.sfsu.geng.newguideme.utils;
 
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;

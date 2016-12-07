@@ -87,9 +87,9 @@ public class RegistrationIntentService extends IntentService {
      */
     private void sendRegistrationToServer(String token) {
         // Add custom implementation, as needed.
-        String id = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE).getString("id", "");
+        String id = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE).getString("token", "");
         MyRequest myRequest = new MyRequest();
-        myRequest.add("id", id);
+        myRequest.add("token", id);
         myRequest.add("gcm_token", token);
 
         myRequest.getJSON("/api/updategcmtoken", new ServerRequest.DataListener() {
