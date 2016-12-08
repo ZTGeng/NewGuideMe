@@ -16,7 +16,7 @@ import org.json.JSONObject;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
-import edu.sfsu.geng.newguideme.http.MyRequest;
+import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 public class BlindRateActivity extends AppCompatActivity {
@@ -27,7 +27,7 @@ public class BlindRateActivity extends AppCompatActivity {
     private AppCompatButton decreaseBtn, increaseBtn;
     private TextView rateNumberText;
     private float rateFloat;
-    private String helperId, helperName, id;
+    private String helperId, helperName, token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +37,7 @@ public class BlindRateActivity extends AppCompatActivity {
         helperName = getIntent().getStringExtra("helperName");
 
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        id = pref.getString("token", "");
+        token = pref.getString("token", "");
 
         rateFloat = 5.0f;
         rateNumberText = (TextView) findViewById(R.id.vi_rate_number);
@@ -91,16 +91,14 @@ public class BlindRateActivity extends AppCompatActivity {
         builder.setPositiveButton(R.string.vi_rate_ok_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MyRequest myRequest = new MyRequest();
-                myRequest.add("token", id);
-                myRequest.add("ratee_id", helperId);
-                myRequest.add("rate", String.valueOf(rateFloat));
-                myRequest.getJSON("/api/rate", new ServerRequest.DataListener() {
+                ServerApi.rateHelper(token, helperId, String.valueOf(rateFloat), new ServerRequest.DataListener() {
                     @Override
                     public void onReceiveData(String data) {
                         try {
                             JSONObject json = new JSONObject(data);
-                            Toast.makeText(getApplication(), json.getString("response"), Toast.LENGTH_SHORT).show();
+                            if (json.getBoolean("res")) {
+                                Toast.makeText(getApplication(), json.getString("response"), Toast.LENGTH_SHORT).show();
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

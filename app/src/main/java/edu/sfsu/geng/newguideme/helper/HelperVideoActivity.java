@@ -1,5 +1,6 @@
 package edu.sfsu.geng.newguideme.helper;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,6 +8,7 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +30,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.opentok.android.BaseVideoRenderer;
 import com.opentok.android.Connection;
 import com.opentok.android.OpentokError;
 import com.opentok.android.Publisher;
@@ -48,36 +51,40 @@ import java.util.Set;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
-import edu.sfsu.geng.newguideme.http.MyRequest;
 import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class HelperVideoActivity extends AppCompatActivity implements
+        EasyPermissions.PermissionCallbacks,
         Session.SessionListener,
         Session.ConnectionListener,
         PublisherKit.PublisherListener,
         Subscriber.SubscriberListener,
         Subscriber.VideoListener,
-        Session.SignalListener
-{
+        Session.SignalListener {
 
     private static final String TAG = "HelperVideo";
 
+    private static final int RC_SETTINGS_SCREEN_PERM = 123;
+    private static final int RC_VIDEO_APP_PERM = 124;
+
     private Session mSession;
     private Publisher mPublisher;
-//    private Connection blindConnection;
+    private Subscriber mSubscriber;
 
     private GoogleMap mMap;
     private Marker curLocationMarker, destinationMarker;
     private Polyline polyLine;
 
     private LinearLayoutCompat subscriberView;
-//    private SwitchCompat muteSwitch;
     private AppCompatButton addButton;
-    private SharedPreferences pref;
 
-    private String sessionId, videoToken, id, blindId, blindName;
-    private boolean mapInitialed;//, delayGetRoute;
+    private String token, blindId, blindName;
+    private String sessionId, videoToken;
+    private boolean mapInitialed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,8 +92,8 @@ public class HelperVideoActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_helper_video);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        id = pref.getString("token", "");
+        SharedPreferences pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
+        token = pref.getString("token", "");
 
         sessionId = getIntent().getStringExtra("sessionId");
         videoToken = getIntent().getStringExtra("videoToken");
@@ -94,7 +101,6 @@ public class HelperVideoActivity extends AppCompatActivity implements
         blindName = getIntent().getStringExtra("blindName");
 
         mapInitialed = false;
-//        delayGetRoute = false;
 
         // video screen
         subscriberView = (LinearLayoutCompat) findViewById(R.id.helper_video_screen);
@@ -158,47 +164,121 @@ public class HelperVideoActivity extends AppCompatActivity implements
 
             }
         });
+
         Set<String> friends = pref.getStringSet("friends", null);
         if (friends != null && friends.contains(blindId)) {
             addButton.setVisibility(View.GONE);
         }
 
         // video session
-        mSession = new Session(this, Config.APIKEY, sessionId);
-        mSession.setSessionListener(this);
-        mSession.setSignalListener(this);
-        mSession.connect(videoToken);
+        requestPermissions();
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume");
+
+        super.onResume();
+
+        if (mSession == null) {
+            return;
+        }
+        mSession.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause");
+
+        super.onPause();
+
+        if (mSession == null) {
+            return;
+        }
+        mSession.onPause();
+
+        if (isFinishing()) {
+            disconnectSession();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "onDestroy");
+
+        disconnectSession();
+
+        super.onDestroy();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+        Log.d(TAG, "onPermissionsGranted:" + requestCode + ":" + perms.size());
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        Log.d(TAG, "onPermissionsDenied:" + requestCode + ":" + perms.size());
+
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            new AppSettingsDialog.Builder(this, getString(R.string.rationale_ask_again))
+                    .setTitle(getString(R.string.title_settings_dialog))
+                    .setPositiveButton(getString(R.string.setting))
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .setRequestCode(RC_SETTINGS_SCREEN_PERM)
+                    .build()
+                    .show();
+        }
+    }
+
+    @AfterPermissionGranted(RC_VIDEO_APP_PERM)
+    private void requestPermissions() {
+        String[] perms = { Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO };
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            mSession = new Session(HelperVideoActivity.this, Config.APIKEY, sessionId);
+            mSession.setSessionListener(this);
+            mSession.setSignalListener(this);
+            mSession.connect(videoToken);
+        } else {
+            EasyPermissions.requestPermissions(this, getString(R.string.rationale_video_app), RC_VIDEO_APP_PERM, perms);
+        }
     }
 
     private void quit() {
-        if (mSession != null) {
-            mSession.disconnect();
-        }
-
         Intent homeActivity = new Intent(HelperVideoActivity.this, HelperHomeActivity.class);
         startActivity(homeActivity);
         finish();
     }
 
     private void send(String event, String data) {
-        if (mSession != null) {// && blindConnection != null) {
-            mSession.sendSignal(event, data);//, blindConnection);
+        if (mSession != null) {
+            mSession.sendSignal(event, data);
         }
     }
 
     private void initMap(final LatLng curLatLng) {
         mapInitialed = true;
         LinearLayoutCompat mapLayout = (LinearLayoutCompat) findViewById(R.id.helper_video_map);
+        Log.d(TAG, "====================" + 1);
         if (mapLayout != null) {
+            Log.d(TAG, "====================" + 2);
             mapLayout.setVisibility(View.VISIBLE);
         }
         SupportMapFragment mapFragment = new SupportMapFragment();
         getSupportFragmentManager().beginTransaction().add(R.id.helper_video_map, mapFragment).commit();
+        Log.d(TAG, "====================" + 3);
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mMap = googleMap;
-
+                Log.d(TAG, "====================" + 4);
 //                LatLng sf = new LatLng(37.722, -122.48);
                 curLocationMarker = mMap.addMarker(new MarkerOptions().position(curLatLng).title("User Location"));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));
@@ -236,10 +316,8 @@ public class HelperVideoActivity extends AppCompatActivity implements
 
     private void setDirection() {
         if (curLocationMarker == null || destinationMarker == null) {
-//            delayGetRoute = true;
             return;
         }
-//        delayGetRoute = false;
         ServerApi.getRoute(curLocationMarker.getPosition(), destinationMarker.getPosition(), new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
@@ -312,38 +390,78 @@ public class HelperVideoActivity extends AppCompatActivity implements
         return poly;
     }
 
+    private void disconnectSession() {
+        if (mSession == null) {
+            return;
+        }
+
+        if (mSubscriber != null) {
+            subscriberView.removeView(mSubscriber.getView());
+            mSession.unsubscribe(mSubscriber);
+            mSubscriber.destroy();
+            mSubscriber = null;
+        }
+
+        if (mPublisher != null) {
+            mSession.unpublish(mPublisher);
+            mPublisher.destroy();
+            mPublisher = null;
+        }
+        mSession.disconnect();
+    }
+
     /* SessionListener */
     @Override
     public void onConnected(Session session) {
         Log.d(TAG, "SessionListener.onConnected is called");
-        mPublisher = new Publisher(this, "helper to blind", true, false);
+        mPublisher = new Publisher(HelperVideoActivity.this, "helper to blind", true, false);
         mPublisher.setPublisherListener(this);
+
+//        mPublisher.setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE, BaseVideoRenderer.STYLE_VIDEO_FILL);
+
         mSession.publish(mPublisher);
     }
 
     @Override
     public void onDisconnected(Session session) {
         Log.d(TAG, "SessionListener.onDisconnected is called");
+        mSession = null;
     }
 
     @Override
     public void onStreamReceived(Session session, Stream stream) {
         Log.d(TAG, "SessionListener.onStreamReceived is called");
-        Subscriber subscriber = new Subscriber(this, stream);
-        subscriber.setVideoListener(this);
-        session.subscribe(subscriber);
-        subscriberView.addView(subscriber.getView());
+
+        if (mSubscriber != null) {
+            return;
+        }
+
+        subscribeToStream(stream);
     }
 
     @Override
     public void onStreamDropped(Session session, Stream stream) {
         Log.d(TAG, "SessionListener.onStreamDropped is called");
+
+        if (mSubscriber != null && mSubscriber.getStream().equals(stream)) {
+            subscriberView.removeView(mSubscriber.getView());
+            mSubscriber.destroy();
+            mSubscriber = null;
+        }
+
         quit();
     }
 
     @Override
     public void onError(Session session, OpentokError opentokError) {
         Log.d(TAG, "SessionListener.onError: " + opentokError.getMessage());
+        quit();
+    }
+
+    private void subscribeToStream(Stream stream) {
+        mSubscriber = new Subscriber(HelperVideoActivity.this, stream);
+        mSubscriber.setVideoListener(this);
+        mSession.subscribe(mSubscriber);
     }
 
     /* PublisherListener */
@@ -360,6 +478,7 @@ public class HelperVideoActivity extends AppCompatActivity implements
     @Override
     public void onError(PublisherKit publisherKit, OpentokError opentokError) {
         Log.d(TAG, "PublisherListener.onError: " + opentokError.getMessage());
+        quit();
     }
 
     /* SubscriberListener */
@@ -370,7 +489,7 @@ public class HelperVideoActivity extends AppCompatActivity implements
 
     @Override
     public void onDisconnected(SubscriberKit subscriberKit) {
-
+        Log.d(TAG, "onDisconnected");
     }
 
     @Override
@@ -381,7 +500,9 @@ public class HelperVideoActivity extends AppCompatActivity implements
     /* VideoListener, */
     @Override
     public void onVideoDataReceived(SubscriberKit subscriberKit) {
-
+        Log.d(TAG, "onVideoDataReceived");
+        mSubscriber.setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE, BaseVideoRenderer.STYLE_VIDEO_FILL);
+        subscriberView.addView(mSubscriber.getView());
     }
 
     @Override
@@ -408,6 +529,7 @@ public class HelperVideoActivity extends AppCompatActivity implements
     @Override
     public void onSignalReceived(Session session, String event, String data, Connection connection) {
         if (mSession.getConnection().equals(connection)) return;
+        Log.d(TAG, session + " - " + data);
         switch (event) {
             case "add":
                 Log.d(TAG, "Receive add friend request");
@@ -419,10 +541,7 @@ public class HelperVideoActivity extends AppCompatActivity implements
                 builder.setPositiveButton(R.string.helper_video_add_confirm_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        MyRequest myRequest = new MyRequest();
-                        myRequest.add("m_id", id);
-                        myRequest.add("f_id", blindId);
-                        myRequest.getJSON("/api/addfriend", new ServerRequest.DataListener() {
+                        ServerApi.addFriend(token, blindId, new ServerRequest.DataListener() {
                             @Override
                             public void onReceiveData(String data) {
                                 try {
@@ -479,7 +598,6 @@ public class HelperVideoActivity extends AppCompatActivity implements
     /* ConnectionListener */
     @Override
     public void onConnectionCreated(Session session, Connection connection) {
-//        blindConnection = connection;
     }
 
     @Override

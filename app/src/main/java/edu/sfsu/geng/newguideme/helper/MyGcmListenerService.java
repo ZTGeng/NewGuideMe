@@ -13,15 +13,9 @@ import android.widget.Toast;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.Date;
 
-import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
-import edu.sfsu.geng.newguideme.http.MyRequest;
-import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 public class MyGcmListenerService extends GcmListenerService {
     private static final String TAG = "MyGcmListenerService";

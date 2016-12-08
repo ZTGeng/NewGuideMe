@@ -22,7 +22,6 @@ public class HelperWaitActivity extends AppCompatActivity {
 
     private static final String TAG = "HelperWait";
 
-    private SharedPreferences pref;
     private String token, roomId, blindName;
 
     @Override
@@ -30,7 +29,7 @@ public class HelperWaitActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_helper_wait);
 
-        pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
         token = pref.getString("token", "");
 
         roomId = getIntent().getStringExtra("roomId");
@@ -54,9 +53,9 @@ public class HelperWaitActivity extends AppCompatActivity {
         ServerApi.helperKeepAlive(token, roomId, new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
-                JSONObject select;
                 try {
-                    select = new JSONObject(data);
+                    JSONObject select = new JSONObject(data);
+                    Log.d(TAG, data);
                     if (select.getBoolean("select")) {
                         String videoSession = select.getString("session");
                         String videoToken = select.getString("token");

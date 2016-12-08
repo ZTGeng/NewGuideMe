@@ -30,7 +30,6 @@ import java.util.List;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
-import edu.sfsu.geng.newguideme.http.MyRequest;
 import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
 
@@ -44,9 +43,7 @@ public class BlindWaitActivity extends AppCompatActivity implements
     private static final String TAG = "VIWait";
 
     private String token;
-    private SharedPreferences pref;
 
-    private ListViewCompat waitingHelperList;
     private HelperListAdapter helperListAdapter;
 
     @Override
@@ -54,13 +51,15 @@ public class BlindWaitActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blind_wait);
 
-        pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
         token = pref.getString("token", "");
 
-        waitingHelperList = (ListViewCompat) findViewById(R.id.waiting_helper_list);
+        ListViewCompat waitingHelperList = (ListViewCompat) findViewById(R.id.waiting_helper_list);
         helperListAdapter = new HelperListAdapter(this, -1, new ArrayList<JSONObject>());
-        waitingHelperList.setAdapter(helperListAdapter);
-        waitingHelperList.setOnItemClickListener(this);
+        if (waitingHelperList != null) {
+            waitingHelperList.setAdapter(helperListAdapter);
+            waitingHelperList.setOnItemClickListener(this);
+        }
 
         AppCompatButton quitButton = (AppCompatButton) findViewById(R.id.vi_wait_quit_btn);
         if (quitButton != null) {
@@ -114,10 +113,7 @@ public class BlindWaitActivity extends AppCompatActivity implements
             builder.setPositiveButton(R.string.vi_wait_accept_button, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     // call select, go to videoactivity, NO NEED TO delete room
-                    MyRequest myRequest = new MyRequest();
-                    myRequest.add("blind_id", BlindWaitActivity.this.token);
-                    myRequest.add("helper_id", helperId);
-                    myRequest.getJSON("/api/select", new ServerRequest.DataListener() {
+                    ServerApi.selectHelper(token, helperId, new ServerRequest.DataListener() {
                         @Override
                         public void onReceiveData(String data) {
                             try {

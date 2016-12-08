@@ -121,4 +121,33 @@ public class ServerApi {
         params.add(new BasicNameValuePair("token", token));
         ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/deleteroom", params, listener);
     }
+
+    public static void selectHelper(String blindId, String helperId, ServerRequest.DataListener listener) {
+        ArrayList<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("blind_id", blindId));
+        params.add(new BasicNameValuePair("helper_id", helperId));
+        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/select", params, listener);
+    }
+
+    public static void addFriend(String myId, String friendId, ServerRequest.DataListener listener) {
+        ArrayList<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("m_id", myId));
+        params.add(new BasicNameValuePair("f_id", friendId));
+        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/addfriend", params, listener);
+    }
+
+    public static void rateHelper(String token, String helperId, String rate, ServerRequest.DataListener listener) {
+        ArrayList<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("token", token));
+        params.add(new BasicNameValuePair("ratee_id", helperId));
+        params.add(new BasicNameValuePair("rate", rate));
+        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/rate", params, listener);
+    }
+
+    public static void updateGcmToken(String token, String gcmToken, ServerRequest.DataListener listener) {
+        ArrayList<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("token", token));
+        params.add(new BasicNameValuePair("gcm_token", gcmToken));
+        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/updategcmtoken", params, listener);
+    }
 }

@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -20,9 +21,14 @@ import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
 import com.opentok.android.Connection;
 import com.opentok.android.OpentokError;
 import com.opentok.android.Publisher;
@@ -35,14 +41,19 @@ import com.opentok.android.SubscriberKit;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.Set;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
-import edu.sfsu.geng.newguideme.http.MyRequest;
+import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class BlindVideoActivity extends AppCompatActivity implements
+        EasyPermissions.PermissionCallbacks,
         Session.SessionListener,
         Session.ConnectionListener,
         PublisherKit.PublisherListener,
@@ -57,9 +68,12 @@ public class BlindVideoActivity extends AppCompatActivity implements
 
     private static final String TAG = "BlindVideo";
 
+    private static final int RC_SETTINGS_SCREEN_PERM = 123;
+    private static final int RC_VIDEO_APP_PERM = 124;
+
     private Session mSession;
     private Publisher mPublisher;
-//    private Connection helperConnection;
+    private Subscriber mSubscriber;
 
     private static final int UPDATE_INTERVAL = 2000;
     private static final int FASTEST_UPDATE_INTERVAL = 1000;
@@ -67,9 +81,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
     private LocationRequest mLocationRequest;
     private boolean googleClientInitialed, askForDestination;
 
-    private AppCompatButton quitButton, addButton;
-    private ToggleButton muteToggle, navigationToggle;
-    private SharedPreferences pref;
+    private AppCompatButton addFriendButton;
 
     private String sessionId, videoToken, token, helperId, helperName;
 
@@ -79,7 +91,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_blind_video);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
         token = pref.getString("token", "");
 
         sessionId = getIntent().getStringExtra("sessionId");
@@ -90,33 +102,52 @@ public class BlindVideoActivity extends AppCompatActivity implements
         googleClientInitialed = false;
         askForDestination = true;
 
-        // buttons
-        quitButton = (AppCompatButton) findViewById(R.id.blind_video_quit_btn);
-        quitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "Quit button onClicked");
-                AlertDialog.Builder builder = new AlertDialog.Builder(BlindVideoActivity.this);
-                builder.setMessage(R.string.blind_video_quit_confirm_message);
-                builder.setPositiveButton(R.string.blind_video_quit_confirm_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        quit();
-                    }
-                });
-                builder.setNegativeButton(R.string.blind_video_quit_cancel_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+        SupportPlaceAutocompleteFragment autocompleteFragment = (SupportPlaceAutocompleteFragment)
+                getSupportFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
 
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                // TODO: Get info about the selected place.
+                Log.i(TAG, "Place: " + place.getName());
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+                Log.i(TAG, "An error occurred: " + status);
             }
         });
 
-        addButton = (AppCompatButton) findViewById(R.id.blind_video_add_btn);
-        addButton.setOnClickListener(new View.OnClickListener() {
+        // buttons
+        AppCompatButton quitButton = (AppCompatButton) findViewById(R.id.blind_video_quit_btn);
+        if (quitButton != null) {
+            quitButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.d(TAG, "Quit button onClicked");
+                    AlertDialog.Builder builder = new AlertDialog.Builder(BlindVideoActivity.this);
+                    builder.setMessage(R.string.blind_video_quit_confirm_message);
+                    builder.setPositiveButton(R.string.blind_video_quit_confirm_button,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    quit();
+                                }
+                            });
+                    builder.setNegativeButton(R.string.blind_video_quit_cancel_button,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {}
+                            });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+            });
+        }
+
+        addFriendButton = (AppCompatButton) findViewById(R.id.blind_video_add_btn);
+        addFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(BlindVideoActivity.this);
@@ -125,8 +156,8 @@ public class BlindVideoActivity extends AppCompatActivity implements
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         send("add", "");
-                        addButton.setEnabled(false);
-                        addButton.setText(String.format(getResources().getString(R.string.blind_video_add_button_off), helperName));
+                        addFriendButton.setEnabled(false);
+                        addFriendButton.setText(String.format(getResources().getString(R.string.blind_video_add_button_off), helperName));
                     }
                 });
                 builder.setNegativeButton(R.string.blind_video_add_cancel_button, new DialogInterface.OnClickListener() {
@@ -139,81 +170,147 @@ public class BlindVideoActivity extends AppCompatActivity implements
                 dialog.show();
             }
         });
+
         Set<String> friends = pref.getStringSet("friendIds", null);
         if (friends != null && friends.contains(helperId)) {
-            addButton.setEnabled(false);
-            addButton.setText(String.format(getResources().getString(R.string.blind_video_add_button_off), helperName));
+            addFriendButton.setEnabled(false);
+            addFriendButton.setText(String.format(getResources().getString(R.string.blind_video_add_button_off), helperName));
         }
 
-        muteToggle = (ToggleButton) findViewById(R.id.blind_video_mute_toggle);
-        muteToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mPublisher.setPublishAudio(!isChecked);
-            }
-        });
-
-        navigationToggle = (ToggleButton) findViewById(R.id.blind_video_navigation_toggle);
-        navigationToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    if (askForDestination) {
-                        DestinationDialogFragment dialogFragment = new DestinationDialogFragment();
-                        dialogFragment.show(getSupportFragmentManager(), "DestinationDialog");
-                    }
-                    if (!googleClientInitialed) {
-                        googleClientInitialed = true;
-                        createLocationRequest();
-                        buildGoogleApiClient(BlindVideoActivity.this);
-                    }
-                    startLocationUpdates();
-                } else {
-                    stopLocationUpdates();
+        ToggleButton muteToggle = (ToggleButton) findViewById(R.id.blind_video_mute_toggle);
+        if (muteToggle != null) {
+            muteToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    mPublisher.setPublishAudio(!isChecked);
                 }
-            }
-        });
+            });
+        }
+
+        ToggleButton navigationToggle = (ToggleButton) findViewById(R.id.blind_video_navigation_toggle);
+        if (navigationToggle != null) {
+            navigationToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        if (askForDestination) {
+//                            DestinationDialogFragment dialogFragment = new DestinationDialogFragment();
+//                            dialogFragment.show(getSupportFragmentManager(), "DestinationDialog");
+                        }
+                        if (!googleClientInitialed) {
+                            googleClientInitialed = true;
+                            createLocationRequest();
+                            buildGoogleApiClient(BlindVideoActivity.this);
+                        }
+                        startLocationUpdates();
+                    } else {
+                        stopLocationUpdates();
+                    }
+                }
+            });
+        }
 
         // video session
-        mSession = new Session(this, Config.APIKEY, sessionId);
-        mSession.setSessionListener(this);
-        mSession.setSignalListener(this);
-//        mSession.connect(videoToken);
+        requestPermissions();
 
     }
 
     @Override
     protected void onResume() {
+        Log.d(TAG, "onResume");
+
         super.onResume();
-        if (mSession != null) {
-            mSession.connect(videoToken);
+
+        if (mSession == null) {
+            return;
         }
+        mSession.onResume();
     }
 
     @Override
     protected void onPause() {
+        Log.d(TAG, "onPause");
+
         super.onPause();
-        if (mSession != null) {
-            mSession.disconnect();
+
+        if (mSession == null) {
+            return;
+        }
+        mSession.onPause();
+
+        if (isFinishing()) {
+            disconnectSession();
         }
     }
 
-    private void quit() {
-        if (mSession != null) {
-            mSession.disconnect();
-        }
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "onDestroy");
 
+        disconnectSession();
+
+        super.onDestroy();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+        Log.d(TAG, "onPermissionsGranted:" + requestCode + ":" + perms.size());
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        Log.d(TAG, "onPermissionsDenied:" + requestCode + ":" + perms.size());
+
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            new AppSettingsDialog.Builder(this, getString(R.string.rationale_ask_again))
+                    .setTitle(getString(R.string.title_settings_dialog))
+                    .setPositiveButton(getString(R.string.setting))
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .setRequestCode(RC_SETTINGS_SCREEN_PERM)
+                    .build()
+                    .show();
+        }
+    }
+
+    @AfterPermissionGranted(RC_VIDEO_APP_PERM)
+    private void requestPermissions() {
+        String[] perms = { Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO };
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            mSession = new Session(BlindVideoActivity.this, Config.APIKEY, sessionId);
+            mSession.setSessionListener(this);
+            mSession.setSignalListener(this);
+            mSession.connect(videoToken);
+        } else {
+            EasyPermissions.requestPermissions(this, getString(R.string.rationale_video_app), RC_VIDEO_APP_PERM, perms);
+        }
+    }
+
+    private void toRate() {
         Intent rateActivity = new Intent(BlindVideoActivity.this, BlindRateActivity.class);
         rateActivity.putExtra("helperId", helperId);
         rateActivity.putExtra("helperName", helperName);
         startActivity(rateActivity);
+        startActivity(rateActivity);
+        finish();
+    }
+
+    private void quit() {
+        Intent homeActivity = new Intent(BlindVideoActivity.this, BlindHomeActivity.class);
+        startActivity(homeActivity);
         finish();
     }
 
     private void send(String event, String data) {
         Log.d(TAG, event + " - " + data);
-        if (mSession != null) {// && helperConnection != null) {
-            mSession.sendSignal(event, data);//, helperConnection);
+        if (mSession != null) {
+            mSession.sendSignal(event, data);
         }
     }
 
@@ -293,7 +390,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d(TAG, "GoogleApiClient connection failed");
     }
 
@@ -315,11 +412,30 @@ public class BlindVideoActivity extends AppCompatActivity implements
         askForDestination = false;
     }
 
+    private void disconnectSession() {
+        if (mSession == null) {
+            return;
+        }
+
+        if (mSubscriber != null) {
+            mSession.unsubscribe(mSubscriber);
+            mSubscriber.destroy();
+            mSubscriber = null;
+        }
+
+        if (mPublisher != null) {
+            mSession.unpublish(mPublisher);
+            mPublisher.destroy();
+            mPublisher = null;
+        }
+        mSession.disconnect();
+    }
+
     /* SessionListener */
     @Override
     public void onConnected(Session session) {
         Log.d(TAG, "SessionListener.onConnected is called");
-        mPublisher = new Publisher(this);
+        mPublisher = new Publisher(BlindVideoActivity.this, "blind to helper", true, true);
         mPublisher.setPublisherListener(this);
         mSession.publish(mPublisher);
         mPublisher.cycleCamera();
@@ -328,25 +444,42 @@ public class BlindVideoActivity extends AppCompatActivity implements
     @Override
     public void onDisconnected(Session session) {
         Log.d(TAG, "SessionListener.onDisconnected is called");
+        mSession = null;
     }
 
     @Override
     public void onStreamReceived(Session session, Stream stream) {
         Log.d(TAG, "SessionListener.onStreamReceived is called");
-        Subscriber subscriber = new Subscriber(this, stream);
-        subscriber.setVideoListener(this);
-        session.subscribe(subscriber);
+
+        if (mSubscriber != null) {
+            return;
+        }
+
+        subscribeToStream(stream);
     }
 
     @Override
     public void onStreamDropped(Session session, Stream stream) {
         Log.d(TAG, "SessionListener.onStreamDropped is called");
+
+        if (mSubscriber != null && mSubscriber.getStream().equals(stream)) {
+            mSubscriber.destroy();
+            mSubscriber = null;
+        }
+
         quit();
     }
 
     @Override
     public void onError(Session session, OpentokError opentokError) {
         Log.d(TAG, "SessionListener.onError: " + opentokError.getMessage());
+        quit();
+    }
+
+    private void subscribeToStream(Stream stream) {
+        mSubscriber = new Subscriber(BlindVideoActivity.this, stream);
+        mSubscriber.setVideoListener(this);
+        mSession.subscribe(mSubscriber);
     }
 
     /* ConnectionListener */
@@ -374,6 +507,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
     @Override
     public void onError(PublisherKit publisherKit, OpentokError opentokError) {
         Log.d(TAG, "PublisherListener.onError: " + opentokError.getMessage());
+        quit();
     }
 
     /* SubscriberListener */
@@ -425,7 +559,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
         switch (event) {
             case "add":
                 Log.d(TAG, "Receive add friend request");
-//                if (!addButton.isEnabled()) {
+//                if (!addFriendButton.isEnabled()) {
 //                    break;
 //                }
                 AlertDialog.Builder builder = new AlertDialog.Builder(BlindVideoActivity.this);
@@ -433,17 +567,14 @@ public class BlindVideoActivity extends AppCompatActivity implements
                 builder.setPositiveButton(R.string.blind_video_add_confirm_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        MyRequest myRequest = new MyRequest();
-                        myRequest.add("m_id", token);
-                        myRequest.add("f_id", helperId);
-                        myRequest.getJSON("/api/addfriend", new ServerRequest.DataListener() {
+                        ServerApi.addFriend(token, helperId, new ServerRequest.DataListener() {
                             @Override
                             public void onReceiveData(String data) {
                                 try {
                                     JSONObject json = new JSONObject(data);
                                     if (json.getBoolean("res")) {
-                                        addButton.setEnabled(false);
-                                        addButton.setText(String.format(getResources().getString(R.string.blind_video_add_button_off), helperName));
+                                        addFriendButton.setEnabled(false);
+                                        addFriendButton.setText(String.format(getResources().getString(R.string.blind_video_add_button_off), helperName));
                                     }
                                 } catch (JSONException e) {
                                     Log.e(TAG, "Server error while adding friend");

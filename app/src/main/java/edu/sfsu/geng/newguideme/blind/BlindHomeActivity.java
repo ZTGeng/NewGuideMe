@@ -32,8 +32,6 @@ import java.util.Set;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
-import edu.sfsu.geng.newguideme.helper.HelperHomeActivity;
-import edu.sfsu.geng.newguideme.http.MyRequest;
 import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
 import edu.sfsu.geng.newguideme.login.WelcomeActivity;

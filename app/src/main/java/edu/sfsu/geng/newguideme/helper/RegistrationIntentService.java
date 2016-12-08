@@ -17,7 +17,7 @@ import java.io.IOException;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
-import edu.sfsu.geng.newguideme.http.MyRequest;
+import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 /**
@@ -83,16 +83,12 @@ public class RegistrationIntentService extends IntentService {
      * Modify this method to associate the user's GCM registration token with any server-side account
      * maintained by your application.
      *
-     * @param token The new token.
+     * @param gcmToken The new token.
      */
-    private void sendRegistrationToServer(String token) {
+    private void sendRegistrationToServer(String gcmToken) {
         // Add custom implementation, as needed.
-        String id = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE).getString("token", "");
-        MyRequest myRequest = new MyRequest();
-        myRequest.add("token", id);
-        myRequest.add("gcm_token", token);
-
-        myRequest.getJSON("/api/updategcmtoken", new ServerRequest.DataListener() {
+        String token = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE).getString("token", "");
+        ServerApi.updateGcmToken(token, gcmToken, new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {
