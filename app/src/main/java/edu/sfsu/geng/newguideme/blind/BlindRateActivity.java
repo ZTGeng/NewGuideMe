@@ -21,10 +21,6 @@ import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 public class BlindRateActivity extends AppCompatActivity {
 
-    SharedPreferences pref;
-
-    private AppCompatButton submitBtn, cancelBtn;
-    private AppCompatButton decreaseBtn, increaseBtn;
     private TextView rateNumberText;
     private float rateFloat;
     private String helperId, helperName, token;
@@ -36,14 +32,14 @@ public class BlindRateActivity extends AppCompatActivity {
         helperId = getIntent().getStringExtra("helperId");
         helperName = getIntent().getStringExtra("helperName");
 
-        pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
         token = pref.getString("token", "");
 
         rateFloat = 5.0f;
         rateNumberText = (TextView) findViewById(R.id.vi_rate_number);
 
-        decreaseBtn = (AppCompatButton) findViewById(R.id.vi_rate_decrease_btn);
-        decreaseBtn.setOnClickListener(new View.OnClickListener() {
+        AppCompatButton decreaseButton = (AppCompatButton) findViewById(R.id.vi_rate_decrease_btn);
+        decreaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (rateFloat > 0) {
@@ -53,8 +49,8 @@ public class BlindRateActivity extends AppCompatActivity {
             }
         });
 
-        increaseBtn = (AppCompatButton) findViewById(R.id.vi_rate_increase_btn);
-        increaseBtn.setOnClickListener(new View.OnClickListener() {
+        AppCompatButton increaseButton = (AppCompatButton) findViewById(R.id.vi_rate_increase_btn);
+        increaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (rateFloat < 5) {
@@ -64,17 +60,17 @@ public class BlindRateActivity extends AppCompatActivity {
             }
         });
 
-        submitBtn = (AppCompatButton) findViewById(R.id.vi_rate_btn);
-        assert submitBtn != null;
-        submitBtn.setOnClickListener(new View.OnClickListener() {
+        AppCompatButton submitButton = (AppCompatButton) findViewById(R.id.vi_rate_btn);
+        assert submitButton != null;
+        submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onSubmit(v);
             }
         });
 
-        cancelBtn = (AppCompatButton) findViewById(R.id.vi_rate_cancel_btn);
-        cancelBtn.setOnClickListener(new View.OnClickListener() {
+        AppCompatButton cancelButton = (AppCompatButton) findViewById(R.id.vi_rate_cancel_btn);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onCancel(v);

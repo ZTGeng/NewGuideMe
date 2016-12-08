@@ -31,9 +31,9 @@ public class ServerRequest {
 
     private static final String TAG = "ServerRequest";
 
-    public static final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    private static final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
-    public static void getJSON(String url, List<NameValuePair> params, DataListener dataListener) {
+    static void getJSON(String url, List<NameValuePair> params, DataListener dataListener) {
 
         UPL upl = new UPL(url, params, dataListener);
         Request myTask = new Request();
@@ -44,7 +44,7 @@ public class ServerRequest {
 //        }
     }
 
-    public static void keepResAlive(String url, DataListener dataListener) {
+    static void keepResAlive(String url, DataListener dataListener) {
         UPL upl = new UPL(url, dataListener);
         AliveRequest myTask = new AliveRequest();
 //        try {

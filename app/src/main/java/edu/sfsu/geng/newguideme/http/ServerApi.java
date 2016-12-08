@@ -1,5 +1,7 @@
 package edu.sfsu.geng.newguideme.http;
 
+import android.support.annotation.NonNull;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import org.apache.http.NameValuePair;
@@ -8,146 +10,178 @@ import org.apache.http.message.BasicNameValuePair;
 import java.util.ArrayList;
 
 import edu.sfsu.geng.newguideme.Config;
+import edu.sfsu.geng.newguideme.http.ServerRequest.DataListener;
 
 /**
  * Created by Geng on 2016/11/20.
  */
-
 public class ServerApi {
 
-    public static void login(String email, String password, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("email", email));
-        params.add(new BasicNameValuePair("password", password));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/login", params, listener);
+    /* Account APIs */
+    public static void login(String email, String password, DataListener listener) {
+        new HttpRequest("/login", listener)
+                .add("email", email)
+                .add("password", password)
+                .send();
     }
 
-    public static void requestResetCode(String email, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("email", email));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/resetpass", params, listener);
+    public static void requestResetCode(String email, DataListener listener) {
+        new HttpRequest("/api/resetpass", listener)
+                .add("email", email)
+                .send();
     }
 
-    public static void resetPasswordWithCode(String email, String code, String newPassword, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("email", email));
-        params.add(new BasicNameValuePair("code", code));
-        params.add(new BasicNameValuePair("newpass", newPassword));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/resetpass/chg", params, listener);
+    public static void resetPasswordWithCode(String email, String code, String newPassword, DataListener listener) {
+        new HttpRequest("/api/resetpass/chg", listener)
+                .add("email", email)
+                .add("code", code)
+                .add("newpass", newPassword)
+                .send();
     }
 
-    public static void register(String email, String username, String password, String role, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("email", email));
-        params.add(new BasicNameValuePair("username", username));
-        params.add(new BasicNameValuePair("password", password));
-        params.add(new BasicNameValuePair("role", role));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/register", params, listener);
+    public static void register(String email, String username, String password, String role, DataListener listener) {
+        new HttpRequest("/register", listener)
+                .add("email", email)
+                .add("username", username)
+                .add("password", password)
+                .add("role", role)
+                .send();
     }
 
-    public static void changePassword(String token, String oldPassword, String newPassword, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("token", token));
-        params.add(new BasicNameValuePair("oldpass", oldPassword));
-        params.add(new BasicNameValuePair("newpass", newPassword));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/chgpass", params, listener);
+    public static void changePassword(String token, String oldPassword, String newPassword, DataListener listener) {
+        new HttpRequest("/api/chgpass", listener)
+                .add("token", token)
+                .add("oldpass", oldPassword)
+                .add("newpass", newPassword)
+                .send();
+    }
+    /* Account APIs ends */
+
+    /* Video chat APIs */
+    public static void getRoomList(String token, DataListener listener) {
+        new HttpRequest("/api/getroomlist", listener)
+                .add("token", token)
+                .send();
     }
 
-    public static void helperJoinRoom(String token, String roomId, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("token", token));
-        params.add(new BasicNameValuePair("room_id", roomId));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/helperjoinroom", params, listener);
+    public static void createPublicRoom(String token, String description, DataListener listener) {
+        new HttpRequest("/api/createpublicroom", listener)
+                .add("token", token)
+                .add("des", description)
+                .send();
     }
 
-    public static void getRoomList(String token, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("token", token));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/getroomlist", params, listener);
+    public static void blindDeleteRoom(String token, DataListener listener) {
+        new HttpRequest("/api/deleteroom", listener)
+                .add("token", token)
+                .send();
     }
 
-    public static void getRate(String token, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("token", token));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/getrate", params, listener);
+    public static void helperJoinRoom(String token, String roomId, DataListener listener) {
+        new HttpRequest("/api/helperjoinroom", listener)
+                .add("token", token)
+                .add("room_id", roomId)
+                .send();
     }
 
-    public static void getFriends(String token, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("token", token));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/getfriendlist", params, listener);
+    public static void helperLeaveRoom(String token, String roomId, DataListener listener) {
+        new HttpRequest("/api/helperleaveroom", listener)
+                .add("token", token)
+                .add("room_id", roomId)
+                .send();
     }
 
-    public static void blindKeepAlive(String token, ServerRequest.DataListener listener) {
+    public static void blindKeepAlive(String token, DataListener listener) {
         ServerRequest.keepResAlive(Config.SERVER_ADDRESS + "/api/blindkeepalive/" + token, listener);
     }
 
-    public static void helperKeepAlive(String token, String roomId, ServerRequest.DataListener listener) {
+    public static void helperKeepAlive(String token, String roomId, DataListener listener) {
         ServerRequest.keepResAlive(Config.SERVER_ADDRESS + "/api/helperkeepalive/" + token + "/" + roomId, listener);
     }
 
-    public static void helperLeaveRoom(String token, String roomId, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("token", token));
-        params.add(new BasicNameValuePair("room_id", roomId));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/helperleaveroom", params, listener);
+    public static void selectHelper(String blindId, String helperId, DataListener listener) {
+        new HttpRequest("/api/select", listener)
+                .add("blind_id", blindId)
+                .add("helper_id", helperId)
+                .send();
+    }
+    /* Video chat APIs ends */
+
+    /* Friend APIs */
+    public static void getFriends(String token, DataListener listener) {
+        new HttpRequest("/api/getfriendlist", listener)
+                .add("token", token)
+                .send();
     }
 
-    public static void getRoute(LatLng start, LatLng end, ServerRequest.DataListener listener) {
+    public static void addFriend(String myId, String friendId, DataListener listener) {
+        new HttpRequest("/api/addfriend", listener)
+                .add("m_id", myId)
+                .add("f_id", friendId)
+                .send();
+    }
+
+    public static void callFriendsById(String token, String friends, String description, DataListener listener) {
+        new HttpRequest("/api/callfriendsbyid", listener)
+                .add("token", token)
+                .add("friends", friends)
+                .add("des", description)
+                .send();
+    }
+
+    public static void updateGcmToken(String token, String gcmToken, DataListener listener) {
+        new HttpRequest("/api/updategcmtoken", listener)
+                .add("token", token)
+                .add("gcm_token", gcmToken)
+                .send();
+    }
+    /* Friend APIs ends */
+
+    /* Rate APIs */
+    public static void getRate(String token, DataListener listener) {
+        new HttpRequest("/api/getrate", listener)
+                .add("token", token)
+                .send();
+    }
+
+    public static void rateHelper(String token, String helperId, String rate, DataListener listener) {
+        new HttpRequest("/api/rate", listener)
+                .add("token", token)
+                .add("ratee_id", helperId)
+                .add("rate", rate)
+                .send();
+    }
+    /* Rate APIs ends */
+
+    /* Map APIs */
+    public static void getRoute(LatLng start, LatLng end, DataListener listener) {
         String url = "http://maps.googleapis.com/maps/api/directions/json" +
                 "?origin=" + start.latitude + "," + start.longitude +
                 "&destination=" + end.latitude + "," + end.longitude +
                 "&sensor=false&mode=walking";
         ServerRequest.getJSON(url, new ArrayList<NameValuePair>(), listener);
     }
+    /* Map APIs ends */
 
-    public static void createPublicRoom(String token, String description, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("token", token));
-        params.add(new BasicNameValuePair("des", description));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/createpublicroom", params, listener);
-    }
+    private static class HttpRequest {
 
-    public static void callFriendsById(String token, String friends, String description, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("token", token));
-        params.add(new BasicNameValuePair("friends", friends));
-        params.add(new BasicNameValuePair("des", description));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/callfriendsbyid", params, listener);
-    }
+        private ArrayList<NameValuePair> params = new ArrayList<>();
+        private String api;
+        private DataListener listener;
 
-    public static void blindDeleteRoom(String token, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("token", token));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/deleteroom", params, listener);
-    }
+        private HttpRequest(@NonNull String api, @NonNull DataListener listener) {
+            this.api = api;
+            this.listener = listener;
+        }
 
-    public static void selectHelper(String blindId, String helperId, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("blind_id", blindId));
-        params.add(new BasicNameValuePair("helper_id", helperId));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/select", params, listener);
-    }
+        @NonNull
+        HttpRequest add(@NonNull String name, @NonNull String value) {
+            params.add(new BasicNameValuePair(name, value));
+            return this;
+        }
 
-    public static void addFriend(String myId, String friendId, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("m_id", myId));
-        params.add(new BasicNameValuePair("f_id", friendId));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/addfriend", params, listener);
-    }
-
-    public static void rateHelper(String token, String helperId, String rate, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("token", token));
-        params.add(new BasicNameValuePair("ratee_id", helperId));
-        params.add(new BasicNameValuePair("rate", rate));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/rate", params, listener);
-    }
-
-    public static void updateGcmToken(String token, String gcmToken, ServerRequest.DataListener listener) {
-        ArrayList<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("token", token));
-        params.add(new BasicNameValuePair("gcm_token", gcmToken));
-        ServerRequest.getJSON(Config.SERVER_ADDRESS + "/api/updategcmtoken", params, listener);
+        void send() {
+            ServerRequest.getJSON(Config.SERVER_ADDRESS + api, params, listener);
+        }
     }
 }
