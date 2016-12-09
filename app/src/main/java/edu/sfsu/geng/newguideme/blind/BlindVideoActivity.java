@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -26,9 +27,9 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
+import com.google.android.gms.maps.model.LatLng;
 import com.opentok.android.Connection;
 import com.opentok.android.OpentokError;
 import com.opentok.android.Publisher;
@@ -55,15 +56,12 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class BlindVideoActivity extends AppCompatActivity implements
         EasyPermissions.PermissionCallbacks,
         Session.SessionListener,
-        Session.ConnectionListener,
         PublisherKit.PublisherListener,
-        Subscriber.SubscriberListener,
         Subscriber.VideoListener,
         Session.SignalListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener,
-        DestinationDialogFragment.DestinationListener
+        LocationListener
 {
 
     private static final String TAG = "BlindVideo";
@@ -79,11 +77,11 @@ public class BlindVideoActivity extends AppCompatActivity implements
     private static final int FASTEST_UPDATE_INTERVAL = 1000;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    private boolean googleClientInitialed, askForDestination;
 
     private AppCompatButton addFriendButton;
 
     private String sessionId, videoToken, token, helperId, helperName;
+    private boolean isVideoStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,23 +97,24 @@ public class BlindVideoActivity extends AppCompatActivity implements
         helperId = getIntent().getStringExtra("helperId");
         helperName = getIntent().getStringExtra("helperName");
 
-        googleClientInitialed = false;
-        askForDestination = true;
+        isVideoStart = false;
 
         SupportPlaceAutocompleteFragment autocompleteFragment = (SupportPlaceAutocompleteFragment)
                 getSupportFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-
+        autocompleteFragment.setHint(getString(R.string.blind_video_destination_hint));
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
                 // TODO: Get info about the selected place.
                 Log.i(TAG, "Place: " + place.getName());
+                LatLng latLng = place.getLatLng();
+                send("destination", String.valueOf(latLng.latitude) + "," + String.valueOf(latLng.longitude));
             }
 
             @Override
             public void onError(Status status) {
-                // TODO: Handle the error.
-                Log.i(TAG, "An error occurred: " + status);
+                Log.i(TAG, "Error when inputting address: " + status);
+                Toast.makeText(getApplicationContext(), R.string.blind_video_destination_error, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -193,15 +192,6 @@ public class BlindVideoActivity extends AppCompatActivity implements
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked) {
-                        if (askForDestination) {
-//                            DestinationDialogFragment dialogFragment = new DestinationDialogFragment();
-//                            dialogFragment.show(getSupportFragmentManager(), "DestinationDialog");
-                        }
-                        if (!googleClientInitialed) {
-                            googleClientInitialed = true;
-                            createLocationRequest();
-                            buildGoogleApiClient(BlindVideoActivity.this);
-                        }
                         startLocationUpdates();
                     } else {
                         stopLocationUpdates();
@@ -209,6 +199,9 @@ public class BlindVideoActivity extends AppCompatActivity implements
                 }
             });
         }
+
+        // Prepare location update
+        createLocationRequest();
 
         // video session
         requestPermissions();
@@ -218,25 +211,23 @@ public class BlindVideoActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         Log.d(TAG, "onResume");
-
         super.onResume();
 
-        if (mSession == null) {
-            return;
-        }
-        mSession.onResume();
+//        if (mSession == null) {
+//            return;
+//        }
+//        mSession.onResume();
     }
 
     @Override
     protected void onPause() {
         Log.d(TAG, "onPause");
-
         super.onPause();
 
-        if (mSession == null) {
-            return;
-        }
-        mSession.onPause();
+//        if (mSession == null) {
+//            return;
+//        }
+//        mSession.onPause();
 
         if (isFinishing()) {
             disconnectSession();
@@ -302,6 +293,10 @@ public class BlindVideoActivity extends AppCompatActivity implements
     }
 
     private void quit() {
+        if (isVideoStart) {
+            toRate();
+            return;
+        }
         Intent homeActivity = new Intent(BlindVideoActivity.this, BlindHomeActivity.class);
         startActivity(homeActivity);
         finish();
@@ -311,14 +306,6 @@ public class BlindVideoActivity extends AppCompatActivity implements
         Log.d(TAG, event + " - " + data);
         if (mSession != null) {
             mSession.sendSignal(event, data);
-        }
-    }
-
-    private void sendLocation(Location location) {
-        String latitude = String.valueOf(location.getLatitude());
-        String longitude = String.valueOf(location.getLongitude());
-        if (mSession != null) {
-            mSession.sendSignal("location", latitude + "," + longitude);
         }
     }
 
@@ -343,6 +330,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+        startLocationUpdates();
     }
 
     /**
@@ -351,14 +339,19 @@ public class BlindVideoActivity extends AppCompatActivity implements
     protected void startLocationUpdates() {
         if (mGoogleApiClient == null) {
             buildGoogleApiClient(this);
+            return;
         }
-        else if (!mGoogleApiClient.isConnected()) {
+        if (!mGoogleApiClient.isConnected()) {
             mGoogleApiClient.connect();
+            return;
         }
-        //only when current fragment is being viewed and location permission is granted
-        else if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        String[] perms = { Manifest.permission.ACCESS_FINE_LOCATION };
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            //noinspection MissingPermission
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
             Log.d(TAG, "Location is updating...");
+        } else {
+            EasyPermissions.requestPermissions(this, getString(R.string.ask_for_location_permission), RC_VIDEO_APP_PERM, perms);
         }
     }
 
@@ -376,6 +369,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
      */
     @Override
     public void onConnected(Bundle bundle) {
+        Log.d(TAG, "onConnected");
         startLocationUpdates();
     }
 
@@ -398,18 +392,11 @@ public class BlindVideoActivity extends AppCompatActivity implements
     @Override
     public void onLocationChanged(Location location) {
         Log.d(TAG, "onLocationChanged is called");
-        sendLocation(location);
-    }
-
-    /* DestinationListener */
-    @Override
-    public void onInput(String destination) {
-        send("destination", destination);
-    }
-
-    @Override
-    public void onNeverUse() {
-        askForDestination = false;
+        String latitude = String.valueOf(location.getLatitude());
+        String longitude = String.valueOf(location.getLongitude());
+        if (mSession != null) {
+            mSession.sendSignal("location", latitude + "," + longitude);
+        }
     }
 
     private void disconnectSession() {
@@ -482,17 +469,6 @@ public class BlindVideoActivity extends AppCompatActivity implements
         mSession.subscribe(mSubscriber);
     }
 
-    /* ConnectionListener */
-//    @Override
-//    public void onConnectionCreated(Session sessionId, Connection connection) {
-//        Log.d(TAG, "ConnectionListener.onConnectionCreated is called");
-//    }
-//
-//    @Override
-//    public void onConnectionDestroyed(Session sessionId, Connection connection) {
-//        Log.d(TAG, "ConnectionListener.onConnectionDestroyed is called");
-//    }
-
     /* PublisherListener */
     @Override
     public void onStreamCreated(PublisherKit publisherKit, Stream stream) {
@@ -510,46 +486,30 @@ public class BlindVideoActivity extends AppCompatActivity implements
         quit();
     }
 
-    /* SubscriberListener */
-    @Override
-    public void onConnected(SubscriberKit subscriberKit) {
-
-    }
-
-    @Override
-    public void onDisconnected(SubscriberKit subscriberKit) {
-
-    }
-
-    @Override
-    public void onError(SubscriberKit subscriberKit, OpentokError opentokError) {
-
-    }
-
     /* VideoListener, */
     @Override
     public void onVideoDataReceived(SubscriberKit subscriberKit) {
-
+        Log.d(TAG, "VideoListener.onVideoDataReceived");
     }
 
     @Override
     public void onVideoDisabled(SubscriberKit subscriberKit, String s) {
-
+        Log.d(TAG, "VideoListener.onVideoDisabled");
     }
 
     @Override
     public void onVideoEnabled(SubscriberKit subscriberKit, String s) {
-
+        Log.d(TAG, "VideoListener.onVideoEnabled");
     }
 
     @Override
     public void onVideoDisableWarning(SubscriberKit subscriberKit) {
-
+        Log.d(TAG, "VideoListener.onVideoDisableWarning");
     }
 
     @Override
     public void onVideoDisableWarningLifted(SubscriberKit subscriberKit) {
-
+        Log.d(TAG, "VideoListener.onVideoDisableWarningLifted");
     }
 
     /* SignalListener */
@@ -559,9 +519,6 @@ public class BlindVideoActivity extends AppCompatActivity implements
         switch (event) {
             case "add":
                 Log.d(TAG, "Receive add friend request");
-//                if (!addFriendButton.isEnabled()) {
-//                    break;
-//                }
                 AlertDialog.Builder builder = new AlertDialog.Builder(BlindVideoActivity.this);
                 builder.setMessage(String.format(getResources().getString(R.string.blind_video_add_request_message), helperName));
                 builder.setPositiveButton(R.string.blind_video_add_confirm_button, new DialogInterface.OnClickListener() {
@@ -599,16 +556,5 @@ public class BlindVideoActivity extends AppCompatActivity implements
                 Log.d(TAG, "Unhandled event: " + event + " - " + data);
                 break;
         }
-    }
-
-    /* ConnectionListener */
-    @Override
-    public void onConnectionCreated(Session session, Connection connection) {
-//        helperConnection = connection;
-    }
-
-    @Override
-    public void onConnectionDestroyed(Session session, Connection connection) {
-//        helperConnection = null;
     }
 }

@@ -83,7 +83,8 @@
     <string name="blind_video_navigation_on">Navigation is On</string>
     <string name="blind_video_navigation_off">Navigation is Off</string>
     <string name="blind_video_destination_message">Do You Want to Indicate a Destination? You can Do it Any Time You Turn on the Navigation.</string>
-    <string name="blind_video_destination_hint">Input Full Address</string>
+    <string name="blind_video_destination_hint">Send your destination</string>
+    <string name="blind_video_destination_error">Cannot set destination. Please try again!</string>
     <string name="blind_video_destination_confirm_button">Send</string>
     <string name="blind_video_destination_cancel_button">Not This Time</string>
     <string name="blind_video_destination_never_button">Never</string>
@@ -150,11 +151,9 @@
     <string name="helper_rate_ok_button">OK</string>
     <string name="helper_rate_change_button">Change</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
-
-    <string name="rationale_video_app">This app needs access to your camera and mic so you can perform video calls</string>
+    <string name="rationale_video_app">We needs access to your camera and mic so you can perform video calls</string>
+    <string name="ask_for_location_permission">We needs access to your location information for navigation</string>
     <string name="rationale_ask_again">This app may not work correctly without the requested permissions. Open the app settings screen to modify app permissions.</string>
     <string name="title_settings_dialog">Permissions Required</string>
     <string name="setting">Settings</string>

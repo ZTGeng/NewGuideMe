@@ -4,23 +4,18 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.LinearLayoutCompat;
-import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -46,10 +41,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
@@ -82,7 +75,8 @@ public class HelperVideoFragment extends Fragment
     private Subscriber mSubscriber;
 
     private GoogleMap mMap;
-    private Marker curLocationMarker, destinationMarker;
+    private LatLng curLatLng, destLatLng;
+    private Marker currentMarker, destinationMarker;
     private Polyline polyLine;
 
     private LinearLayoutCompat subscriberView;
@@ -90,7 +84,7 @@ public class HelperVideoFragment extends Fragment
 
     private String token, blindId, blindName;
     private String sessionId, videoToken;
-    private boolean mapInitialed, isMute;
+    private boolean isMute, isInitMap;
 
     private Listener listener;
     private LinearLayoutCompat mapLayout;
@@ -114,8 +108,9 @@ public class HelperVideoFragment extends Fragment
 
         mapLayout = (LinearLayoutCompat) view.findViewById(R.id.helper_video_map);
 
-        mapInitialed = false;
         isMute = false;
+        isInitMap = false;
+
         TypedValue typedValue = new TypedValue();
         getContext().getTheme().resolveAttribute(R.attr.colorAccent, typedValue, true);
         final int fabColor = typedValue.data;
@@ -224,8 +219,11 @@ public class HelperVideoFragment extends Fragment
         }
     }
 
-    private void initMap(final LatLng curLatLng) {
-        mapInitialed = true;
+    private void initMap() {
+        if (isInitMap) {
+            return;
+        }
+        isInitMap = true;
 
         if (mapLayout != null) {
             mapLayout.setVisibility(View.VISIBLE);
@@ -236,46 +234,61 @@ public class HelperVideoFragment extends Fragment
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mMap = googleMap;
-//                LatLng sf = new LatLng(37.722, -122.48);
-                curLocationMarker = mMap.addMarker(new MarkerOptions().position(curLatLng).title("User Location"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));
-                mMap.moveCamera(CameraUpdateFactory.zoomTo(15f));
+                if (curLatLng != null) {
+                    setLocation(curLatLng);
+                }
+                if (destLatLng != null) {
+                    setDestination(destLatLng);
+                }
             }
         });
     }
 
-    private void setDestination(String destination) {
-        if (mMap == null) return;
-
-        if (destinationMarker != null) {
-            destinationMarker.remove();
+    private void setLocation(LatLng location) {
+        if (mMap == null) {
+            curLatLng = location;
+            initMap();
+            return;
         }
 
-        Geocoder geocoder = new Geocoder(getContext());
-        List<Address> addresses;
-        try {
-            addresses = geocoder.getFromLocationName(destination, 1);
-            if (addresses.isEmpty()) {
-                Log.d(TAG, "Cannot find destination address");
-                return;
-            }
-            Address address = addresses.get(0);
-            destinationMarker = mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(address.getLatitude(), address.getLongitude()))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                    .title("Destination"));
-            setDirection();
-        } catch (IOException e) {
-            Log.e(TAG, "Error while get destination address");
-            e.printStackTrace();
+        if (currentMarker == null) {
+            currentMarker = mMap.addMarker(new MarkerOptions().position(location).title("User Location"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
+            mMap.moveCamera(CameraUpdateFactory.zoomTo(15f));
+        } else {
+            currentMarker.setPosition(location);
         }
     }
 
-    private void setDirection() {
-        if (curLocationMarker == null || destinationMarker == null) {
+    private void setDestination(LatLng destination) {
+        if (mMap == null) {
+            destLatLng = destination;
+            initMap();
             return;
         }
-        ServerApi.getRoute(curLocationMarker.getPosition(), destinationMarker.getPosition(), new ServerRequest.DataListener() {
+
+        if (destinationMarker == null) {
+            destinationMarker = mMap.addMarker(new MarkerOptions()
+                    .position(destination)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                    .title("Destination"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(destination));
+            mMap.moveCamera(CameraUpdateFactory.zoomTo(15f));
+        } else {
+            destinationMarker.setPosition(destination);
+            if (polyLine != null) {
+                polyLine.remove();
+            }
+        }
+
+        setRoute();
+    }
+
+    private void setRoute() {
+        if (currentMarker == null || destinationMarker == null) {
+            return;
+        }
+        ServerApi.getRoute(currentMarker.getPosition(), destinationMarker.getPosition(), new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {
@@ -502,24 +515,22 @@ public class HelperVideoFragment extends Fragment
                 dialog.show();
                 break;
             case "location":
-                String[] latLngStr = data.split(",");
-                if (latLngStr.length != 2) {
-                    Log.e(TAG, "Invalid location data");
+                String[] locLatLng = data.split(",");
+                if (locLatLng.length != 2) {
+                    Log.e(TAG, "Location format error: " + data);
                     break;
                 }
-                Log.d(TAG, "Receive location update: " + data);
-                LatLng latLng = new LatLng(Double.parseDouble(latLngStr[0]), Double.parseDouble(latLngStr[1]));
-                if (mapInitialed) {
-                    if (curLocationMarker != null) {
-                        curLocationMarker.setPosition(latLng);
-                    }
-                } else {
-                    initMap(latLng);
-                }
+//                Log.d(TAG, "Receive location update: " + data);
+                setLocation(new LatLng(Double.parseDouble(locLatLng[0]), Double.parseDouble(locLatLng[1])));
                 break;
             case "destination":
                 Log.d(TAG, "Receive destination: " + data);
-                setDestination(data);
+                String[] destLatLng = data.split(",");
+                if (destLatLng.length != 2) {
+                    Log.d(TAG, "Destination format error: " + data);
+                    break;
+                }
+                setDestination(new LatLng(Double.parseDouble(destLatLng[0]), Double.parseDouble(destLatLng[1])));
                 break;
             default:
                 Log.d(TAG, "Unhandled event: " + event + " - " + data);
