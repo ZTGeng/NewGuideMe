@@ -8,13 +8,6 @@
     android:fitsSystemWindows="true"
     tools:context=".blind.BlindWaitActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.NoActionBar.AppBarOverlay">
-
-    </android.support.design.widget.AppBarLayout>
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,26 +17,26 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/vi_wait_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:text="@string/blind_wait_hint"/>
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/vi_wait_quit_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="@string/vi_wait_quit_button"/>
+
+        <android.support.v7.widget.ListViewCompat
+            android:id="@+id/waiting_helper_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <android.support.v7.widget.ListViewCompat
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:id="@+id/waiting_helper_list">
-            </android.support.v7.widget.ListViewCompat>
-
-            <android.support.v7.widget.AppCompatButton
-                android:id="@+id/vi_wait_quit_btn"
-                android:text="@string/vi_wait_quit_button"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-        </LinearLayout>
+            android:layout_above="@id/vi_wait_quit_btn"
+            android:layout_below="@id/vi_wait_message"/>
 
     </RelativeLayout>
 

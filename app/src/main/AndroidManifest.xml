@@ -46,7 +46,7 @@
             android:name=".blind.BlindVideoActivity"
             android:label="@string/title_activity_blind_video"
             android:noHistory="true"
-            android:screenOrientation="landscape"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".blind.BlindRateActivity"
@@ -63,7 +63,7 @@
             android:name=".helper.HelperVideoActivity"
             android:label="@string/title_activity_helper_video"
             android:noHistory="true"
-            android:screenOrientation="landscape"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
