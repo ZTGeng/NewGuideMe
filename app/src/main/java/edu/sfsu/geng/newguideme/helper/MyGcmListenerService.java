@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
@@ -56,7 +55,9 @@ public class MyGcmListenerService extends GcmListenerService {
          * In some cases it may be useful to show a notification indicating to the user
          * that a message was received.
          */
-        sendNotification(senderName, roomId);
+        if (senderName != null && roomId != null) {
+            sendNotification(senderName, roomId);
+        }
         // [END_EXCLUDE]
     }
     // [END receive_message]
@@ -68,7 +69,7 @@ public class MyGcmListenerService extends GcmListenerService {
      * @param roomId GCM message received.
      */
     private void sendNotification(final String senderName, final String roomId) {
-        Intent helperWaitActivity = new Intent(MyGcmListenerService.this, HelperWaitActivity.class);
+        Intent helperWaitActivity = new Intent(MyGcmListenerService.this, HelperVideoActivity.class);
         helperWaitActivity.putExtra("blindId", roomId);
         helperWaitActivity.putExtra("blindName", senderName);
         helperWaitActivity.putExtra("needJoin", true);

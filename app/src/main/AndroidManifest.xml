@@ -20,7 +20,7 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCDjqkMR2wnLHFmmW145SRsVtNIts3nElQ"/>
-            <!--android:value="AIzaSyBfR312em44wB7NPmVXwAJouVjj9Rz7jes"/>-->
+        <!-- android:value="AIzaSyBfR312em44wB7NPmVXwAJouVjj9Rz7jes"/> -->
 
         <activity
             android:name=".login.WelcomeActivity"
@@ -57,17 +57,6 @@
             android:name=".helper.HelperHomeActivity"
             android:label="@string/app_name"
             android:launchMode="singleInstance"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity
-            android:name=".helper.HelperWaitActivity"
-            android:label="@string/title_activity_helper_wait"
-            android:noHistory="true"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity
-            android:name=".helper.HelperVideoActivity"
-            android:label="@string/title_activity_helper_video"
-            android:noHistory="true"
-            android:screenOrientation="locked"
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <receiver
@@ -106,6 +95,11 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>
 
+        <activity
+            android:name=".helper.HelperVideoActivity"
+            android:label="@string/title_activity_helper_video_new"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

@@ -200,7 +200,8 @@ public class HelperHomeActivity extends AppCompatActivity implements
                             try {
                                 JSONObject json = new JSONObject(data);
                                 if (json.getBoolean("res")) {
-                                    Intent helperWaitActivity = new Intent(HelperHomeActivity.this, HelperWaitActivity.class);
+                                    Intent helperWaitActivity = new Intent(HelperHomeActivity.this,
+                                            HelperVideoActivity.class);
                                     helperWaitActivity.putExtra("roomId", roomId);
                                     helperWaitActivity.putExtra("blindName", blindName);
                                     startActivity(helperWaitActivity);
