@@ -8,8 +8,6 @@
     <string name="title_activity_blind_rate">Rating</string>
     <string name="title_activity_helper_home">Helper User Home</string>
     <string name="title_activity_helper_video">Video for Helper User</string>
-    <string name="title_activity_helper_wait">Please Wait</string>
-    <string name="title_activity_helper_rate">Rating</string>
 
     <!-- Login and Register -->
     <string name="login_title">Enter email and password to login</string>
@@ -159,7 +157,6 @@
     <string name="setting">Settings</string>
     <string name="cancel">Cancel</string>
     <string name="buttonText">Click to begin please</string>
-    <string name="title_activity_helper_video_new">HelperVideoNewActivity</string>
     <string name="action_settings">Settings</string>
 
 </resources>

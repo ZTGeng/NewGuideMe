@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -19,47 +20,40 @@
 
         <fragment
             android:id="@+id/place_autocomplete_fragment"
+            android:name="com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:name="com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment"/>
+            android:layout_height="wrap_content"/>
 
-        <LinearLayout
+        <ToggleButton
+            android:id="@+id/blind_video_navigation_toggle"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
-            <ToggleButton
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:textOn="@string/blind_video_mute_on"
-                android:textOff="@string/blind_video_mute_off"
-                android:id="@+id/blind_video_mute_toggle"/>
-            <ToggleButton
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:textOn="@string/blind_video_navigation_on"
-                android:textOff="@string/blind_video_navigation_off"
-                android:id="@+id/blind_video_navigation_toggle"/>
-        </LinearLayout>
-        <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-            <android.support.v7.widget.AppCompatButton
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="@string/blind_video_add_button_on"
-                android:id="@+id/blind_video_add_btn"/>
-            <android.support.v7.widget.AppCompatButton
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="@string/blind_video_quit_button"
-                android:id="@+id/blind_video_quit_btn"/>
+            android:layout_weight="1"
+            android:textOff="@string/blind_video_navigation_off"
+            android:textOn="@string/blind_video_navigation_on"/>
 
-        </LinearLayout>
+        <ToggleButton
+            android:id="@+id/blind_video_mute_toggle"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:textOff="@string/blind_video_mute_off"
+            android:textOn="@string/blind_video_mute_on"/>
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/blind_video_add_btn"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="@string/blind_video_add_button_on"/>
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/blind_video_quit_btn"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="@string/blind_video_quit_button"/>
+
     </LinearLayout>
 
 

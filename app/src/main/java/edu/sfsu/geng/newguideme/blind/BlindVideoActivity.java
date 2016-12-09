@@ -105,7 +105,6 @@ public class BlindVideoActivity extends AppCompatActivity implements
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                // TODO: Get info about the selected place.
                 Log.i(TAG, "Place: " + place.getName());
                 LatLng latLng = place.getLatLng();
                 send("destination", String.valueOf(latLng.latitude) + "," + String.valueOf(latLng.longitude));
