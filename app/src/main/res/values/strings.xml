@@ -152,7 +152,9 @@
 
 
     <string name="rationale_video_app">We needs access to your camera and mic so you can perform video calls</string>
-    <string name="ask_for_location_permission">We needs access to your location information for navigation</string>
+    <string name="rationale_audio_app">We needs access to your mic so you can talk with the visual impairer</string>
+    <string name="rationale_location">We needs access to your location information for navigation</string>
+    <string name="rationale_all">We needs access to your camera, mic and your location information to provide you service.</string>
     <string name="rationale_ask_again">This app may not work correctly without the requested permissions. Open the app settings screen to modify app permissions.</string>
     <string name="title_settings_dialog">Permissions Required</string>
     <string name="setting">Settings</string>

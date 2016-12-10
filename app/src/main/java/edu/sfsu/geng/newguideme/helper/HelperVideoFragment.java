@@ -55,8 +55,8 @@ import pub.devrel.easypermissions.EasyPermissions;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class HelperVideoFragment extends Fragment
-        implements EasyPermissions.PermissionCallbacks,
+public class HelperVideoFragment extends Fragment implements
+        EasyPermissions.PermissionCallbacks,
         Session.SessionListener,
         Session.SignalListener,
         PublisherKit.PublisherListener,
@@ -66,7 +66,7 @@ public class HelperVideoFragment extends Fragment
     private static final String TAG = "HelperVideoFragment";
 
     private static final int RC_SETTINGS_SCREEN_PERM = 123;
-    private static final int RC_VIDEO_APP_PERM = 124;
+    private static final int RC_AUDIO_APP_PERM = 125;
 
     private static final int MUTE_COLOR = Color.GRAY;
 
@@ -413,16 +413,16 @@ public class HelperVideoFragment extends Fragment
         }
     }
 
-    @AfterPermissionGranted(RC_VIDEO_APP_PERM)
+    @AfterPermissionGranted(RC_AUDIO_APP_PERM)
     private void requestPermissions() {
-        String[] perms = { Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO };
+        String[] perms = { Manifest.permission.INTERNET, Manifest.permission.RECORD_AUDIO };
         if (EasyPermissions.hasPermissions(getContext(), perms)) {
             mSession = new Session(getContext(), Config.APIKEY, sessionId);
             mSession.setSessionListener(this);
             mSession.setSignalListener(this);
             mSession.connect(videoToken);
         } else {
-            EasyPermissions.requestPermissions(this, getString(R.string.rationale_video_app), RC_VIDEO_APP_PERM, perms);
+            EasyPermissions.requestPermissions(this, getString(R.string.rationale_audio_app), RC_AUDIO_APP_PERM, perms);
         }
     }
 

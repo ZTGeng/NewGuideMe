@@ -2,15 +2,14 @@ package edu.sfsu.geng.newguideme.blind;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
@@ -20,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -28,6 +28,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import edu.sfsu.geng.newguideme.Config;
@@ -36,15 +37,27 @@ import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
 import edu.sfsu.geng.newguideme.login.WelcomeActivity;
 import edu.sfsu.geng.newguideme.utils.ErrorCleanTextWatcher;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * Created by geng on 7/15/16.
  */
-public class BlindHomeActivity extends AppCompatActivity
-        implements StartCallDialogFragment.StartCallDialogListener,
+public class BlindHomeActivity extends AppCompatActivity implements
+        ActivityCompat.OnRequestPermissionsResultCallback,
+        EasyPermissions.PermissionCallbacks,
         SelectFriendDialogFragment.SelectFriendDialogListener
 {
     private static final String TAG = "VIHome";
+    private static final String[] BLIND_PERMISSIONS = {
+            Manifest.permission.INTERNET,
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION};
+    private static final int RC_BLIND_PERMS = 150;
+    private static final int RC_SETTINGS_SCREEN_PERM = 123;
 
     private SharedPreferences pref;
     private String token, description;
@@ -72,20 +85,6 @@ public class BlindHomeActivity extends AppCompatActivity
                     startCall();
                 }
             });
-        }
-
-        // Ask for permissions
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.RECORD_AUDIO,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-
-            }, 0);
         }
 
         friendIds = new HashSet<>();
@@ -124,12 +123,27 @@ public class BlindHomeActivity extends AppCompatActivity
     }
 
     /* Methods for the StartCallDialog */
-    private void startCall() {
-        StartCallDialogFragment dialogFragment = new StartCallDialogFragment();
-        dialogFragment.show(getSupportFragmentManager(), "StartCallDialogFragment");
+    @AfterPermissionGranted(RC_BLIND_PERMS)
+    public void startCall() {
+        if (EasyPermissions.hasPermissions(this, BLIND_PERMISSIONS)) {
+            final View view = getLayoutInflater().inflate(R.layout.start_call_dialog_layout, null);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.start_call_hint)
+                    .setView(view)
+                    .setPositiveButton(R.string.start_call_next, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            String description = ((EditText) view.findViewById(R.id.start_call_des_string)).getText()
+                                    .toString();
+                            onDescriptionInput(description);
+                        }
+                    })
+                    .setNegativeButton(R.string.start_call_cancel, null);
+            builder.create().show();
+        } else {
+            EasyPermissions.requestPermissions(this, getString(R.string.rationale_all), RC_BLIND_PERMS, BLIND_PERMISSIONS);
+        }
     }
 
-    @Override
     public void onDescriptionInput(String description) {
         this.description = description;
         // if no friends, call strangers.
@@ -333,6 +347,32 @@ public class BlindHomeActivity extends AppCompatActivity
     }
 
 
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+        Log.d(TAG, "onPermissionsGranted:" + requestCode + ":" + perms.size());
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        Log.d(TAG, "onPermissionsDenied:" + requestCode + ":" + perms.size());
+
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            new AppSettingsDialog.Builder(this, getString(R.string.rationale_ask_again))
+                    .setTitle(getString(R.string.title_settings_dialog))
+                    .setPositiveButton(getString(R.string.setting))
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .setRequestCode(RC_SETTINGS_SCREEN_PERM)
+                    .build()
+                    .show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
 }
 
 

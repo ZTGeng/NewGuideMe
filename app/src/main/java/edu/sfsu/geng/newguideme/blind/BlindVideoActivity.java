@@ -1,15 +1,12 @@
 package edu.sfsu.geng.newguideme.blind;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
@@ -42,19 +39,14 @@ import com.opentok.android.SubscriberKit;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
 import java.util.Set;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.AppSettingsDialog;
-import pub.devrel.easypermissions.EasyPermissions;
 
 public class BlindVideoActivity extends AppCompatActivity implements
-        EasyPermissions.PermissionCallbacks,
         Session.SessionListener,
         PublisherKit.PublisherListener,
         Subscriber.VideoListener,
@@ -65,9 +57,6 @@ public class BlindVideoActivity extends AppCompatActivity implements
 {
 
     private static final String TAG = "BlindVideo";
-
-    private static final int RC_SETTINGS_SCREEN_PERM = 123;
-    private static final int RC_VIDEO_APP_PERM = 124;
 
     private Session mSession;
     private Publisher mPublisher;
@@ -203,7 +192,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
         createLocationRequest();
 
         // video session
-        requestPermissions();
+        createSession();
 
     }
 
@@ -242,44 +231,11 @@ public class BlindVideoActivity extends AppCompatActivity implements
         super.onDestroy();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-    }
-
-    @Override
-    public void onPermissionsGranted(int requestCode, List<String> perms) {
-        Log.d(TAG, "onPermissionsGranted:" + requestCode + ":" + perms.size());
-    }
-
-    @Override
-    public void onPermissionsDenied(int requestCode, List<String> perms) {
-        Log.d(TAG, "onPermissionsDenied:" + requestCode + ":" + perms.size());
-
-        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
-            new AppSettingsDialog.Builder(this, getString(R.string.rationale_ask_again))
-                    .setTitle(getString(R.string.title_settings_dialog))
-                    .setPositiveButton(getString(R.string.setting))
-                    .setNegativeButton(getString(R.string.cancel), null)
-                    .setRequestCode(RC_SETTINGS_SCREEN_PERM)
-                    .build()
-                    .show();
-        }
-    }
-
-    @AfterPermissionGranted(RC_VIDEO_APP_PERM)
-    private void requestPermissions() {
-        String[] perms = { Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO };
-        if (EasyPermissions.hasPermissions(this, perms)) {
-            mSession = new Session(BlindVideoActivity.this, Config.APIKEY, sessionId);
-            mSession.setSessionListener(this);
-            mSession.setSignalListener(this);
-            mSession.connect(videoToken);
-        } else {
-            EasyPermissions.requestPermissions(this, getString(R.string.rationale_video_app), RC_VIDEO_APP_PERM, perms);
-        }
+    private void createSession() {
+        mSession = new Session(BlindVideoActivity.this, Config.APIKEY, sessionId);
+        mSession.setSessionListener(this);
+        mSession.setSignalListener(this);
+        mSession.connect(videoToken);
     }
 
     private void toRate() {
@@ -344,14 +300,9 @@ public class BlindVideoActivity extends AppCompatActivity implements
             mGoogleApiClient.connect();
             return;
         }
-        String[] perms = { Manifest.permission.ACCESS_FINE_LOCATION };
-        if (EasyPermissions.hasPermissions(this, perms)) {
-            //noinspection MissingPermission
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-            Log.d(TAG, "Location is updating...");
-        } else {
-            EasyPermissions.requestPermissions(this, getString(R.string.ask_for_location_permission), RC_VIDEO_APP_PERM, perms);
-        }
+        //noinspection MissingPermission
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        Log.d(TAG, "Location is updating...");
     }
 
     /**
