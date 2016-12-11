@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -102,6 +103,36 @@ public class HelperHomeActivity extends AppCompatActivity implements
                 }
             }
         };
+
+        final TextInputLayout inviteCodeInputLayout = (TextInputLayout) findViewById(R.id.invite_code_inputlayout);
+        final TextInputEditText inviteCodeEditText = (TextInputEditText) findViewById(R.id.invite_code_edittext);
+        inviteCodeEditText.addTextChangedListener(new ErrorCleanTextWatcher(inviteCodeInputLayout));
+
+        AppCompatButton addFriendButton = (AppCompatButton) findViewById(R.id.helper_home_add_friend_button);
+        addFriendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String inviteCode = inviteCodeEditText.getText().toString();
+                if (inviteCode.isEmpty()) {
+                    inviteCodeInputLayout.setError(getString(R.string.invite_code_empty_error));
+                    return;
+                }
+                ServerApi.addFriendByCode(token, inviteCode, new ServerRequest.DataListener() {
+                    @Override
+                    public void onReceiveData(String data) {
+                        try {
+                            JSONObject json = new JSONObject(data);
+                            Toast.makeText(HelperHomeActivity.this, json.getString("response"), Toast.LENGTH_SHORT).show();
+                        } catch (JSONException e) {
+                            e.getStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onClose() {}
+                });
+            }
+        });
 
         // Registering BroadcastReceiver
         registerReceiver();

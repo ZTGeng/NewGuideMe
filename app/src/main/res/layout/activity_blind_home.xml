@@ -63,7 +63,7 @@
                     android:layout_height="wrap_content"
                     android:layout_above="@id/invite_code_textview"
                     android:textAlignment="center"
-                    android:text="@string/invite_code_hint"/>
+                    android:text="@string/invite_code_message"/>
 
             </RelativeLayout>
 

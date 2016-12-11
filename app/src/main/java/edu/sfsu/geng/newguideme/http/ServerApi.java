@@ -135,6 +135,13 @@ public class ServerApi {
                 .add("f_id", friendId)
                 .send();
     }
+
+    public static void addFriendByCode(String token, String inviteCode, DataListener listener) {
+        new HttpRequest("/api/addfriendbycode", listener)
+                .add("token", token)
+                .add("invite_code", inviteCode)
+                .send();
+    }
     /* Friend APIs ends */
 
     public static void updateGcmToken(String token, String gcmToken, DataListener listener) {

@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_2x">
 
-            <android.support.v7.widget.AppCompatEditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/register_email_edittext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <android.support.v7.widget.AppCompatEditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/register_username_edittext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <android.support.v7.widget.AppCompatEditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/register_password_edittext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
