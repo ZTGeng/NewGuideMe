@@ -88,12 +88,14 @@ public class WelcomeActivity extends AppCompatActivity implements LoginListener 
                         String username = json.getString("username");
                         String role = json.getString("role");
                         String rate = json.getString("rate");
+                        String inviteCode = json.getString("invite_code");
 
                         SharedPreferences.Editor edit = pref.edit();
                         edit.putString("token", token);
                         edit.putString("username", username);
                         edit.putString("role", role);
                         edit.putString("rate", rate);
+                        edit.putString("invite_code", inviteCode);
                         edit.apply();
 
                         goHome(Role.valueOf(role));

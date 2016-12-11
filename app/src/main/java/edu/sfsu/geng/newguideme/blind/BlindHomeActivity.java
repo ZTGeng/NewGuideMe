@@ -73,6 +73,7 @@ public class BlindHomeActivity extends AppCompatActivity implements
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
         token = pref.getString("token", "");
         String username = pref.getString("username", "");
+        String inviteCode = pref.getString("invite_code", "");
         pref.edit().putBoolean("logged", true).apply();
 
         setTitle("Hi, " + username);
@@ -83,7 +84,10 @@ public class BlindHomeActivity extends AppCompatActivity implements
                 @Override
                 public void onClick(View v) {
                     if (friendIds == null || friendIds.isEmpty()) {
-                        Toast.makeText(BlindHomeActivity.this, R.string.no_friends_message, Toast.LENGTH_LONG)
+                        new AlertDialog.Builder(BlindHomeActivity.this)
+                                .setMessage(R.string.no_friends_message)
+                                .setPositiveButton(R.string.ok, null)
+                                .create()
                                 .show();
                         return;
                     }
@@ -117,6 +121,14 @@ public class BlindHomeActivity extends AppCompatActivity implements
                 }
             });
         }
+
+        AppCompatTextView inviteCodeText = (AppCompatTextView) findViewById(R.id.invite_code_textview);
+        StringBuilder inviteCodeString = new StringBuilder(11);
+        for (int i = 0; i < 5; i++) {
+            inviteCodeString.append(inviteCode.charAt(i)).append(" ");
+        }
+        inviteCodeString.append(inviteCode.charAt(5));
+        inviteCodeText.setText(inviteCodeString.toString());
 
         friendIds = new HashSet<>();
         friendNames = new HashSet<>();
