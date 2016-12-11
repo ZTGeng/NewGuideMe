@@ -1,5 +1,6 @@
 package edu.sfsu.geng.newguideme.login;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
@@ -8,6 +9,7 @@ import android.support.v7.app.AppCompatDialog;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatTextView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +27,8 @@ import edu.sfsu.geng.newguideme.utils.ErrorCleanTextWatcher;
  * A simple {@link Fragment} subclass.
  */
 public class LoginFragment extends Fragment {
+
+    private static final String TAG = "LoginFragment";
 
     private AppCompatEditText emailEditText, passwordEditText;
     private TextInputLayout emailInputLayout, passwordInputLayout;
@@ -60,6 +64,9 @@ public class LoginFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String emailText = emailEditText.getText().toString();
+                if (emailText.isEmpty()) {
+                    emailInputLayout.setError(getString(R.string.login_email_empty_error));
+                }
 
                 String passwordText = passwordEditText.getText().toString();
                 if (passwordText.isEmpty()) {
@@ -68,10 +75,50 @@ public class LoginFragment extends Fragment {
                 }
 
                 if (loginListener == null) {
+                    Log.d(TAG, "loginListener is empty");
                     return;
                 }
 
-                loginListener.login(emailText, passwordText);
+//                loginListener.login(emailText, passwordText);
+                ServerApi.login(emailText, passwordText, new ServerRequest.DataListener() {
+                    @Override
+                    public void onReceiveData(String data) {
+                        try{
+                            JSONObject json = new JSONObject(data);
+                            String message = json.getString("response");
+
+                            if (json.getBoolean("res")) {
+                                if (loginListener != null) {
+//                            loginListener.login(emailText, passwordText);
+                                    loginListener.login(json.getString("token"),
+                                            json.getString("username"),
+                                            json.getString("role"),
+                                            json.getString("rate"),
+                                            json.getString("invite_code"));
+                                } else {
+                                    Log.d(TAG, "loginListener is empty");
+                                }
+                            } else {
+                                String field = json.getString("field");
+                                switch (field) {
+                                    case "email":
+                                        emailInputLayout.setError(message);
+                                        break;
+                                    case "password":
+                                        passwordInputLayout.setError(message);
+                                        break;
+                                    default:
+                                        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onClose() {}
+                });
             }
         });
 
@@ -86,8 +133,10 @@ public class LoginFragment extends Fragment {
         return view;
     }
 
-    void setListener(LoginListener listener) {
-        this.loginListener = listener;
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.loginListener = (WelcomeActivity) getActivity();
     }
 
     private void createResetDialog() {

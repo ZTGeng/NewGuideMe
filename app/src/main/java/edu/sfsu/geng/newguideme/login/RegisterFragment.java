@@ -1,11 +1,14 @@
 package edu.sfsu.geng.newguideme.login;
 
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +28,8 @@ import edu.sfsu.geng.newguideme.utils.ErrorCleanTextWatcher;
  */
 public class RegisterFragment extends Fragment {
 
+    private static final String TAG = "registerFragment";
+
     private AppCompatEditText emailEditText, usernameEditText, passwordEditText;
     private TextInputLayout emailInputLayout, usernameInputLayout, passwordInputLayout;
 
@@ -33,7 +38,6 @@ public class RegisterFragment extends Fragment {
     public RegisterFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -81,8 +85,10 @@ public class RegisterFragment extends Fragment {
         return view;
     }
 
-    void setListener(LoginListener listener) {
-        this.loginListener = listener;
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.loginListener = (WelcomeActivity) getActivity();
     }
 
     private void register(Role role) {
@@ -112,7 +118,16 @@ public class RegisterFragment extends Fragment {
                     String message = json.getString("response");
 
                     if (json.getBoolean("res")) {
-                        loginListener.login(emailText, passwordText);
+                        if (loginListener != null) {
+//                            loginListener.login(emailText, passwordText);
+                            loginListener.login(json.getString("token"),
+                                    json.getString("username"),
+                                    json.getString("role"),
+                                    json.getString("rate"),
+                                    json.getString("invite_code"));
+                        } else {
+                            Log.d(TAG, "loginListener is empty");
+                        }
                     } else {
                         String field = json.getString("field");
                         switch (field) {

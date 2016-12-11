@@ -21,14 +21,18 @@ import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.ListViewCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -108,7 +112,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
         final TextInputEditText inviteCodeEditText = (TextInputEditText) findViewById(R.id.invite_code_edittext);
         inviteCodeEditText.addTextChangedListener(new ErrorCleanTextWatcher(inviteCodeInputLayout));
 
-        AppCompatButton addFriendButton = (AppCompatButton) findViewById(R.id.helper_home_add_friend_button);
+        final AppCompatButton addFriendButton = (AppCompatButton) findViewById(R.id.helper_home_add_friend_button);
         addFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -122,7 +126,15 @@ public class HelperHomeActivity extends AppCompatActivity implements
                     public void onReceiveData(String data) {
                         try {
                             JSONObject json = new JSONObject(data);
-                            Toast.makeText(HelperHomeActivity.this, json.getString("response"), Toast.LENGTH_SHORT).show();
+                            if (json.getBoolean("res")) {
+                                Toast.makeText(HelperHomeActivity.this, json.getString("response"), Toast.LENGTH_SHORT).show();
+                                inviteCodeEditText.setText("");
+                                inviteCodeEditText.clearFocus();
+                                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
+                                        .hideSoftInputFromWindow(inviteCodeEditText.getWindowToken(), 0);
+                            } else {
+                                inviteCodeInputLayout.setError(json.getString("response"));
+                            }
                         } catch (JSONException e) {
                             e.getStackTrace();
                         }
@@ -131,6 +143,17 @@ public class HelperHomeActivity extends AppCompatActivity implements
                     @Override
                     public void onClose() {}
                 });
+            }
+        });
+
+        inviteCodeEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    addFriendButton.performClick();
+                    return true;
+                }
+                return false;
             }
         });
 

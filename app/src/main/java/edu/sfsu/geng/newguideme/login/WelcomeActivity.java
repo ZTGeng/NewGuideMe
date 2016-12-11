@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -66,51 +67,25 @@ public class WelcomeActivity extends AppCompatActivity implements LoginListener 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         LoginFragment loginFragment = new LoginFragment();
-        loginFragment.setListener(this);
         adapter.addFragment(loginFragment, getString(R.string.login_login));
 
         RegisterFragment registerFragment = new RegisterFragment();
-        registerFragment.setListener(this);
         adapter.addFragment(registerFragment, getString(R.string.login_register));
 
         viewPager.setAdapter(adapter);
     }
 
     @Override
-    public void login(String email, String password) {
-        ServerApi.login(email, password, new ServerRequest.DataListener() {
-            @Override
-            public void onReceiveData(String data) {
-                try{
-                    JSONObject json = new JSONObject(data);
-                    if(json.getBoolean("res")){
-                        String token = json.getString("token");
-                        String username = json.getString("username");
-                        String role = json.getString("role");
-                        String rate = json.getString("rate");
-                        String inviteCode = json.getString("invite_code");
+    public void login(String token, String username, String role, String rate, String inviteCode) {
+        pref.edit()
+                .putString("token", token)
+                .putString("username", username)
+                .putString("role", role)
+                .putString("rate", rate)
+                .putString("invite_code", inviteCode)
+                .apply();
 
-                        SharedPreferences.Editor edit = pref.edit();
-                        edit.putString("token", token);
-                        edit.putString("username", username);
-                        edit.putString("role", role);
-                        edit.putString("rate", rate);
-                        edit.putString("invite_code", inviteCode);
-                        edit.apply();
-
-                        goHome(Role.valueOf(role));
-                    } else {
-                        String jsonStr = json.getString("response");
-                        Toast.makeText(WelcomeActivity.this, jsonStr, Toast.LENGTH_SHORT).show();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onClose() {}
-        });
+        goHome(Role.valueOf(role));
     }
 
     private void goHome(Role role) {
@@ -122,6 +97,9 @@ public class WelcomeActivity extends AppCompatActivity implements LoginListener 
             case helper:
                 homeActivity = new Intent(WelcomeActivity.this, HelperHomeActivity.class);
                 break;
+            default:
+                Log.d(TAG, "Role error");
+                return;
         }
         startActivity(homeActivity);
         finish();
