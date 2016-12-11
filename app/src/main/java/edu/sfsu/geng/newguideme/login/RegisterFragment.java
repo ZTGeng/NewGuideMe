@@ -119,7 +119,6 @@ public class RegisterFragment extends Fragment {
 
                     if (json.getBoolean("res")) {
                         if (loginListener != null) {
-//                            loginListener.login(emailText, passwordText);
                             loginListener.login(json.getString("token"),
                                     json.getString("username"),
                                     json.getString("role"),

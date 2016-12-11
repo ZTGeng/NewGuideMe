@@ -79,7 +79,6 @@ public class LoginFragment extends Fragment {
                     return;
                 }
 
-//                loginListener.login(emailText, passwordText);
                 ServerApi.login(emailText, passwordText, new ServerRequest.DataListener() {
                     @Override
                     public void onReceiveData(String data) {
@@ -89,7 +88,6 @@ public class LoginFragment extends Fragment {
 
                             if (json.getBoolean("res")) {
                                 if (loginListener != null) {
-//                            loginListener.login(emailText, passwordText);
                                     loginListener.login(json.getString("token"),
                                             json.getString("username"),
                                             json.getString("role"),

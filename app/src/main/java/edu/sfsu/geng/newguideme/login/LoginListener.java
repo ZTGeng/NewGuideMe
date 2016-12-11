@@ -5,6 +5,5 @@ package edu.sfsu.geng.newguideme.login;
  */
 
 public interface LoginListener {
-//    void login(String email, String password);
     void login(String token, String username, String role, String rate, String inviteCode);
 }
