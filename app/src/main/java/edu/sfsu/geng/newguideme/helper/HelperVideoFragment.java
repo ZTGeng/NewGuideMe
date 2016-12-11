@@ -84,7 +84,7 @@ public class HelperVideoFragment extends Fragment implements
 
     private String token, blindId, blindName;
     private String sessionId, videoToken;
-    private boolean isMute, isInitMap;
+    private boolean isMute, isInitMap, showAddFriendButton = true;
 
     private Listener listener;
     private LinearLayoutCompat mapLayout;
@@ -141,6 +141,7 @@ public class HelperVideoFragment extends Fragment implements
         }
 
         addFriendButton = (FloatingActionButton) view.findViewById(R.id.helper_video_add_button);
+        addFriendButton.setVisibility(showAddFriendButton ? View.VISIBLE : View.GONE);
         addFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -206,7 +207,7 @@ public class HelperVideoFragment extends Fragment implements
     }
 
     void hideAddFriendButton() {
-        addFriendButton.setVisibility(View.GONE);
+        showAddFriendButton = false;
     }
 
     void setListener(@NonNull Listener listener) {

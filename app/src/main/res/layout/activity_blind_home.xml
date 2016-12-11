@@ -32,12 +32,41 @@
             android:orientation="vertical">
 
             <android.support.v7.widget.AppCompatButton
+                android:id="@+id/call_friends_button"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:layout_margin="5dp"
-                android:text="@string/call_button"
-                android:id="@+id/call_btn"/>
+                android:text="@string/call_friends_button"/>
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/call_strangers_button"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@string/call_strangers_button"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="2">
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/invite_code_textview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:textAlignment="center"
+                    style="@style/InviteCodeStyle"
+                    android:text="q w e 2 3 t"/>
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@id/invite_code_textview"
+                    android:textAlignment="center"
+                    android:text="@string/invite_code_hint"/>
+
+            </RelativeLayout>
 
         </android.support.v7.widget.LinearLayoutCompat>
     </android.support.v7.widget.LinearLayoutCompat>

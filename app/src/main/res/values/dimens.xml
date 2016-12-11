@@ -10,4 +10,5 @@
     <dimen name="space_4x">40dp</dimen>
     <dimen name="space_5x">50dp</dimen>
     <dimen name="dialog_width">300dp</dimen>
+    <dimen name="alert_image_size">50dp</dimen>
 </resources>

@@ -119,6 +119,17 @@ public class HelperHomeActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        // If come from GCM notify, join room directly.
+        String roomId = intent.getStringExtra("roomId");
+        String blindName = intent.getStringExtra("blindName");
+        if (roomId != null && blindName != null) {
+            tryJoinRoom(roomId, blindName);
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         registerReceiver();
@@ -180,36 +191,11 @@ public class HelperHomeActivity extends AppCompatActivity implements
         try {
             final String roomId = room.getString("room_id");
             final String blindName = room.getString("username");
-            final String token = this.token;
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(String.format(getResources().getString(R.string.room_confirm_message), blindName));
             builder.setPositiveButton(R.string.room_enter_button, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    ServerApi.helperJoinRoom(token, roomId, new ServerRequest.DataListener() {
-                        @Override
-                        public void onReceiveData(String data) {
-                            try {
-                                JSONObject json = new JSONObject(data);
-                                if (json.getBoolean("res")) {
-                                    Intent helperWaitActivity = new Intent(HelperHomeActivity.this,
-                                            HelperVideoActivity.class);
-                                    helperWaitActivity.putExtra("roomId", roomId);
-                                    helperWaitActivity.putExtra("blindName", blindName);
-                                    startActivity(helperWaitActivity);
-                                    finish();
-                                } else {
-                                    Toast.makeText(getApplication(), R.string.helper_home_join_error, Toast.LENGTH_SHORT).show();
-                                    asyncUpdateRooms();
-                                }
-                            } catch (JSONException e) {
-                                e.getStackTrace();
-                                Toast.makeText(getApplication(), R.string.helper_home_call_error, Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onClose() {}
-                    });
+                    tryJoinRoom(roomId, blindName);
                 }
             });
             builder.setNegativeButton(R.string.room_cancel_button, new DialogInterface.OnClickListener() {
@@ -229,6 +215,33 @@ public class HelperHomeActivity extends AppCompatActivity implements
     public void onRefresh() {
         asyncUpdateRooms();
         swipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void tryJoinRoom(final String roomId, final String blindName) {
+        ServerApi.helperJoinRoom(token, roomId, new ServerRequest.DataListener() {
+            @Override
+            public void onReceiveData(String data) {
+                try {
+                    JSONObject json = new JSONObject(data);
+                    if (json.getBoolean("res")) {
+                        Intent helperWaitActivity = new Intent(HelperHomeActivity.this, HelperVideoActivity.class);
+                        helperWaitActivity.putExtra("roomId", roomId);
+                        helperWaitActivity.putExtra("blindName", blindName);
+                        startActivity(helperWaitActivity);
+                        finish();
+                    } else {
+                        Toast.makeText(getApplication(), R.string.helper_home_join_error, Toast.LENGTH_SHORT).show();
+                        asyncUpdateRooms();
+                    }
+                } catch (JSONException e) {
+                    e.getStackTrace();
+                    Toast.makeText(getApplication(), R.string.helper_home_call_error, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onClose() {}
+        });
     }
 
     /* private methods */

@@ -64,8 +64,23 @@ public class ServerApi {
                 .send();
     }
 
-    public static void createPublicRoom(String token, String description, DataListener listener) {
-        new HttpRequest("/api/createpublicroom", listener)
+    public static void callStrangers(String token, String description, DataListener listener) {
+        new HttpRequest("/api/callstrangers", listener)
+                .add("token", token)
+                .add("des", description)
+                .send();
+    }
+
+    public static void callFriendsById(String token, String friends, String description, DataListener listener) {
+        new HttpRequest("/api/callfriendsbyid", listener)
+                .add("token", token)
+                .add("friends", friends)
+                .add("des", description)
+                .send();
+    }
+
+    public static void callAllFriends(String token, String description, DataListener listener) {
+        new HttpRequest("/api/callallfriends", listener)
                 .add("token", token)
                 .add("des", description)
                 .send();
@@ -120,14 +135,7 @@ public class ServerApi {
                 .add("f_id", friendId)
                 .send();
     }
-
-    public static void callFriendsById(String token, String friends, String description, DataListener listener) {
-        new HttpRequest("/api/callfriendsbyid", listener)
-                .add("token", token)
-                .add("friends", friends)
-                .add("des", description)
-                .send();
-    }
+    /* Friend APIs ends */
 
     public static void updateGcmToken(String token, String gcmToken, DataListener listener) {
         new HttpRequest("/api/updategcmtoken", listener)
@@ -135,7 +143,6 @@ public class ServerApi {
                 .add("gcm_token", gcmToken)
                 .send();
     }
-    /* Friend APIs ends */
 
     /* Rate APIs */
     public static void getRate(String token, DataListener listener) {

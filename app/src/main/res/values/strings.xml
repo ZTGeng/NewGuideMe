@@ -52,7 +52,15 @@
 
     <!-- Blind Home -->
     <string name="friend_hint">Call a Favorite or Anyone?</string>
-    <string name="call_button">Start a Video Calling</string>
+    <string name="call_friends_button">Request help from your favorites</string>
+    <string name="call_strangers_button">Request help from strangers</string>
+    <string name="no_friends_message">We didn\'t find any favorites. Tell your favorites your invite code showing
+        below to invite them to use this app.</string>
+    <string name="call_strangers_title">Warning</string>
+    <string name="call_strangers_warning">Request help from strangers could be dangerous. We don\'t know who is
+        behind the screen. Be very cautious when talking with them. Are you sure you want to request help from
+        strangers?</string>
+    <string name="invite_code_hint">Your favorites can find you with invite code:</string>
     <string name="start_call_hint">Please Input a Description about the Help You Need</string>
     <string name="start_call_cancel">Cancel</string>
     <string name="start_call_next">Next</string>
@@ -79,8 +87,8 @@
     <!-- Blind Video -->
     <string name="blind_video_mute_on">Mute is On</string>
     <string name="blind_video_mute_off">Mute is Off</string>
-    <string name="blind_video_navigation_on">Navigation is On</string>
-    <string name="blind_video_navigation_off">Navigation is Off</string>
+    <string name="blind_video_navigation_on">Navigation is On. Helper can see your location.</string>
+    <string name="blind_video_navigation_off">Navigation is Off. Helper can not see your location.</string>
     <string name="blind_video_destination_message">Do You Want to Indicate a Destination? You can Do it Any Time You Turn on the Navigation.</string>
     <string name="blind_video_destination_hint">Send your destination</string>
     <string name="blind_video_destination_error">Cannot set destination. Please try again!</string>
@@ -120,7 +128,8 @@
         sending the fetched token to the server or subscribing to the PubSub topic. Please try
         running the sample again.</string>
     <string name="token_error_message_short">Error While Update GCM Token!</string>
-    <string name="notify_message">%1$s Need Your Help</string>
+    <string name="notify_message">%1$s requests your help.</string>
+    <string name="notify_title">GuideMe Message</string>
     <string name="helper_home_call_error">Cannot Call the User. Please Try Later</string>
     <string name="helper_home_join_error">This User has Got Help from Other Helpers</string>
     <string name="helper_home_operation_hint">Click Blind Users to Help. Swipe Down to Refresh.</string>
@@ -150,6 +159,12 @@
     <string name="helper_rate_ok_button">OK</string>
     <string name="helper_rate_change_button">Change</string>
 
+    <!-- buttons -->
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
+    <string name="next">Next</string>
+    <string name="ok">OK</string>
+
 
     <string name="rationale_video_app">We needs access to your camera and mic so you can perform video calls</string>
     <string name="rationale_audio_app">We needs access to your mic so you can talk with the visual impairer</string>
@@ -158,7 +173,6 @@
     <string name="rationale_ask_again">This app may not work correctly without the requested permissions. Open the app settings screen to modify app permissions.</string>
     <string name="title_settings_dialog">Permissions Required</string>
     <string name="setting">Settings</string>
-    <string name="cancel">Cancel</string>
     <string name="buttonText">Click to begin please</string>
     <string name="action_settings">Settings</string>
 

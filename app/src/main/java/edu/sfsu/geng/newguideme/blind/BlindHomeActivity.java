@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -26,10 +27,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
@@ -46,8 +45,8 @@ import pub.devrel.easypermissions.EasyPermissions;
  */
 public class BlindHomeActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback,
-        EasyPermissions.PermissionCallbacks,
-        SelectFriendDialogFragment.SelectFriendDialogListener
+        EasyPermissions.PermissionCallbacks
+//        SelectFriendDialogFragment.SelectFriendDialogListener
 {
     private static final String TAG = "VIHome";
     private static final String[] BLIND_PERMISSIONS = {
@@ -60,8 +59,9 @@ public class BlindHomeActivity extends AppCompatActivity implements
     private static final int RC_SETTINGS_SCREEN_PERM = 123;
 
     private SharedPreferences pref;
-    private String token, description;
+    private String token;
     private HashSet<String> friendIds, friendNames;
+    private boolean callFriend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,12 +77,43 @@ public class BlindHomeActivity extends AppCompatActivity implements
 
         setTitle("Hi, " + username);
 
-        AppCompatButton callButton = (AppCompatButton) findViewById(R.id.call_btn);
-        if (callButton != null) {
-            callButton.setOnClickListener(new View.OnClickListener() {
+        AppCompatButton callFriendsButton = (AppCompatButton) findViewById(R.id.call_friends_button);
+        if (callFriendsButton != null) {
+            callFriendsButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (friendIds == null || friendIds.isEmpty()) {
+                        Toast.makeText(BlindHomeActivity.this, R.string.no_friends_message, Toast.LENGTH_LONG)
+                                .show();
+                        return;
+                    }
+                    callFriend = true; // Because startCall cannot have params, otherwise EasyPermissions gets error
                     startCall();
+                }
+            });
+        }
+
+        AppCompatButton callStrangersButton = (AppCompatButton) findViewById(R.id.call_strangers_button);
+        if (callStrangersButton != null) {
+            callStrangersButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(BlindHomeActivity.this);
+                    final View view = getLayoutInflater().inflate(R.layout.warning_dialog_layout, null);
+                    ((AppCompatTextView) view.findViewById(R.id.warning_dialog_text)).setText(R.string.call_strangers_warning);
+                    builder.setTitle(R.string.call_strangers_title)
+                            .setView(view)
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    callFriend = false;
+                                    startCall();
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, null)
+                            .create()
+                            .show();
+
                 }
             });
         }
@@ -134,7 +165,11 @@ public class BlindHomeActivity extends AppCompatActivity implements
                         public void onClick(DialogInterface dialog, int id) {
                             String description = ((EditText) view.findViewById(R.id.start_call_des_string)).getText()
                                     .toString();
-                            onDescriptionInput(description);
+                            if (callFriend) {
+                                callAllFriends(description);
+                            } else {
+                                callStrangers(description);
+                            }
                         }
                     })
                     .setNegativeButton(R.string.start_call_cancel, null);
@@ -144,46 +179,9 @@ public class BlindHomeActivity extends AppCompatActivity implements
         }
     }
 
-    public void onDescriptionInput(String description) {
-        this.description = description;
-        // if no friends, call strangers.
-        if (friendIds == null || friendIds.isEmpty()) {
-            callStrangers();
-        } else {
-            selectFriend();
-        }
-    }
-
-    /* Methods for the SelectFriendDialog */
-    private void selectFriend() {
-        SelectFriendDialogFragment friendDialogFragment = new SelectFriendDialogFragment();
-        friendDialogFragment.show(getSupportFragmentManager(), "SelectFriendDialogFragment");
-    }
-
-    @Override
-    public void onFriendSelect(ArrayList<String> selectedFriends) {
-        // friends is not null, otherwise the selectFriendDialog will not start
-        if (selectedFriends.isEmpty()) {
-            callStrangers();
-        } else {
-            StringBuilder stringBuilder = new StringBuilder();
-            for (String friend : selectedFriends) {
-                stringBuilder.append(friend).append(",");
-            }
-            callFriends(stringBuilder.substring(0, stringBuilder.length() - 1));
-        }
-    }
-
-    // friends should not be null. Just in case.
-    @Override
-    public Set<String> getFriends() {
-        return friendNames != null ? friendNames : new HashSet<String>();
-    }
-
-
     /* Methods for the Calling */
-    private void callStrangers() {
-        ServerApi.createPublicRoom(token, description, new ServerRequest.DataListener() {
+    private void callStrangers(String description) {
+        ServerApi.callStrangers(token, description, new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {
@@ -206,8 +204,8 @@ public class BlindHomeActivity extends AppCompatActivity implements
         });
     }
 
-    private void callFriends(String friends) {
-        ServerApi.callFriendsById(token, friends, description, new ServerRequest.DataListener() {
+    private void callAllFriends(String description) {
+        ServerApi.callAllFriends(token, description, new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {
@@ -217,7 +215,7 @@ public class BlindHomeActivity extends AppCompatActivity implements
                         startActivity(blindWaitActivity);
                         finish();
                     } else {
-                        Log.e(TAG, "Fail to call friends!");
+                        Log.e(TAG, "Fail to call all friends!");
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

@@ -9,5 +9,4 @@
 
     <include layout="@layout/content_blind_video" />
 
-
 </android.support.design.widget.CoordinatorLayout>
