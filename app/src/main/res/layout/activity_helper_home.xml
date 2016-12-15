@@ -36,24 +36,52 @@
             <android.support.v7.widget.AppCompatTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
+                android:gravity="center"
                 android:text="@string/helper_home_operation_message" />
 
-            <android.support.v4.widget.SwipeRefreshLayout
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/swipe_refresh"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1">
 
-                <android.support.v7.widget.ListViewCompat
-                    android:id="@+id/room_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="@dimen/space_1x">
-                </android.support.v7.widget.ListViewCompat>
+                <android.support.v7.widget.LinearLayoutCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center">
 
-            </android.support.v4.widget.SwipeRefreshLayout>
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_touch_app_black_48dp"
+                        android:tint="@color/colorPrimary"
+                        android:alpha="0.5"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_arrow_downward_black_48dp"
+                        android:tint="@color/colorPrimary"
+                        android:alpha="0.5"/>
+
+                </android.support.v7.widget.LinearLayoutCompat>
+
+                <android.support.v4.widget.SwipeRefreshLayout
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/swipe_refresh"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <android.support.v7.widget.ListViewCompat
+                        android:id="@+id/room_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/space_1x"
+                        >
+                    </android.support.v7.widget.ListViewCompat>
+
+                </android.support.v4.widget.SwipeRefreshLayout>
+
+            </FrameLayout>
 
             <android.support.v7.widget.LinearLayoutCompat
                 android:layout_width="match_parent"

@@ -21,8 +21,8 @@
     <string name="login_password_empty_error">Password can\'t be Empty</string>
     <string name="login_password_short_error">Password should be %1$d characters or more</string>
     <string name="login_password_not_match_error">Password Not Match</string>
-    <string name="login_register_button_v">I am a Visual Impairer</string>
-    <string name="login_register_button_h">I am a Helper</string>
+    <string name="login_register_button_v">I am a visual impaired person</string>
+    <string name="login_register_button_h">I am a helper</string>
     <string name="login_forgot_password">Forgot Password</string>
     <string name="login_ok">OK</string>
     <string name="login_cancel">Cancel</string>
@@ -53,18 +53,18 @@
     <!-- Blind Home -->
     <string name="friend_hint">Call a Favorite or Anyone?</string>
     <string name="call_friends_button">Request help from your favorites</string>
-    <string name="call_strangers_button">Request help from strangers</string>
+    <string name="call_strangers_button">Request help from everyone</string>
     <string name="no_friends_message">We didn\'t find any favorites. Tell your favorites your invite code showing
         below to invite them to use this app.</string>
     <string name="call_strangers_title">Warning</string>
-    <string name="call_strangers_warning">Request help from strangers could be dangerous. We don\'t know who is
+    <string name="call_strangers_warning">Request help from everyone could be dangerous. We don\'t know who is
         behind the screen. Be very cautious when talking with them. Are you sure you want to request help from
-        strangers?</string>
+        everyone?</string>
     <string name="invite_code_message">Your favorites can find you with invite code:</string>
     <string name="start_call_hint">Please Input a Description about the Help You Need</string>
     <string name="start_call_cancel">Cancel</string>
     <string name="start_call_next">Next</string>
-    <string name="select_friend">Please Select Your Favorites. Or Select No One to Get Help from a Stranger</string>
+    <string name="select_friend">Please Select Your Favorites. Or Select No One to Get Help from Everyone.</string>
     <string name="vi_home_call_error">Cannot make the call. Please try again</string>
 
     <!-- Blind Wait -->
@@ -132,8 +132,8 @@
     <string name="notify_title">GuideMe Message</string>
     <string name="helper_home_call_error">Cannot Call the User. Please Try Later</string>
     <string name="helper_home_join_error">This User has Got Help from Other Helpers</string>
-    <string name="helper_home_operation_message">Click Blind Users to Help. Swipe Down to Refresh.</string>
-    <string name="helper_invite_code_message">Input an invite code to add visual impairer as favorite.</string>
+    <string name="helper_home_operation_message">Swipe Down to Refresh.</string>
+    <string name="helper_invite_code_message">Input an invite code to add a favorite.</string>
     <string name="invite_code_hint">Invite code</string>
     <string name="helper_add_friend_button">Add favorite</string>
     <string name="invite_code_empty_error">Invite code can\'t be empty.</string>
@@ -155,14 +155,6 @@
     <string name="helper_video_add_cancel_button">Cancel</string>
     <string name="helper_video_add_request_message">%1$s Wants to Add You as a Favorite</string>
 
-    <!-- Helper Rate -->
-    <string name="helper_rate_submit_button">Submit</string>
-    <string name="helper_rate_cancel_button">Cancel</string>
-    <string name="helper_rate_hint">Please Rate the Visual Impairer</string>
-    <string name="helper_rate_message">Rate %1$s with %2$s Points, is it OK?</string>
-    <string name="helper_rate_ok_button">OK</string>
-    <string name="helper_rate_change_button">Change</string>
-
     <!-- buttons -->
     <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
@@ -171,7 +163,8 @@
 
 
     <string name="rationale_video_app">We needs access to your camera and mic so you can perform video calls</string>
-    <string name="rationale_audio_app">We needs access to your mic so you can talk with the visual impairer</string>
+    <string name="rationale_audio_app">We needs access to your mic so you can talk with the visual impaired
+        person</string>
     <string name="rationale_location">We needs access to your location information for navigation</string>
     <string name="rationale_all">We needs access to your camera, mic and your location information to provide you service.</string>
     <string name="rationale_ask_again">This app may not work correctly without the requested permissions. Open the app settings screen to modify app permissions.</string>

@@ -70,10 +70,11 @@ public class BlindVideoActivity extends AppCompatActivity implements
     private AppCompatButton addFriendButton;
 
     private String sessionId, videoToken, token, helperId, helperName;
-    private boolean isVideoStart;
+    private boolean isVideoStart, callFriend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "Video activity create");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blind_video);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -85,6 +86,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
         videoToken = getIntent().getStringExtra("videoToken");
         helperId = getIntent().getStringExtra("helperId");
         helperName = getIntent().getStringExtra("helperName");
+        callFriend = getIntent().getBooleanExtra("callFriend", false);
 
         isVideoStart = false;
 
@@ -227,6 +229,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
         Log.d(TAG, "onDestroy");
 
         disconnectSession();
+        stopLocationUpdates();
 
         super.onDestroy();
     }
@@ -248,7 +251,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
     }
 
     private void quit() {
-        if (isVideoStart) {
+        if (!callFriend && isVideoStart) {
             toRate();
             return;
         }
@@ -376,6 +379,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
         mPublisher.setPublisherListener(this);
         mSession.publish(mPublisher);
         mPublisher.cycleCamera();
+        isVideoStart = true;
     }
 
     @Override

@@ -253,7 +253,10 @@ public class HelperVideoFragment extends Fragment implements
         }
 
         if (currentMarker == null) {
-            currentMarker = mMap.addMarker(new MarkerOptions().position(location).title("User Location"));
+            currentMarker = mMap.addMarker(new MarkerOptions()
+                    .position(location)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_person_pin_black_18dp))
+                    .title("User Location"));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
             mMap.moveCamera(CameraUpdateFactory.zoomTo(15f));
         } else {
@@ -271,7 +274,6 @@ public class HelperVideoFragment extends Fragment implements
         if (destinationMarker == null) {
             destinationMarker = mMap.addMarker(new MarkerOptions()
                     .position(destination)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                     .title("Destination"));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(destination));
             mMap.moveCamera(CameraUpdateFactory.zoomTo(15f));

@@ -197,9 +197,11 @@ public class BlindHomeActivity extends AppCompatActivity implements
             @Override
             public void onReceiveData(String data) {
                 try {
+                    Log.d(TAG, "call stranger get response");
                     JSONObject json = new JSONObject(data);
                     if (json.getBoolean("res")) {
                         Intent blindWaitActivity = new Intent(BlindHomeActivity.this, BlindWaitActivity.class);
+                        blindWaitActivity.putExtra("callFriend", false);
                         startActivity(blindWaitActivity);
                         finish();
                     } else {
@@ -224,13 +226,16 @@ public class BlindHomeActivity extends AppCompatActivity implements
                     JSONObject json = new JSONObject(data);
                     if (json.getBoolean("res")) {
                         Intent blindWaitActivity = new Intent(BlindHomeActivity.this, BlindWaitActivity.class);
+                        blindWaitActivity.putExtra("callFriend", true);
                         startActivity(blindWaitActivity);
                         finish();
                     } else {
                         Log.e(TAG, "Fail to call all friends!");
+                        Toast.makeText(BlindHomeActivity.this, R.string.vi_home_call_error, Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    Toast.makeText(BlindHomeActivity.this, R.string.vi_home_call_error, Toast.LENGTH_SHORT).show();
                 }
             }
 

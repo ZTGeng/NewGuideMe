@@ -43,16 +43,19 @@ public class BlindWaitActivity extends AppCompatActivity implements
     private static final String TAG = "VIWait";
 
     private String token;
+    private boolean callFriend;
 
     private HelperListAdapter helperListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "Wait activity create");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blind_wait);
 
         SharedPreferences pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
         token = pref.getString("token", "");
+        callFriend = getIntent().getBooleanExtra("callFriend", false);
 
         ListViewCompat waitingHelperList = (ListViewCompat) findViewById(R.id.waiting_helper_list);
         helperListAdapter = new HelperListAdapter(this, -1, new ArrayList<JSONObject>());
@@ -127,6 +130,7 @@ public class BlindWaitActivity extends AppCompatActivity implements
                                     videoActivity.putExtra("videoToken", videoToken);
                                     videoActivity.putExtra("helperId", helperId);
                                     videoActivity.putExtra("helperName", helperName);
+                                    videoActivity.putExtra("callFriend", callFriend);
                                     startActivity(videoActivity);
                                     finish();
                                 } else {
