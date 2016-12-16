@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +27,8 @@ public class HelperWaitFragment extends Fragment {
     private String token, roomId, blindName;
     private Listener listener;
 
+    private ProgressBar progressBar;
+
     public HelperWaitFragment() {
         // Required empty public constructor
     }
@@ -39,6 +42,8 @@ public class HelperWaitFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_helper_wait, container, false);
 
+        progressBar = (ProgressBar) view.findViewById(R.id.helper_wait_progress);
+
         keepResAlive();
         return view;
     }
@@ -51,6 +56,7 @@ public class HelperWaitFragment extends Fragment {
         ServerApi.helperKeepAlive(token, roomId, new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
+                progressBar.setVisibility(View.INVISIBLE);
                 try {
                     JSONObject select = new JSONObject(data);
                     Log.d(TAG, data);

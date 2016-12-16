@@ -20,6 +20,16 @@
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/space_5x" />
+
+        <ProgressBar
+            android:id="@+id/helper_wait_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_5x"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/helper_wait_message">
+        </ProgressBar>
+
     </RelativeLayout>
 
 </FrameLayout>
