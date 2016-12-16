@@ -1,22 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.LinearLayoutCompat
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:layout_margin="@dimen/space_1x"
-    android:orientation="vertical">
+    android:layout_margin="@dimen/space_1x">
+
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="wrap_content"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/space_1x"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/room_item_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/medium_text"
+            android:textStyle="bold" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/room_item_des"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </android.support.v7.widget.LinearLayoutCompat>
 
     <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/room_item_username"
+        android:id="@+id/room_item_hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:text="@string/room_list_press_hint"/>
 
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/room_item_des"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <android.support.v7.widget.AppCompatImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@id/room_item_hint"
+        app:srcCompat="@drawable/ic_navigate_before_black_24dp"/>
 
-
-</android.support.v7.widget.LinearLayoutCompat>
+</RelativeLayout>

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -17,6 +18,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.ListViewCompat;
 import android.support.v7.widget.Toolbar;
@@ -32,6 +34,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,16 +64,20 @@ public class HelperHomeActivity extends AppCompatActivity implements
         SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "HelperHome";
+    private static final long REFRESH_DELAY = 5000;
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     private SharedPreferences pref;
     private String token;
-    private SwipeRefreshLayout swipeRefreshLayout;
 
+    private SwipeRefreshLayout swipeRefreshLayout;
     private RoomListAdapter roomListAdapter;
 
-    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private AppCompatTextView emptyListTextView;
+//    private ProgressBar roomRefreshProgress;
+
     private BroadcastReceiver mRegistrationBroadcastReceiver;
-    private boolean isReceiverRegistered;
+    private boolean isReceiverRegistered, openAutoRefresh, isRefreshing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +99,9 @@ public class HelperHomeActivity extends AppCompatActivity implements
             roomList.setAdapter(roomListAdapter);
             roomList.setOnItemClickListener(this);
         }
+
+        emptyListTextView = (AppCompatTextView) findViewById(R.id.helper_home_empty_list_textview);
+//        roomRefreshProgress = (ProgressBar) findViewById(R.id.helper_home_refresh_progress);
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
         if (swipeRefreshLayout != null)
@@ -156,6 +166,16 @@ public class HelperHomeActivity extends AppCompatActivity implements
             }
         });
 
+        AppCompatImageButton closeKeyboardButton = (AppCompatImageButton) findViewById(R.id
+                .helper_home_close_keyboard_button);
+        closeKeyboardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(inviteCodeEditText.getWindowToken(), 0);
+            }
+        });
+
         // Registering BroadcastReceiver
         registerReceiver();
 
@@ -167,7 +187,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
 
         asyncUpdateMyRate();
         asyncGetFriendsList();
-        asyncUpdateRooms();
+        autoUpdateRooms();
 
     }
 
@@ -185,6 +205,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+        openAutoRefresh = true;
         registerReceiver();
     }
 
@@ -192,6 +213,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
         isReceiverRegistered = false;
+        openAutoRefresh = false;
         super.onPause();
     }
 
@@ -298,18 +320,38 @@ public class HelperHomeActivity extends AppCompatActivity implements
     }
 
     /* private methods */
+    private void autoUpdateRooms() {
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                asyncUpdateRooms();
+                handler.postDelayed(this, REFRESH_DELAY);
+            }
+        }, REFRESH_DELAY);
+    }
+
     private void asyncUpdateRooms() {
+        if (!openAutoRefresh || isRefreshing) {
+            return;
+        }
+        isRefreshing = true;
+//        roomRefreshProgress.setVisibility(View.VISIBLE);
+
         ServerApi.getRoomList(token, new ServerRequest.DataListener() {
             @Override
             public void onReceiveData(String data) {
+                isRefreshing = false;
+//                roomRefreshProgress.setVisibility(View.INVISIBLE);
                 roomListAdapter.clear();
                 try {
                     JSONObject roomList = new JSONObject(data);
                     int size = roomList.getInt("size");
                     if (size == 0) {
-                        Toast.makeText(getApplicationContext(), R.string.empty_list, Toast.LENGTH_SHORT).show();
+                        emptyListTextView.setVisibility(View.VISIBLE);
                         return;
                     }
+                    emptyListTextView.setVisibility(View.INVISIBLE);
                     JSONArray listJson = new JSONArray(roomList.getString("list"));
                     for (int i = 0; i < size; i++) {
                         roomListAdapter.add(listJson.getJSONObject(i));
