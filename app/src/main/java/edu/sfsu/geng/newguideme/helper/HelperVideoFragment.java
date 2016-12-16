@@ -255,7 +255,7 @@ public class HelperVideoFragment extends Fragment implements
         if (currentMarker == null) {
             currentMarker = mMap.addMarker(new MarkerOptions()
                     .position(location)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_person_pin_black_18dp))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_person_pin_black_24dp))
                     .title("User Location"));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
             mMap.moveCamera(CameraUpdateFactory.zoomTo(15f));

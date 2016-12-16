@@ -170,7 +170,6 @@
     <string name="setting">Settings</string>
     <string name="buttonText">Click to begin please</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_blind_video_new">BlindVideoNewActivity</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
