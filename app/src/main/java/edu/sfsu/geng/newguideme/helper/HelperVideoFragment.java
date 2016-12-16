@@ -82,7 +82,7 @@ public class HelperVideoFragment extends Fragment implements
     private LinearLayoutCompat subscriberView;
     private FloatingActionButton addFriendButton;
 
-    private String token, blindId, blindName;
+    private String token, blindId, blindName, destName;
     private String sessionId, videoToken;
     private boolean isMute, isInitMap, showAddFriendButton = true;
 
@@ -239,7 +239,7 @@ public class HelperVideoFragment extends Fragment implements
                     setLocation(curLatLng);
                 }
                 if (destLatLng != null) {
-                    setDestination(destLatLng);
+                    setDestination(destLatLng, destName);
                 }
             }
         });
@@ -264,9 +264,10 @@ public class HelperVideoFragment extends Fragment implements
         }
     }
 
-    private void setDestination(LatLng destination) {
+    private void setDestination(LatLng destination, String placeName) {
         if (mMap == null) {
             destLatLng = destination;
+            destName = placeName;
             initMap();
             return;
         }
@@ -274,11 +275,16 @@ public class HelperVideoFragment extends Fragment implements
         if (destinationMarker == null) {
             destinationMarker = mMap.addMarker(new MarkerOptions()
                     .position(destination)
+                    .snippet(placeName)
                     .title("Destination"));
+            destinationMarker.showInfoWindow();
             mMap.moveCamera(CameraUpdateFactory.newLatLng(destination));
             mMap.moveCamera(CameraUpdateFactory.zoomTo(15f));
         } else {
+            destinationMarker.hideInfoWindow();
             destinationMarker.setPosition(destination);
+            destinationMarker.setSnippet(placeName);
+            destinationMarker.showInfoWindow();
             if (polyLine != null) {
                 polyLine.remove();
             }
@@ -528,12 +534,13 @@ public class HelperVideoFragment extends Fragment implements
                 break;
             case "destination":
                 Log.d(TAG, "Receive destination: " + data);
-                String[] destLatLng = data.split(",");
-                if (destLatLng.length != 2) {
+                String[] destData = data.split(",", 3);
+                if (destData.length != 3) {
                     Log.d(TAG, "Destination format error: " + data);
                     break;
                 }
-                setDestination(new LatLng(Double.parseDouble(destLatLng[0]), Double.parseDouble(destLatLng[1])));
+                setDestination(new LatLng(Double.parseDouble(destData[0]), Double.parseDouble(destData[1])),
+                        destData[2]);
                 break;
             default:
                 Log.d(TAG, "Unhandled event: " + event + " - " + data);

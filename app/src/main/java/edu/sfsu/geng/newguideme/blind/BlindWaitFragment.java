@@ -1,15 +1,15 @@
 package edu.sfsu.geng.newguideme.blind;
 
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.ListViewCompat;
@@ -28,43 +28,43 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 /**
- * Created by geng on 7/16/16.
+ * A simple {@link Fragment} subclass.
  */
-public class BlindWaitActivity extends AppCompatActivity implements
-        AdapterView.OnItemClickListener
-{
+public class BlindWaitFragment extends Fragment implements AdapterView.OnItemClickListener {
 
-    private static final String TAG = "VIWait";
+    private static final String TAG = "BlindWait";
 
     private String token;
-    private boolean callFriend;
 
+    private Listener listener;
     private HelperListAdapter helperListAdapter;
 
+
+    public BlindWaitFragment() {
+        // Required empty public constructor
+    }
+
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "Wait activity create");
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_blind_wait);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Bundle bundle = getArguments();
+        token = bundle.getString("token");
 
-        SharedPreferences pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        token = pref.getString("token", "");
-        callFriend = getIntent().getBooleanExtra("callFriend", false);
+        View view = inflater.inflate(R.layout.fragment_blind_wait, container, false);
 
-        ListViewCompat waitingHelperList = (ListViewCompat) findViewById(R.id.waiting_helper_list);
-        helperListAdapter = new HelperListAdapter(this, -1, new ArrayList<JSONObject>());
+        ListViewCompat waitingHelperList = (ListViewCompat) view.findViewById(R.id.waiting_helper_list);
+        helperListAdapter = new HelperListAdapter(getContext(), -1, new ArrayList<JSONObject>());
         if (waitingHelperList != null) {
             waitingHelperList.setAdapter(helperListAdapter);
             waitingHelperList.setOnItemClickListener(this);
         }
 
-        AppCompatButton quitButton = (AppCompatButton) findViewById(R.id.vi_wait_quit_btn);
+        AppCompatButton quitButton = (AppCompatButton) view.findViewById(R.id.vi_wait_quit_btn);
         if (quitButton != null) {
             quitButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -75,20 +75,8 @@ public class BlindWaitActivity extends AppCompatActivity implements
         }
 
         keepResAlive();
-    }
 
-    private void keepResAlive() {
-        ServerApi.blindKeepAlive(token, new ServerRequest.DataListener() {
-            @Override
-            public void onReceiveData(String helperListJSON) {
-                refresh(helperListJSON);
-            }
-
-            @Override
-            public void onClose() {
-                Log.d(TAG, "blind user response is closed");
-            }
-        });
+        return view;
     }
 
     /**
@@ -111,7 +99,7 @@ public class BlindWaitActivity extends AppCompatActivity implements
         try {
             final String helperName = helper.getString("username");
             final String helperId = helper.getString("token");
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setMessage(String.format(getResources().getString(R.string.vi_wait_confirm_accept_helper), helperName));
             builder.setPositiveButton(R.string.vi_wait_accept_button, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
@@ -125,19 +113,12 @@ public class BlindWaitActivity extends AppCompatActivity implements
                                     String videoSession = json.getString("session");
                                     String videoToken = json.getString("token");
 
-                                    Intent videoActivity = new Intent(BlindWaitActivity.this, BlindVideoActivity.class);
-                                    videoActivity.putExtra("sessionId", videoSession);
-                                    videoActivity.putExtra("videoToken", videoToken);
-                                    videoActivity.putExtra("helperId", helperId);
-                                    videoActivity.putExtra("helperName", helperName);
-                                    videoActivity.putExtra("callFriend", callFriend);
-                                    startActivity(videoActivity);
-                                    finish();
+                                    listener.onSelectHelper(videoSession, videoToken, helperId, helperName);
                                 } else {
-                                    Toast.makeText(getApplication(), R.string.vi_wait_call_error, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), R.string.vi_wait_call_error, Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException e) {
-                                Toast.makeText(getApplication(), R.string.vi_wait_call_error, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), R.string.vi_wait_call_error, Toast.LENGTH_SHORT).show();
                                 e.getStackTrace();
                             }
                         }
@@ -159,6 +140,24 @@ public class BlindWaitActivity extends AppCompatActivity implements
         }
     }
 
+    void setListener(@NonNull Listener listener) {
+        this.listener = listener;
+    }
+
+    private void keepResAlive() {
+        ServerApi.blindKeepAlive(token, new ServerRequest.DataListener() {
+            @Override
+            public void onReceiveData(String helperListJSON) {
+                refresh(helperListJSON);
+            }
+
+            @Override
+            public void onClose() {
+                Log.d(TAG, "blind user response is closed");
+            }
+        });
+    }
+
     /* When a helper join or leave the waiting list, need to refresh it */
     private void refresh(String helperListJson) {
         helperListAdapter.clear();
@@ -169,11 +168,15 @@ public class BlindWaitActivity extends AppCompatActivity implements
                 helperListAdapter.add(helperArray.getJSONObject(i));
             }
             if (helperArray.length() > 0) {
-                Ringtone r = RingtoneManager.getRingtone(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+                Ringtone r = RingtoneManager.getRingtone(getContext(),
+                        RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
                 r.play();
-                Toast.makeText(this, String.format(getResources().getString(R.string.vi_wait_helper_notice), helperArray.length()), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),
+                        String.format(getString(R.string.vi_wait_helper_notice), helperArray.length()),
+                        Toast.LENGTH_SHORT)
+                        .show();
             } else {
-                Toast.makeText(this, R.string.vi_wait_helper_empty_notice, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.vi_wait_helper_empty_notice, Toast.LENGTH_SHORT).show();
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -182,15 +185,15 @@ public class BlindWaitActivity extends AppCompatActivity implements
 
     private void onQuitClicked() {
         Log.d(TAG, "Quit button onClicked");
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMessage(R.string.vi_wait_quit_confirm_message);
-        builder.setPositiveButton(R.string.vi_wait_quit_confirm_button, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 quit();
             }
         });
-        builder.setNegativeButton(R.string.vi_wait_quit_cancel_button, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {}
         });
@@ -207,14 +210,7 @@ public class BlindWaitActivity extends AppCompatActivity implements
             public void onClose() {}
         });
 
-        Intent homeActivity = new Intent(BlindWaitActivity.this, BlindHomeActivity.class);
-        startActivity(homeActivity);
-        finish();
-    }
-
-    @Override
-    public void onBackPressed() {
-        quit();
+        listener.onQuitWaiting();
     }
 
     private class HelperListAdapter extends ArrayAdapter<JSONObject> {
@@ -255,4 +251,13 @@ public class BlindWaitActivity extends AppCompatActivity implements
             return rowView;
         }
     }
+
+    interface Listener {
+        void onSelectHelper(@NonNull String videoSession,
+                @NonNull String videoToken,
+                @NonNull String helperId,
+                @NonNull String helperName);
+        void onQuitWaiting();
+    }
+
 }

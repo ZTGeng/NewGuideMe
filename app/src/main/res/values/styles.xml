@@ -20,7 +20,7 @@
     <style name="AppTheme.NoActionBar.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
     <style name="AppTheme.NoActionBar.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
-    
+
     <style name="InviteCodeStyle">
         <item name="android:textColor">@android:color/black</item>
         <item name="android:textSize">50sp</item>

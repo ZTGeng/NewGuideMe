@@ -71,8 +71,6 @@
     <string name="vi_wait_call_error">Cannot make the call. Please try again</string>
     <string name="vi_wait_quit_button">Quit</string>
     <string name="vi_wait_quit_confirm_message">Are you leaving?</string>
-    <string name="vi_wait_quit_confirm_button">YES</string>
-    <string name="vi_wait_quit_cancel_button">Cancel</string>
     <string name="vi_wait_connect_hint">Calling the helper, Please wait.</string>
     <string name="vi_wait_confirm_accept_helper">Start Video Call with %1$s?</string>
     <string name="vi_wait_accept_button">Accept</string>
@@ -172,5 +170,9 @@
     <string name="setting">Settings</string>
     <string name="buttonText">Click to begin please</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_blind_video_new">BlindVideoNewActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

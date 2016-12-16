@@ -114,7 +114,7 @@ public class HelperVideoActivity extends AppCompatActivity
         helperVideoFragment.setListener(this);
         helperVideoFragment.setArguments(bundle);
 
-        Set<String> friends = pref.getStringSet("friends", null);
+        Set<String> friends = pref.getStringSet("friendIds", null);
         if (friends != null && friends.contains(blindId)) {
             helperVideoFragment.hideAddFriendButton();
         }

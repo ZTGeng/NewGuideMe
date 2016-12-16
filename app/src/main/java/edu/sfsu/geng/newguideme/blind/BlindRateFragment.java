@@ -1,46 +1,55 @@
 package edu.sfsu.geng.newguideme.blind;
 
+
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.ServerApi;
 import edu.sfsu.geng.newguideme.http.ServerRequest;
 
-public class BlindRateActivity extends AppCompatActivity {
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class BlindRateFragment extends Fragment {
 
     private TextView rateNumberText;
     private float rateFloat;
     private String helperId, helperName, token;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        Log.d("RateActivity", "Rate activity create");
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_blind_rate);
-        helperId = getIntent().getStringExtra("helperId");
-        helperName = getIntent().getStringExtra("helperName");
+    private Listener listener;
 
-        SharedPreferences pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        token = pref.getString("token", "");
+    public BlindRateFragment() {
+        // Required empty public constructor
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Bundle bundle = getArguments();
+        token = bundle.getString("token");
+        helperId = bundle.getString("helperId");
+        helperName = bundle.getString("helperName");
+
+        View view = inflater.inflate(R.layout.fragment_bling_rate, container, false);
 
         rateFloat = 5.0f;
-        rateNumberText = (TextView) findViewById(R.id.vi_rate_number);
+        rateNumberText = (TextView) view.findViewById(R.id.vi_rate_number);
 
-        AppCompatButton decreaseButton = (AppCompatButton) findViewById(R.id.vi_rate_decrease_btn);
+        AppCompatButton decreaseButton = (AppCompatButton) view.findViewById(R.id.vi_rate_decrease_btn);
         decreaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,7 +60,7 @@ public class BlindRateActivity extends AppCompatActivity {
             }
         });
 
-        AppCompatButton increaseButton = (AppCompatButton) findViewById(R.id.vi_rate_increase_btn);
+        AppCompatButton increaseButton = (AppCompatButton) view.findViewById(R.id.vi_rate_increase_btn);
         increaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,7 +71,7 @@ public class BlindRateActivity extends AppCompatActivity {
             }
         });
 
-        AppCompatButton submitButton = (AppCompatButton) findViewById(R.id.vi_rate_btn);
+        AppCompatButton submitButton = (AppCompatButton) view.findViewById(R.id.vi_rate_btn);
         assert submitButton != null;
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,7 +80,7 @@ public class BlindRateActivity extends AppCompatActivity {
             }
         });
 
-        AppCompatButton cancelButton = (AppCompatButton) findViewById(R.id.vi_rate_cancel_btn);
+        AppCompatButton cancelButton = (AppCompatButton) view.findViewById(R.id.vi_rate_cancel_btn);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,14 +88,17 @@ public class BlindRateActivity extends AppCompatActivity {
             }
         });
 
-        Toast.makeText(this, R.string.vi_rate_hint, Toast.LENGTH_SHORT).show();
-
+        return view;
     }
 
-    public void onSubmit(View v) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(String.format(getResources().getString(R.string.vi_rate_message), helperName, String.valueOf(rateFloat)));
-        builder.setPositiveButton(R.string.vi_rate_ok_button, new DialogInterface.OnClickListener() {
+    void setListener(@NonNull Listener listener) {
+        this.listener = listener;
+    }
+
+    private void onSubmit(View v) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMessage(String.format(getString(R.string.vi_rate_message), helperName, String.valueOf(rateFloat)));
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 ServerApi.rateHelper(token, helperId, String.valueOf(rateFloat), new ServerRequest.DataListener() {
@@ -95,7 +107,7 @@ public class BlindRateActivity extends AppCompatActivity {
                         try {
                             JSONObject json = new JSONObject(data);
                             if (json.getBoolean("res")) {
-                                Toast.makeText(getApplication(), json.getString("response"), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), json.getString("response"), Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -106,9 +118,7 @@ public class BlindRateActivity extends AppCompatActivity {
                     public void onClose() {}
                 });
 
-                Intent homeActivity = new Intent(BlindRateActivity.this, BlindHomeActivity.class);
-                startActivity(homeActivity);
-                finish();
+                listener.onQuitRate();
             }
         });
         builder.setNegativeButton(R.string.vi_rate_change_button, new DialogInterface.OnClickListener() {
@@ -120,9 +130,12 @@ public class BlindRateActivity extends AppCompatActivity {
         builder.show();
     }
 
-    public void onCancel(View v) {
-        Intent homeActivity = new Intent(BlindRateActivity.this, BlindHomeActivity.class);
-        startActivity(homeActivity);
-        finish();
+    private void onCancel(View v) {
+        listener.onQuitRate();
     }
+
+    interface Listener {
+        void onQuitRate();
+    }
+
 }

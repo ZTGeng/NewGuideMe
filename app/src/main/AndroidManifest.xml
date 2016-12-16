@@ -38,28 +38,11 @@
             android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-            android:name=".blind.BlindWaitActivity"
-            android:label="@string/title_activity_blind_wait"
-            android:noHistory="true"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity
-            android:name=".blind.BlindVideoActivity"
-            android:label="@string/title_activity_blind_video"
-            android:noHistory="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity
-            android:name=".blind.BlindRateActivity"
-            android:label="@string/title_activity_blind_rate"
-            android:noHistory="true"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity
             android:name=".helper.HelperHomeActivity"
             android:label="@string/app_name"
             android:launchMode="singleInstance"
-            android:windowSoftInputMode="adjustResize"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".helper.HelperVideoActivity"
             android:label="@string/title_activity_helper_video"
@@ -103,6 +86,12 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>
+
+        <activity
+            android:name=".blind.BlindVideoActivity"
+            android:label="@string/title_activity_blind_video_new"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

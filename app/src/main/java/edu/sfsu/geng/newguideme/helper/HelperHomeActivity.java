@@ -64,7 +64,6 @@ public class HelperHomeActivity extends AppCompatActivity implements
 
     private SharedPreferences pref;
     private String token;
-    private HashSet<String> friends;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private RoomListAdapter roomListAdapter;
@@ -353,14 +352,18 @@ public class HelperHomeActivity extends AppCompatActivity implements
                 try {
                     JSONObject json = new JSONObject(data);
                     if (json.getBoolean("res")) {
-                        JSONArray friendsJSONArray = json.getJSONArray("friends");
-                        friends = new HashSet<>();
+                        JSONArray friendsJSONArray =  json.getJSONArray("friends");
+                        HashSet<String> friendIds = new HashSet<>();
+                        HashSet<String> friendNames = new HashSet<>();
                         for (int i = 0; i < friendsJSONArray.length(); i++) {
                             String friendJSON = friendsJSONArray.getString(i);
                             JSONObject friend = new JSONObject(friendJSON);
-                            friends.add(friend.getString("token"));
+                            friendIds.add(friend.getString("token"));
+                            friendNames.add(friend.getString("username"));
                         }
-                        pref.edit().putStringSet("friends", friends).apply();
+                        pref.edit().putStringSet("friendIds", friendIds)
+                                .putStringSet("friendNames", friendNames)
+                                .apply();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

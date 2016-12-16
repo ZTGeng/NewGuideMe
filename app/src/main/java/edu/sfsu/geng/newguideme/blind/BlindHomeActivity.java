@@ -200,7 +200,7 @@ public class BlindHomeActivity extends AppCompatActivity implements
                     Log.d(TAG, "call stranger get response");
                     JSONObject json = new JSONObject(data);
                     if (json.getBoolean("res")) {
-                        Intent blindWaitActivity = new Intent(BlindHomeActivity.this, BlindWaitActivity.class);
+                        Intent blindWaitActivity = new Intent(BlindHomeActivity.this, BlindVideoActivity.class);
                         blindWaitActivity.putExtra("callFriend", false);
                         startActivity(blindWaitActivity);
                         finish();
@@ -225,7 +225,7 @@ public class BlindHomeActivity extends AppCompatActivity implements
                 try {
                     JSONObject json = new JSONObject(data);
                     if (json.getBoolean("res")) {
-                        Intent blindWaitActivity = new Intent(BlindHomeActivity.this, BlindWaitActivity.class);
+                        Intent blindWaitActivity = new Intent(BlindHomeActivity.this, BlindVideoActivity.class);
                         blindWaitActivity.putExtra("callFriend", true);
                         startActivity(blindWaitActivity);
                         finish();
