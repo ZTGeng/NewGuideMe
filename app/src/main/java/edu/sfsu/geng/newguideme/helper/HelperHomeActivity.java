@@ -69,6 +69,8 @@ public class HelperHomeActivity extends AppCompatActivity implements
 
     private SharedPreferences pref;
     private String token;
+    private Handler handler;
+    private Runnable refreshRunnable;
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private RoomListAdapter roomListAdapter;
@@ -90,6 +92,18 @@ public class HelperHomeActivity extends AppCompatActivity implements
         token = pref.getString("token", "");
         String username = pref.getString("username", "");
         pref.edit().putBoolean("logged", true).apply();
+
+        handler = new Handler();
+        refreshRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "==============================");
+                if (openAutoRefresh) {
+                    asyncUpdateRooms();
+                    handler.postDelayed(this, REFRESH_DELAY);
+                }
+            }
+        };
 
         setTitle("Hi, " + username);
 
@@ -187,7 +201,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
 
         asyncUpdateMyRate();
         asyncGetFriendsList();
-        autoUpdateRooms();
+//        autoUpdateRooms();
 
     }
 
@@ -206,6 +220,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         openAutoRefresh = true;
+        handler.postDelayed(refreshRunnable, REFRESH_DELAY);
         registerReceiver();
     }
 
@@ -317,18 +332,6 @@ public class HelperHomeActivity extends AppCompatActivity implements
             @Override
             public void onClose() {}
         });
-    }
-
-    /* private methods */
-    private void autoUpdateRooms() {
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                asyncUpdateRooms();
-                handler.postDelayed(this, REFRESH_DELAY);
-            }
-        }, REFRESH_DELAY);
     }
 
     private void asyncUpdateRooms() {
