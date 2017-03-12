@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import java.util.HashSet;
 
 import edu.sfsu.geng.newguideme.Config;
+import edu.sfsu.geng.newguideme.helper.RegistrationIntentService;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -45,6 +46,10 @@ public class PreferencesUtil {
         return pref.getString("invite_code", "");
     }
 
+    public boolean isTokenSent() {
+        return pref.getBoolean(RegistrationIntentService.SENT_TOKEN_TO_SERVER, false);
+    }
+
     public void setLogin() {
         pref.edit().putBoolean("logged", true).apply();
     }
@@ -58,5 +63,9 @@ public class PreferencesUtil {
                 .putStringSet("friendIds", friendIds)
                 .putStringSet("friendNames", friendNames)
                 .apply();
+    }
+
+    public void putHelperRate(@NonNull String newRate) {
+        pref.edit().putString("rate", newRate).apply();
     }
 }

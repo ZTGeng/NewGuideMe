@@ -50,7 +50,7 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize"/>
         <activity
-            android:name=".helper.HelperVideoActivity"
+            android:name=".helper.video.HelperVideoActivity"
             android:label="@string/title_activity_helper_video"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">

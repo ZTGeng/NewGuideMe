@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context="edu.sfsu.geng.newguideme.helper.HelperVideoActivity">
+      tools:context="edu.sfsu.geng.newguideme.helper.video.HelperVideoActivity">
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

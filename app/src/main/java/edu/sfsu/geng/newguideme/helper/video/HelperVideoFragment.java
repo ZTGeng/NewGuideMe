@@ -1,4 +1,4 @@
-package edu.sfsu.geng.newguideme.helper;
+package edu.sfsu.geng.newguideme.helper.video;
 
 import android.Manifest;
 import android.content.DialogInterface;

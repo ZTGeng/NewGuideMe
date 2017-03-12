@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    tools:context="edu.sfsu.geng.newguideme.helper.HelperWaitFragment">
+    tools:context="edu.sfsu.geng.newguideme.helper.video.HelperWaitFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"

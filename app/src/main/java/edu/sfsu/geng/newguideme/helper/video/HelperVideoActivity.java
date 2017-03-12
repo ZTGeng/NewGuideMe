@@ -1,4 +1,4 @@
-package edu.sfsu.geng.newguideme.helper;
+package edu.sfsu.geng.newguideme.helper.video;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,6 +16,7 @@ import java.util.Set;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
+import edu.sfsu.geng.newguideme.helper.HelperHomeActivity;
 import edu.sfsu.geng.newguideme.http.ServerApi;
 
 public class HelperVideoActivity extends AppCompatActivity
