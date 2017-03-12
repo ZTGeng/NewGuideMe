@@ -12,28 +12,24 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by geng on 7/15/16.
  */
-public class ServerRequest {
+class ServerRequest {
 
     private static final String TAG = "ServerRequest";
 
     private static final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
-    static void getJSON(String url, List<NameValuePair> params, DataListener dataListener) {
+    static void getJSON(String url, List<NameValuePair> params, ServerApi.DataListener dataListener) {
 
         UPL upl = new UPL(url, params, dataListener);
         Request myTask = new Request();
@@ -44,7 +40,7 @@ public class ServerRequest {
 //        }
     }
 
-    static void keepResAlive(String url, DataListener dataListener) {
+    static void keepResAlive(String url, ServerApi.DataListener dataListener) {
         UPL upl = new UPL(url, dataListener);
         AliveRequest myTask = new AliveRequest();
 //        try {
@@ -54,7 +50,7 @@ public class ServerRequest {
 //        }
     }
 
-    private static SL getJSONFromUrl(String url, List<NameValuePair> params, DataListener dataListener) {
+    private static SL getJSONFromUrl(String url, List<NameValuePair> params, ServerApi.DataListener dataListener) {
 
         InputStream is = null;
         try {
@@ -89,7 +85,7 @@ public class ServerRequest {
 
     }
 
-    private static void keepAliveResp(final String url, final DataListener dataListener) {
+    private static void keepAliveResp(final String url, final ServerApi.DataListener dataListener) {
 
         new Thread(new Runnable() {
             @Override
@@ -174,15 +170,15 @@ public class ServerRequest {
     private static class UPL {
         String url;
         List<NameValuePair> params;
-        DataListener dataListener;
+        ServerApi.DataListener dataListener;
 
-        UPL(String url, List<NameValuePair> params, DataListener dataListener) {
+        UPL(String url, List<NameValuePair> params, ServerApi.DataListener dataListener) {
             this.url = url;
             this.params = params;
             this.dataListener = dataListener;
         }
 
-        UPL(String url, DataListener dataListener) {
+        UPL(String url, ServerApi.DataListener dataListener) {
             this.url = url;
             this.params = null;
             this.dataListener = dataListener;
@@ -191,9 +187,9 @@ public class ServerRequest {
 
     private static class SL {
         String data;
-        DataListener dataListener;
+        ServerApi.DataListener dataListener;
 
-        SL(String data, DataListener dataListener) {
+        SL(String data, ServerApi.DataListener dataListener) {
             this.data = data;
             this.dataListener = dataListener;
         }
@@ -224,11 +220,6 @@ public class ServerRequest {
             return null;
         }
 
-    }
-
-    public interface DataListener {
-        void onReceiveData(String data);
-        void onClose();
     }
 
 }

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="edu.sfsu.geng.newguideme.blind.BlindVideoActivity">
+    tools:context="edu.sfsu.geng.newguideme.blind.video.BlindVideoActivity">
 
     <FrameLayout
         android:id="@+id/blind_video_fragment"

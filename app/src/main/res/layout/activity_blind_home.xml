@@ -31,41 +31,106 @@
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:orientation="vertical">
 
-            <android.support.v7.widget.AppCompatButton
-                android:id="@+id/call_friends_button"
+            <android.support.v7.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:text="@string/call_friends_button"/>
-
-            <android.support.v7.widget.AppCompatButton
-                android:id="@+id/call_strangers_button"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:text="@string/call_strangers_button"/>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2">
-
-                <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/invite_code_textview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:textAlignment="center"
-                    style="@style/InviteCodeStyle"/>
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <android.support.v7.widget.AppCompatTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_above="@id/invite_code_textview"
-                    android:textAlignment="center"
-                    android:text="@string/invite_code_message"/>
+                    android:text="Who do you want to call?"/>
 
-            </RelativeLayout>
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/call_favorites_radio"
+                        android:checked="true"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onCalleeSelect"
+                        android:text="Favorites only"/>
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/call_favorites_then_everyone_radio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onCalleeSelect"
+                        android:text="Favorites then everyone after 5 mins"/>
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/call_everyone_radio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onCalleeSelect"
+                        android:text="Everyone"/>
+
+                </RadioGroup>
+
+
+            </android.support.v7.widget.LinearLayoutCompat>
+
+            <android.support.v7.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Do you want a navigation map?"/>
+
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/call_with_map_radio"
+                        android:checked="true"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:onClick="onMapSelect"
+                        android:text="YES"/>
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/call_without_map_radio"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:onClick="onMapSelect"
+                        android:text="NO"/>
+
+                </RadioGroup>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/destination_inputlayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.AppCompatAutoCompleteTextView
+                        android:id="@+id/destination_autocomplete"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Destination"/>
+
+                </android.support.design.widget.TextInputLayout>
+
+            </android.support.v7.widget.LinearLayoutCompat>
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/request_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:textAllCaps="true"
+                android:text="Send a request"/>
+
 
         </android.support.v7.widget.LinearLayoutCompat>
     </android.support.v7.widget.LinearLayoutCompat>

@@ -1,4 +1,4 @@
-package edu.sfsu.geng.newguideme.blind;
+package edu.sfsu.geng.newguideme.blind.video;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -38,12 +38,9 @@ import com.opentok.android.SubscriberKit;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Set;
-
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.ServerApi;
-import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -457,7 +454,7 @@ public class BlindVideoFragment extends Fragment implements
                 builder.setPositiveButton(R.string.blind_video_add_confirm_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ServerApi.addFriend(token, helperId, new ServerRequest.DataListener() {
+                        ServerApi.addFriend(token, helperId, new ServerApi.DataListener() {
                             @Override
                             public void onReceiveData(String data) {
                                 try {

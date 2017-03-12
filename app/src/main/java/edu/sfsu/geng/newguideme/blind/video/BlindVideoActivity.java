@@ -1,4 +1,4 @@
-package edu.sfsu.geng.newguideme.blind;
+package edu.sfsu.geng.newguideme.blind.video;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +11,7 @@ import java.util.Set;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
+import edu.sfsu.geng.newguideme.blind.BlindHomeActivity;
 
 public class BlindVideoActivity extends AppCompatActivity implements
         BlindWaitFragment.Listener, BlindVideoFragment.Listener, BlindRateFragment.Listener {

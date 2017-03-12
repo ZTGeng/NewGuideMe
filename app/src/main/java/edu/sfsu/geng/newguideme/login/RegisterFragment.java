@@ -1,7 +1,6 @@
 package edu.sfsu.geng.newguideme.login;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
@@ -20,7 +19,6 @@ import org.json.JSONObject;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.Role;
 import edu.sfsu.geng.newguideme.http.ServerApi;
-import edu.sfsu.geng.newguideme.http.ServerRequest;
 import edu.sfsu.geng.newguideme.utils.ErrorCleanTextWatcher;
 
 /**
@@ -110,7 +108,7 @@ public class RegisterFragment extends Fragment {
             return;
         }
 
-        ServerApi.register(emailText, usernameText, passwordText, role.name(), new ServerRequest.DataListener() {
+        ServerApi.register(emailText, usernameText, passwordText, role.name(), new ServerApi.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try{

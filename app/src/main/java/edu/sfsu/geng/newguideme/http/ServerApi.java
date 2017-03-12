@@ -10,7 +10,6 @@ import org.apache.http.message.BasicNameValuePair;
 import java.util.ArrayList;
 
 import edu.sfsu.geng.newguideme.Config;
-import edu.sfsu.geng.newguideme.http.ServerRequest.DataListener;
 
 /**
  * Created by Geng on 2016/11/20.
@@ -168,6 +167,9 @@ public class ServerApi {
     /* Rate APIs ends */
 
     /* Map APIs */
+    public static void getAddressHistory(String token, DataListener listener) {
+        // TODO add API
+    }
     public static void getRoute(LatLng start, LatLng end, DataListener listener) {
         String url = "http://maps.googleapis.com/maps/api/directions/json" +
                 "?origin=" + start.latitude + "," + start.longitude +
@@ -176,6 +178,11 @@ public class ServerApi {
         ServerRequest.getJSON(url, new ArrayList<NameValuePair>(), listener);
     }
     /* Map APIs ends */
+
+    public interface DataListener {
+        void onReceiveData(String data);
+        void onClose();
+    }
 
     private static class HttpRequest {
 

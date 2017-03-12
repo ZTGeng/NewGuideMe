@@ -1,4 +1,4 @@
-package edu.sfsu.geng.newguideme.blind;
+package edu.sfsu.geng.newguideme.outdate;
 
 
 import android.app.Activity;

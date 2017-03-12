@@ -18,7 +18,6 @@ import java.io.IOException;
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.ServerApi;
-import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -88,7 +87,7 @@ public class RegistrationIntentService extends IntentService {
     private void sendRegistrationToServer(String gcmToken) {
         // Add custom implementation, as needed.
         String token = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE).getString("token", "");
-        ServerApi.updateGcmToken(token, gcmToken, new ServerRequest.DataListener() {
+        ServerApi.updateGcmToken(token, gcmToken, new ServerApi.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {

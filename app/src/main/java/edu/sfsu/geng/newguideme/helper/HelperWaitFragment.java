@@ -15,7 +15,6 @@ import org.json.JSONObject;
 
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.ServerApi;
-import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,7 +52,7 @@ public class HelperWaitFragment extends Fragment {
     }
 
     private void keepResAlive() {
-        ServerApi.helperKeepAlive(token, roomId, new ServerRequest.DataListener() {
+        ServerApi.helperKeepAlive(token, roomId, new ServerApi.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 progressBar.setVisibility(View.INVISIBLE);

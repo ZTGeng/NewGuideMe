@@ -52,12 +52,12 @@
     <string name="friend_hint">Call a Favorite or Anyone?</string>
     <string name="call_friends_button">Request help from your favorites</string>
     <string name="call_strangers_button">Request help from everyone</string>
+    <string name="no_friends_message_short">We didn\'t find any favorites. Try later or request from everyone.</string>
     <string name="no_friends_message">We didn\'t find any favorites. Tell your favorites your invite code showing
         below to invite them to use this app.</string>
     <string name="call_strangers_title">Warning</string>
     <string name="call_strangers_warning">Request help from everyone could be dangerous. We don\'t know who is
-        behind the screen. Be very cautious when talking with them. Are you sure you want to request help from
-        everyone?</string>
+        behind the screen. Be very cautious when talking with them.</string>
     <string name="invite_code_message">Your favorites can find you with invite code:</string>
     <string name="start_call_hint">Please Input a Description about the Help You Need</string>
     <string name="start_call_cancel">Cancel</string>

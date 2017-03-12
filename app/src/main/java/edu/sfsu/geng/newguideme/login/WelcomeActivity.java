@@ -10,10 +10,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +19,6 @@ import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.Role;
 import edu.sfsu.geng.newguideme.blind.BlindHomeActivity;
 import edu.sfsu.geng.newguideme.helper.HelperHomeActivity;
-import edu.sfsu.geng.newguideme.http.ServerApi;
-import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 public class WelcomeActivity extends AppCompatActivity implements LoginListener {
 
@@ -64,7 +58,7 @@ public class WelcomeActivity extends AppCompatActivity implements LoginListener 
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        WelcomeViewPagerAdapter adapter = new WelcomeViewPagerAdapter(getSupportFragmentManager());
 
         LoginFragment loginFragment = new LoginFragment();
         adapter.addFragment(loginFragment, getString(R.string.login_login));
@@ -89,7 +83,7 @@ public class WelcomeActivity extends AppCompatActivity implements LoginListener 
     }
 
     private void goHome(Role role) {
-        Intent homeActivity = null;
+        Intent homeActivity;
         switch (role) {
             case blind:
                 homeActivity = new Intent(WelcomeActivity.this, BlindHomeActivity.class);
@@ -105,11 +99,11 @@ public class WelcomeActivity extends AppCompatActivity implements LoginListener 
         finish();
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
+    private class WelcomeViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
-        ViewPagerAdapter(FragmentManager manager) {
+        WelcomeViewPagerAdapter(FragmentManager manager) {
             super(manager);
         }
 

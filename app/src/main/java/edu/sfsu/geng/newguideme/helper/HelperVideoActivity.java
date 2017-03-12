@@ -17,7 +17,6 @@ import java.util.Set;
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.ServerApi;
-import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 public class HelperVideoActivity extends AppCompatActivity
         implements HelperWaitFragment.Listener, HelperVideoFragment.Listener {
@@ -54,7 +53,7 @@ public class HelperVideoActivity extends AppCompatActivity
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (!isVideoStart) {
-                                    ServerApi.helperLeaveRoom(token, roomId, new ServerRequest.DataListener() {
+                                    ServerApi.helperLeaveRoom(token, roomId, new ServerApi.DataListener() {
                                         @Override
                                         public void onReceiveData(String data) {}
 

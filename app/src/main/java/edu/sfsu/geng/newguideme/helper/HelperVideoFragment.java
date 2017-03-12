@@ -47,7 +47,6 @@ import java.util.List;
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.ServerApi;
-import edu.sfsu.geng.newguideme.http.ServerRequest;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -297,7 +296,7 @@ public class HelperVideoFragment extends Fragment implements
         if (currentMarker == null || destinationMarker == null) {
             return;
         }
-        ServerApi.getRoute(currentMarker.getPosition(), destinationMarker.getPosition(), new ServerRequest.DataListener() {
+        ServerApi.getRoute(currentMarker.getPosition(), destinationMarker.getPosition(), new ServerApi.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {
@@ -494,7 +493,7 @@ public class HelperVideoFragment extends Fragment implements
                 builder.setPositiveButton(R.string.helper_video_add_confirm_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ServerApi.addFriend(token, blindId, new ServerRequest.DataListener() {
+                        ServerApi.addFriend(token, blindId, new ServerApi.DataListener() {
                             @Override
                             public void onReceiveData(String data) {
                                 try {

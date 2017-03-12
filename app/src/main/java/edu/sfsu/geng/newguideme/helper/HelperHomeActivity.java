@@ -34,7 +34,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,7 +51,6 @@ import java.util.List;
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.ServerApi;
-import edu.sfsu.geng.newguideme.http.ServerRequest;
 import edu.sfsu.geng.newguideme.utils.ErrorCleanTextWatcher;
 import edu.sfsu.geng.newguideme.login.WelcomeActivity;
 
@@ -144,7 +142,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
                     inviteCodeInputLayout.setError(getString(R.string.invite_code_empty_error));
                     return;
                 }
-                ServerApi.addFriendByCode(token, inviteCode, new ServerRequest.DataListener() {
+                ServerApi.addFriendByCode(token, inviteCode, new ServerApi.DataListener() {
                     @Override
                     public void onReceiveData(String data) {
                         try {
@@ -308,7 +306,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
     }
 
     private void tryJoinRoom(final String roomId, final String blindName) {
-        ServerApi.helperJoinRoom(token, roomId, new ServerRequest.DataListener() {
+        ServerApi.helperJoinRoom(token, roomId, new ServerApi.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {
@@ -341,7 +339,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
         isRefreshing = true;
 //        roomRefreshProgress.setVisibility(View.VISIBLE);
 
-        ServerApi.getRoomList(token, new ServerRequest.DataListener() {
+        ServerApi.getRoomList(token, new ServerApi.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 isRefreshing = false;
@@ -370,7 +368,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
     }
 
     private void asyncUpdateMyRate() {
-        ServerApi.getRate(token, new ServerRequest.DataListener() {
+        ServerApi.getRate(token, new ServerApi.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {
@@ -391,7 +389,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
 
     // friends array should not be null after this method
     private void asyncGetFriendsList() {
-        ServerApi.getFriends(token, new ServerRequest.DataListener() {
+        ServerApi.getFriends(token, new ServerApi.DataListener() {
             @Override
             public void onReceiveData(String data) {
                 try {
@@ -464,7 +462,7 @@ public class HelperHomeActivity extends AppCompatActivity implements
                     return;
                 }
 
-                ServerApi.changePassword(token, oldPassword, newPassword, new ServerRequest.DataListener() {
+                ServerApi.changePassword(token, oldPassword, newPassword, new ServerApi.DataListener() {
                     @Override
                     public void onReceiveData(String data) {
                         try {

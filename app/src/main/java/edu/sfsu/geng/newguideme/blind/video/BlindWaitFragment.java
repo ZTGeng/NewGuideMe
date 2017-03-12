@@ -1,9 +1,8 @@
-package edu.sfsu.geng.newguideme.blind;
+package edu.sfsu.geng.newguideme.blind.video;
 
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.os.Bundle;
@@ -30,7 +29,6 @@ import java.util.List;
 
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.ServerApi;
-import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -104,7 +102,7 @@ public class BlindWaitFragment extends Fragment implements AdapterView.OnItemCli
             builder.setPositiveButton(R.string.vi_wait_accept_button, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     // call select, go to videoactivity, NO NEED TO delete room
-                    ServerApi.selectHelper(token, helperId, new ServerRequest.DataListener() {
+                    ServerApi.selectHelper(token, helperId, new ServerApi.DataListener() {
                         @Override
                         public void onReceiveData(String data) {
                             try {
@@ -145,7 +143,7 @@ public class BlindWaitFragment extends Fragment implements AdapterView.OnItemCli
     }
 
     private void keepResAlive() {
-        ServerApi.blindKeepAlive(token, new ServerRequest.DataListener() {
+        ServerApi.blindKeepAlive(token, new ServerApi.DataListener() {
             @Override
             public void onReceiveData(String helperListJSON) {
                 refresh(helperListJSON);
@@ -202,7 +200,7 @@ public class BlindWaitFragment extends Fragment implements AdapterView.OnItemCli
     }
 
     private void quit() {
-        ServerApi.blindDeleteRoom(token, new ServerRequest.DataListener() {
+        ServerApi.blindDeleteRoom(token, new ServerApi.DataListener() {
             @Override
             public void onReceiveData(String data) {}
 

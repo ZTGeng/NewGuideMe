@@ -1,8 +1,7 @@
-package edu.sfsu.geng.newguideme.blind;
+package edu.sfsu.geng.newguideme.blind.video;
 
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -19,7 +18,6 @@ import org.json.JSONObject;
 
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.ServerApi;
-import edu.sfsu.geng.newguideme.http.ServerRequest;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -101,7 +99,7 @@ public class BlindRateFragment extends Fragment {
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ServerApi.rateHelper(token, helperId, String.valueOf(rateFloat), new ServerRequest.DataListener() {
+                ServerApi.rateHelper(token, helperId, String.valueOf(rateFloat), new ServerApi.DataListener() {
                     @Override
                     public void onReceiveData(String data) {
                         try {

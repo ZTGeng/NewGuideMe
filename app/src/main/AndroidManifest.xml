@@ -38,9 +38,8 @@
             android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-            android:name=".blind.BlindVideoActivity"
+            android:name=".blind.video.BlindVideoActivity"
             android:label="@string/title_activity_blind_video"
-            android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
@@ -53,7 +52,6 @@
         <activity
             android:name=".helper.HelperVideoActivity"
             android:label="@string/title_activity_helper_video"
-            android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
