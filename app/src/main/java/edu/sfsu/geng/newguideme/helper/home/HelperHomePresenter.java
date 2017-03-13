@@ -1,4 +1,4 @@
-package edu.sfsu.geng.newguideme.helper;
+package edu.sfsu.geng.newguideme.helper.home;
 
 import android.content.Context;
 import android.content.Intent;

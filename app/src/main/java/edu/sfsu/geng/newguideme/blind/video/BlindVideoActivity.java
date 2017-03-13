@@ -11,7 +11,7 @@ import java.util.Set;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
-import edu.sfsu.geng.newguideme.blind.BlindHomeActivity;
+import edu.sfsu.geng.newguideme.blind.home.BlindHomeActivity;
 
 public class BlindVideoActivity extends AppCompatActivity implements
         BlindWaitFragment.Listener, BlindVideoFragment.Listener, BlindRateFragment.Listener {

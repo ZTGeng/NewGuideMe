@@ -17,8 +17,8 @@ import java.util.List;
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.Role;
-import edu.sfsu.geng.newguideme.blind.BlindHomeActivity;
-import edu.sfsu.geng.newguideme.helper.HelperHomeActivity;
+import edu.sfsu.geng.newguideme.blind.home.BlindHomeActivity;
+import edu.sfsu.geng.newguideme.helper.home.HelperHomeActivity;
 
 public class WelcomeActivity extends AppCompatActivity implements LoginListener {
 

@@ -1,4 +1,4 @@
-package edu.sfsu.geng.newguideme.blind;
+package edu.sfsu.geng.newguideme.blind.home;
 
 import android.content.Context;
 import android.content.Intent;

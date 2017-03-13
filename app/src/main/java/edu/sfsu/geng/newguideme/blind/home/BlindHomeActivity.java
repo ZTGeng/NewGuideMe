@@ -1,4 +1,4 @@
-package edu.sfsu.geng.newguideme.blind;
+package edu.sfsu.geng.newguideme.blind.home;
 
 import android.Manifest;
 import android.content.DialogInterface;

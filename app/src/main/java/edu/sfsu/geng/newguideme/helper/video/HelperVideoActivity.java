@@ -16,7 +16,7 @@ import java.util.Set;
 
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
-import edu.sfsu.geng.newguideme.helper.HelperHomeActivity;
+import edu.sfsu.geng.newguideme.helper.home.HelperHomeActivity;
 import edu.sfsu.geng.newguideme.http.ServerApi;
 
 public class HelperVideoActivity extends AppCompatActivity
@@ -114,10 +114,10 @@ public class HelperVideoActivity extends AppCompatActivity
         helperVideoFragment.setListener(this);
         helperVideoFragment.setArguments(bundle);
 
-        Set<String> friends = pref.getStringSet("friendIds", null);
-        if (friends != null && friends.contains(blindId)) {
-            helperVideoFragment.hideAddFriendButton();
-        }
+//        Set<String> friends = pref.getStringSet("friendIds", null);
+//        if (friends != null && friends.contains(blindId)) {
+//            helperVideoFragment.hideAddFriendButton();
+//        }
 
         getSupportFragmentManager()
                 .beginTransaction()

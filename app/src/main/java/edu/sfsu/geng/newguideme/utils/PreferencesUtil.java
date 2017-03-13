@@ -3,11 +3,13 @@ package edu.sfsu.geng.newguideme.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import edu.sfsu.geng.newguideme.Config;
-import edu.sfsu.geng.newguideme.helper.RegistrationIntentService;
+import edu.sfsu.geng.newguideme.helper.services.RegistrationIntentService;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -46,6 +48,11 @@ public class PreferencesUtil {
         return pref.getString("invite_code", "");
     }
 
+    @Nullable
+    public Set<String> getFriendIds() {
+        return pref.getStringSet("friendIds", null);
+    }
+
     public boolean isTokenSent() {
         return pref.getBoolean(RegistrationIntentService.SENT_TOKEN_TO_SERVER, false);
     }
@@ -58,7 +65,7 @@ public class PreferencesUtil {
         pref.edit().putBoolean("logged", false).apply();
     }
 
-    public void putFriends(@NonNull HashSet<String> friendIds, @NonNull HashSet<String> friendNames) {
+    public void putFriends(@NonNull Set<String> friendIds, @NonNull Set<String> friendNames) {
         pref.edit()
                 .putStringSet("friendIds", friendIds)
                 .putStringSet("friendNames", friendNames)

@@ -1,4 +1,4 @@
-package edu.sfsu.geng.newguideme.helper;
+package edu.sfsu.geng.newguideme.helper.services;
 
 import android.app.IntentService;
 import android.content.Intent;

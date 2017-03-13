@@ -1,4 +1,4 @@
-package edu.sfsu.geng.newguideme.helper;
+package edu.sfsu.geng.newguideme.helper.home;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -33,6 +33,7 @@ import java.util.List;
 
 import edu.sfsu.geng.newguideme.HomeActivity;
 import edu.sfsu.geng.newguideme.R;
+import edu.sfsu.geng.newguideme.helper.services.RegistrationIntentService;
 import edu.sfsu.geng.newguideme.utils.PreferencesUtil;
 
 /**

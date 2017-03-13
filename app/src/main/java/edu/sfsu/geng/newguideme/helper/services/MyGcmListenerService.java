@@ -1,4 +1,4 @@
-package edu.sfsu.geng.newguideme.helper;
+package edu.sfsu.geng.newguideme.helper.services;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,13 +10,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
 import java.util.Date;
 
 import edu.sfsu.geng.newguideme.R;
+import edu.sfsu.geng.newguideme.helper.home.HelperHomeActivity;
 
 public class MyGcmListenerService extends GcmListenerService {
     private static final String TAG = "MyGcmListenerService";
