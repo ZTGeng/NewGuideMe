@@ -5,17 +5,20 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.ColorInt;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -54,16 +57,18 @@ public class HelperVideoFragment extends Fragment implements
     private Marker currentMarker, destinationMarker;
     private Polyline polyLine;
 
-    private LinearLayoutCompat subscriberView;
     private FloatingActionButton addFriendButton;
     private FloatingActionButton muteButton;
 
     private String blindName;
 
     private Listener listener;
-    private LinearLayoutCompat mapLayout;
 
-    HelperVideoFragmentPresenter presenter;
+    private AppCompatSeekBar mapRadioSeekBar;
+    private LinearLayoutCompat mapLayout;
+    private LinearLayoutCompat screenLayout;
+
+    private HelperVideoFragmentPresenter presenter;
 
     public HelperVideoFragment() {}
 
@@ -79,15 +84,30 @@ public class HelperVideoFragment extends Fragment implements
 
         View view = inflater.inflate(R.layout.fragment_helper_video, container, false);
 
+        screenLayout = (LinearLayoutCompat) view.findViewById(R.id.helper_video_screen);
         mapLayout = (LinearLayoutCompat) view.findViewById(R.id.helper_video_map);
         initMap();
+
+        mapRadioSeekBar = (AppCompatSeekBar) view.findViewById(R.id.map_radio_seekbar);
+        mapRadioSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    presenter.onMapRadioBarChanged(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
 
         TypedValue typedValue = new TypedValue();
         getContext().getTheme().resolveAttribute(R.attr.colorAccent, typedValue, true);
         unmuteColor = typedValue.data;
-
-        // video screen
-        subscriberView = (LinearLayoutCompat) view.findViewById(R.id.helper_video_screen);
 
         muteButton = (FloatingActionButton) view.findViewById(R.id.helper_video_mute_button);
         muteButton.setOnClickListener(new View.OnClickListener() {
@@ -139,6 +159,16 @@ public class HelperVideoFragment extends Fragment implements
 
     void setListener(@NonNull Listener listener) {
         this.listener = listener;
+    }
+
+    @Override
+    public void setMapRadio(@IntRange(from = 0, to = 4) int mapWeight, @IntRange(from = 0, to = 4) int screenWeight) {
+        LinearLayoutCompat.LayoutParams mapParams = (LinearLayoutCompat.LayoutParams) mapLayout.getLayoutParams();
+        mapParams.weight = mapWeight;
+        mapLayout.setLayoutParams(mapParams);
+        LinearLayoutCompat.LayoutParams screenParams = (LinearLayoutCompat.LayoutParams) screenLayout.getLayoutParams();
+        screenParams.weight = screenWeight;
+        screenLayout.setLayoutParams(screenParams);
     }
 
     @Override
@@ -281,12 +311,12 @@ public class HelperVideoFragment extends Fragment implements
 
     @Override
     public void addSubscriberView(View view) {
-        subscriberView.addView(view);
+        screenLayout.addView(view);
     }
 
     @Override
     public void removeSubscriberView(View view) {
-        subscriberView.removeView(view);
+        screenLayout.removeView(view);
     }
 
     @Override

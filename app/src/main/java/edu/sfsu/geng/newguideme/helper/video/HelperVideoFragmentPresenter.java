@@ -2,6 +2,7 @@ package edu.sfsu.geng.newguideme.helper.video;
 
 import android.Manifest;
 import android.os.Bundle;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -79,6 +80,8 @@ public class HelperVideoFragmentPresenter implements
         Set<String> friends = PreferencesUtil.getInstance(fragment.getContext()).getFriendIds();
         listener.setAddFriendButtonEnable(friends == null || !friends.contains(blindId));
 
+        listener.setMapRadio(1, 4);
+
         initialSession();
     }
 
@@ -102,6 +105,10 @@ public class HelperVideoFragmentPresenter implements
 
     void onDestroy() {
         disconnectSession();
+    }
+
+    void onMapRadioBarChanged(@IntRange(from = 0, to = 4) int progress) {
+        listener.setMapRadio(progress, 4 - progress);
     }
 
     void onMuteButtonClicked() {
@@ -409,6 +416,7 @@ public class HelperVideoFragmentPresenter implements
     interface Listener {
         void setMuteButtonEnable(boolean enableAudio);
         void setAddFriendButtonEnable(boolean showAddFriend);
+        void setMapRadio(@IntRange(from = 0, to = 4) int mapWeight, @IntRange(from = 0, to = 4) int screenWeight);
         void showAddFriendDialog();
         void showFriendRequestDialog();
         void showPermissionDeniedDialog();
