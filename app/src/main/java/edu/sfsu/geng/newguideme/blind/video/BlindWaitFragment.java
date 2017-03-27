@@ -1,6 +1,5 @@
 package edu.sfsu.geng.newguideme.blind.video;
 
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.media.Ringtone;
@@ -11,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatTextView;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.ListViewCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.sfsu.geng.newguideme.R;
-import edu.sfsu.geng.newguideme.http.ServerApi;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,23 +38,34 @@ public class BlindWaitFragment extends Fragment implements
 
     private static final String TAG = "BlindWait";
 
-    private String token;
-
     private HelperListAdapter helperListAdapter;
-
     private BlindWaitFragmentPresenter presenter;
+    private LinearLayoutCompat countdown;
+    private AppCompatTextView countDownText;
+    private BlindWaitFragmentPresenter.BlindWaitListener blindWaitListener;
 
     public BlindWaitFragment() {
         // Required empty public constructor
-        presenter = new BlindWaitFragmentPresenter(getContext(), this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Bundle bundle = getArguments();
-        token = bundle.getString("token");
-
         View view = inflater.inflate(R.layout.fragment_blind_wait, container, false);
+
+        presenter = new BlindWaitFragmentPresenter(getContext(), this);
+        presenter.setBlindWaitListener(blindWaitListener);
+
+        countdown = (LinearLayoutCompat) view.findViewById(R.id.vi_wait_countdown);
+        countDownText = (AppCompatTextView) view.findViewById(R.id.vi_wait_countdown_message);
+        AppCompatButton callEveryoneButton = (AppCompatButton) view.findViewById(R.id.vi_wait_countdown_call_button);
+        if (callEveryoneButton != null) {
+            callEveryoneButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    presenter.wantCallEveryone();
+                }
+            });
+        }
 
         ListViewCompat waitingHelperList = (ListViewCompat) view.findViewById(R.id.waiting_helper_list);
         helperListAdapter = new HelperListAdapter(getContext(), -1, new ArrayList<JSONObject>());
@@ -74,6 +84,7 @@ public class BlindWaitFragment extends Fragment implements
             });
         }
 
+        presenter.onCreate(getArguments());
         presenter.keepResAlive();
 
         return view;
@@ -106,6 +117,16 @@ public class BlindWaitFragment extends Fragment implements
     }
 
     @Override
+    public void setCountDownVisibility(boolean visible) {
+        countdown.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void setCountDownMessage(@NonNull String message) {
+        countDownText.setText(message);
+    }
+
+    @Override
     public void showStartCallDialog(@NonNull final String helperName, @NonNull final String helperId) {
         new AlertDialog.Builder(getContext())
                 .setMessage(String.format(getResources().getString(R.string.vi_wait_confirm_accept_helper), helperName))
@@ -120,7 +141,7 @@ public class BlindWaitFragment extends Fragment implements
     }
 
     void setListener(@NonNull BlindWaitFragmentPresenter.BlindWaitListener listener) {
-        presenter.setBlindWaitListener(listener);
+        blindWaitListener = listener;
     }
 
     /* When a helper join or leave the waiting list, need to refresh it */

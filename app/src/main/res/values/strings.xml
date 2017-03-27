@@ -81,6 +81,7 @@
     <string name="blind_wait_new_helper">There are %1$d Helpers in the List.</string>
     <string name="blind_wait_no_helper">There are No Helpers Now, Please Wait.</string>
     <string name="blind_wait_hint">Waiting for helpers. Select one to start.</string>
+    <string name="blind_wait_countdown_message">Will request help from everyone after %1$d minutes %2$d seconds.</string>
 
     <!-- Blind Video -->
     <string name="blind_video_mute_on">Mute is On</string>

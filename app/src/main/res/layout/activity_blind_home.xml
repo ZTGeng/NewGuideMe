@@ -128,7 +128,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:textAllCaps="true"
-                android:text="Send a request"/>
+                android:text="@string/call_friends_button"/>
 
 
         </android.support.v7.widget.LinearLayoutCompat>

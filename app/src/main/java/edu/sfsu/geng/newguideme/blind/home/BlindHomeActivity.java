@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -160,6 +161,23 @@ public class BlindHomeActivity extends HomeActivity implements
                 .setPositiveButton(R.string.ok, null)
                 .create()
                 .show();
+    }
+
+    @Override
+    public void canCallEveryoneOnly() {
+        AppCompatRadioButton callFriendsRadio = (AppCompatRadioButton) findViewById(R.id.call_favorites_radio);
+        callFriendsRadio.setEnabled(false);
+        callFriendsRadio.setChecked(false);
+        callFriendsRadio.setText(callFriendsRadio.getText() + " (Found no favorites)");
+        AppCompatRadioButton callAllRadio = (AppCompatRadioButton) findViewById(R.id.call_favorites_then_everyone_radio);
+        callAllRadio.setEnabled(false);
+        callAllRadio.setChecked(false);
+        callAllRadio.setText(callAllRadio.getText() + " (Found no favorites)");
+
+        ((AppCompatRadioButton) findViewById(R.id.call_everyone_radio)).setChecked(true);
+        blindHomePresenter.setCallEveryone();
+
+        Toast.makeText(BlindHomeActivity.this, R.string.no_friends_message_short, Toast.LENGTH_SHORT).show();
     }
 
     @Override

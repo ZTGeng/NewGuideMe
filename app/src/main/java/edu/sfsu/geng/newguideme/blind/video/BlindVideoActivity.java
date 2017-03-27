@@ -19,7 +19,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
     private static final String TAG = "BlindVideoActivity";
 
     private String token;
-    private boolean callFriend;
+//    private boolean callFriend;
     private SharedPreferences pref;
 
     @Override
@@ -31,13 +31,16 @@ public class BlindVideoActivity extends AppCompatActivity implements
         pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
         token = pref.getString("token", "");
 
-        callFriend = getIntent().getBooleanExtra("callFriend", false);
+        boolean callFriend = getIntent().getBooleanExtra("callFriend", false);
+        boolean secondCall = getIntent().getBooleanExtra("secondCall", false);
+        int secondCallAfter = getIntent().getIntExtra("secondCallAfter", 5);
 
         // initial fragment
         if (savedInstanceState == null) {
 
             Bundle bundle = new Bundle();
-            bundle.putString("token", token);
+            bundle.putBoolean("secondCall", secondCall);
+            bundle.putInt("secondCallAfter", secondCallAfter);
 
             BlindWaitFragment blindWaitFragment = new BlindWaitFragment();
             blindWaitFragment.setListener(this);
@@ -85,9 +88,9 @@ public class BlindVideoActivity extends AppCompatActivity implements
     /* BlindVideoFragment */
     @Override
     public void onQuitVideo(@NonNull String helperId, @NonNull String helperName) {
-        if (callFriend) {
-            quitToHome();
-        } else {
+//        if (callFriend) {
+//            quitToHome();
+//        } else {
             Bundle bundle = new Bundle();
             bundle.putString("token", token);
             bundle.putString("helperId", helperId);
@@ -101,7 +104,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
                     .beginTransaction()
                     .replace(R.id.blind_video_fragment, blindRateFragment)
                     .commit();
-        }
+//        }
     }
 
     /* BlindRateFragment */

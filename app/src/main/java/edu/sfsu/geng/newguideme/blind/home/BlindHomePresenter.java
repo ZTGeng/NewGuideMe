@@ -63,19 +63,11 @@ public class BlindHomePresenter {
     }
 
     void setCallFavoritesThenEveryone() {
-        if (!hasWarned) {
-            hasWarned = true;
-            listener.showWarningDialog();
-        }
         callee = Callee.favoritesThenEveryone;
         listener.setRequestButtonText(R.string.call_friends_then_everyone_button);
     }
 
     void setCallEveryone() {
-        if (!hasWarned) {
-            hasWarned = true;
-            listener.showWarningDialog();
-        }
         callee = Callee.everyone;
         listener.setRequestButtonText(R.string.call_strangers_button);
     }
@@ -95,17 +87,17 @@ public class BlindHomePresenter {
     }
 
     void onCall(@NonNull String description) {
-        if (callee == Callee.everyone) {
-            internalCall(description, false, callWithMap);
-            return;
-        }
-
-        if (friendIds.isEmpty()) {
+        if (callee != Callee.everyone && friendIds.isEmpty()) {
             Toast.makeText(context, R.string.no_friends_message_short, Toast.LENGTH_SHORT).show();
             return;
         }
 
-        internalCall(description, true, callWithMap);
+        if (callee != Callee.favorites && !hasWarned) {
+            hasWarned = true;
+            listener.showWarningDialog();
+        }
+
+        internalCall(description);
     }
 
     private void asyncGetAddressHistory() {
@@ -152,6 +144,10 @@ public class BlindHomePresenter {
                             friendNames.add(friend.getString("username"));
                         }
                         PreferencesUtil.getInstance(context).putFriends(friendIds, friendNames);
+
+                        if (friendIds.isEmpty()) {
+                            listener.canCallEveryoneOnly();
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -161,6 +157,42 @@ public class BlindHomePresenter {
             @Override
             public void onClose() {}
         });
+    }
+
+    private void internalCall(@NonNull final String description) {
+        ServerApi.DataListener dataListener = new ServerApi.DataListener() {
+            @Override
+            public void onReceiveData(String data) {
+                try {
+                    JSONObject json = new JSONObject(data);
+                    if (json.getBoolean("res")) {
+                        Intent intent = new Intent(context, BlindVideoActivity.class);
+                        intent.putExtra("callFriend", callee != Callee.everyone);
+                        intent.putExtra("secondCall", callee == Callee.favoritesThenEveryone);
+                        intent.putExtra("secondCallAfter", 5);
+                        intent.putExtra("description", description);
+                        intent.putExtra("withMap", callWithMap);
+                        context.startActivity(intent);
+                        listener.wantFinishActivity();
+                    } else {
+                        String response = json.getString("response");
+                        Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    Toast.makeText(context, R.string.vi_home_call_error, Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onClose() {}
+        };
+
+        if (callee == Callee.everyone) {
+            ServerApi.callStrangers(token, description, dataListener);
+        } else {
+            ServerApi.callAllFriends(token, description, dataListener);
+        }
     }
 
     private void internalCall(@NonNull String description, final boolean isCallFavorites, final boolean isWithMap) {
@@ -197,6 +229,7 @@ public class BlindHomePresenter {
     }
 
     interface Listener {
+        void canCallEveryoneOnly();
         void hideDestinationInput();
         void showDestinationInput();
         void showDescriptionInput();
