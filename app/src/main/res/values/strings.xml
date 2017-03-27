@@ -51,6 +51,8 @@
     <!-- Blind Home -->
     <string name="friend_hint">Call a Favorite or Anyone?</string>
     <string name="call_friends_button">Request help from your favorites</string>
+    <string name="call_friends_then_everyone_button">Request help from your favorites. If no reply, call
+        everyone after 5 minutes.</string>
     <string name="call_strangers_button">Request help from everyone</string>
     <string name="no_friends_message_short">We didn\'t find any favorites. Try later or request from everyone.</string>
     <string name="no_friends_message">We didn\'t find any favorites. Tell your favorites your invite code showing

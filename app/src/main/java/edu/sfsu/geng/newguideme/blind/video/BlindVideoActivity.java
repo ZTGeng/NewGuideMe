@@ -14,7 +14,7 @@ import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.blind.home.BlindHomeActivity;
 
 public class BlindVideoActivity extends AppCompatActivity implements
-        BlindWaitFragment.Listener, BlindVideoFragment.Listener, BlindRateFragment.Listener {
+        BlindWaitFragmentPresenter.BlindWaitListener, BlindVideoFragment.Listener, BlindRateFragment.Listener {
 
     private static final String TAG = "BlindVideoActivity";
 

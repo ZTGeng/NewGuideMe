@@ -82,7 +82,7 @@
                 <android.support.v7.widget.AppCompatTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Do you want a navigation map?"/>
+                    android:text="Do you want navigation?"/>
 
                 <RadioGroup
                     android:layout_width="match_parent"
@@ -116,8 +116,7 @@
                     <android.support.v7.widget.AppCompatAutoCompleteTextView
                         android:id="@+id/destination_autocomplete"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Destination"/>
+                        android:layout_height="wrap_content"/>
 
                 </android.support.design.widget.TextInputLayout>
 

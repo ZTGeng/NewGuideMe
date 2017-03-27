@@ -33,20 +33,22 @@ import edu.sfsu.geng.newguideme.http.ServerApi;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class BlindWaitFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class BlindWaitFragment extends Fragment implements
+        AdapterView.OnItemClickListener,
+        BlindWaitFragmentPresenter.Listener {
 
     private static final String TAG = "BlindWait";
 
     private String token;
 
-    private Listener listener;
     private HelperListAdapter helperListAdapter;
 
+    private BlindWaitFragmentPresenter presenter;
 
     public BlindWaitFragment() {
         // Required empty public constructor
+        presenter = new BlindWaitFragmentPresenter(getContext(), this);
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -72,7 +74,7 @@ public class BlindWaitFragment extends Fragment implements AdapterView.OnItemCli
             });
         }
 
-        keepResAlive();
+        presenter.keepResAlive();
 
         return view;
     }
@@ -97,67 +99,33 @@ public class BlindWaitFragment extends Fragment implements AdapterView.OnItemCli
         try {
             final String helperName = helper.getString("username");
             final String helperId = helper.getString("token");
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setMessage(String.format(getResources().getString(R.string.vi_wait_confirm_accept_helper), helperName));
-            builder.setPositiveButton(R.string.vi_wait_accept_button, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    // call select, go to videoactivity, NO NEED TO delete room
-                    ServerApi.selectHelper(token, helperId, new ServerApi.DataListener() {
-                        @Override
-                        public void onReceiveData(String data) {
-                            try {
-                                JSONObject json = new JSONObject(data);
-                                if (json.getBoolean("res")) {
-                                    String videoSession = json.getString("session");
-                                    String videoToken = json.getString("token");
-
-                                    listener.onSelectHelper(videoSession, videoToken, helperId, helperName);
-                                } else {
-                                    Toast.makeText(getContext(), R.string.vi_wait_call_error, Toast.LENGTH_SHORT).show();
-                                }
-                            } catch (JSONException e) {
-                                Toast.makeText(getContext(), R.string.vi_wait_call_error, Toast.LENGTH_SHORT).show();
-                                e.getStackTrace();
-                            }
-                        }
-
-                        @Override
-                        public void onClose() {}
-                    });
-                }
-            });
-            builder.setNegativeButton(R.string.vi_wait_cancel_button, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    // User cancelled the dialog
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
+            presenter.onSelectHelper(helperName, helperId);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    void setListener(@NonNull Listener listener) {
-        this.listener = listener;
+    @Override
+    public void showStartCallDialog(@NonNull final String helperName, @NonNull final String helperId) {
+        new AlertDialog.Builder(getContext())
+                .setMessage(String.format(getResources().getString(R.string.vi_wait_confirm_accept_helper), helperName))
+                .setPositiveButton(R.string.vi_wait_accept_button, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        presenter.wantStartCall(helperName, helperId);
+                    }
+                })
+                .setNegativeButton(R.string.vi_wait_cancel_button, null)
+                .create()
+                .show();
     }
 
-    private void keepResAlive() {
-        ServerApi.blindKeepAlive(token, new ServerApi.DataListener() {
-            @Override
-            public void onReceiveData(String helperListJSON) {
-                refresh(helperListJSON);
-            }
-
-            @Override
-            public void onClose() {
-                Log.d(TAG, "blind user response is closed");
-            }
-        });
+    void setListener(@NonNull BlindWaitFragmentPresenter.BlindWaitListener listener) {
+        presenter.setBlindWaitListener(listener);
     }
 
     /* When a helper join or leave the waiting list, need to refresh it */
-    private void refresh(String helperListJson) {
+    @Override
+    public void refresh(@NonNull String helperListJson) {
         helperListAdapter.clear();
         JSONArray helperArray;
         try {
@@ -183,32 +151,25 @@ public class BlindWaitFragment extends Fragment implements AdapterView.OnItemCli
 
     private void onQuitClicked() {
         Log.d(TAG, "Quit button onClicked");
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setMessage(R.string.vi_wait_quit_confirm_message);
-        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                quit();
-            }
-        });
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {}
-        });
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        presenter.onQuitClicked();
     }
 
-    private void quit() {
-        ServerApi.blindDeleteRoom(token, new ServerApi.DataListener() {
-            @Override
-            public void onReceiveData(String data) {}
-
-            @Override
-            public void onClose() {}
-        });
-
-        listener.onQuitWaiting();
+    @Override
+    public void showQuitDialog() {
+        new AlertDialog.Builder(getContext())
+                .setMessage(R.string.vi_wait_quit_confirm_message)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.wantQuit();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {}
+                })
+                .create()
+                .show();
     }
 
     private class HelperListAdapter extends ArrayAdapter<JSONObject> {
@@ -249,13 +210,4 @@ public class BlindWaitFragment extends Fragment implements AdapterView.OnItemCli
             return rowView;
         }
     }
-
-    interface Listener {
-        void onSelectHelper(@NonNull String videoSession,
-                @NonNull String videoToken,
-                @NonNull String helperId,
-                @NonNull String helperName);
-        void onQuitWaiting();
-    }
-
 }

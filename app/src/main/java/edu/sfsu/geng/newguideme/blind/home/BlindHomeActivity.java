@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatButton;
@@ -44,6 +46,8 @@ public class BlindHomeActivity extends HomeActivity implements
 
     private BlindHomePresenter blindHomePresenter;
     private AutoCompleteTextView destinationInput;
+    private TextInputLayout destinationInputLayout;
+    private AppCompatButton RequestButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +56,14 @@ public class BlindHomeActivity extends HomeActivity implements
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
+        destinationInputLayout = (TextInputLayout) findViewById(R.id.destination_inputlayout);
         destinationInput = (AutoCompleteTextView) findViewById(R.id.destination_autocomplete);
         destinationInput.setThreshold(1);
         destinationInput.setCompletionHint("Select address from history or input a new one");
 
         blindHomePresenter = new BlindHomePresenter(this, this);
 
-        AppCompatButton RequestButton = (AppCompatButton) findViewById(R.id.request_button);
+        RequestButton = (AppCompatButton) findViewById(R.id.request_button);
         RequestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,7 +110,17 @@ public class BlindHomeActivity extends HomeActivity implements
 
     @Override
     public void showDestinationInput() {
-        destinationInput.setVisibility(View.VISIBLE);
+        destinationInputLayout.setHint("Input a destination");
+    }
+
+    @Override
+    public void showDescriptionInput() {
+        destinationInputLayout.setHint("Describe your need");
+    }
+
+    @Override
+    public void setRequestButtonText(@StringRes int textId) {
+        RequestButton.setText(textId);
     }
 
     @Override

@@ -3,6 +3,7 @@ package edu.sfsu.geng.newguideme.blind.home;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -48,15 +49,17 @@ public class BlindHomePresenter {
         friendIds = new HashSet<>();
         friendNames = new HashSet<>();
 
+        listener.showDestinationInput();
+
 //        asyncGetAddressHistory();
-//        String[] str = {"dhasjkdhkn", "a das", "d sada", "jfdue, hefhe fe", "grg, gff", "dfg gfgf", "asasa"
-//        , "agfdgfd, fds", "abggdbf fsdfd", "adfsd fgfgdfgdf gdfgdfgd", "afdfvw fwf"};
-//        listener.setDestinationAdapter(new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, str));
+        String[] str = {"SFSU", "San Francisco", "safeway", "Market Street"};
+        listener.setDestinationAdapter(new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, str));
         asyncGetFriendsList();
     }
 
     void setCallFavorites() {
         callee = Callee.favorites;
+        listener.setRequestButtonText(R.string.call_friends_button);
     }
 
     void setCallFavoritesThenEveryone() {
@@ -65,6 +68,7 @@ public class BlindHomePresenter {
             listener.showWarningDialog();
         }
         callee = Callee.favoritesThenEveryone;
+        listener.setRequestButtonText(R.string.call_friends_then_everyone_button);
     }
 
     void setCallEveryone() {
@@ -73,6 +77,7 @@ public class BlindHomePresenter {
             listener.showWarningDialog();
         }
         callee = Callee.everyone;
+        listener.setRequestButtonText(R.string.call_strangers_button);
     }
 
     void setCallWithMap() {
@@ -82,7 +87,7 @@ public class BlindHomePresenter {
 
     void setCallWithoutMap() {
         callWithMap = false;
-        listener.hideDestinationInput();
+        listener.showDescriptionInput();
     }
 
     void onRequestButtonClicked() {
@@ -194,6 +199,8 @@ public class BlindHomePresenter {
     interface Listener {
         void hideDestinationInput();
         void showDestinationInput();
+        void showDescriptionInput();
+        void setRequestButtonText(@StringRes int textId);
         void setDestinationAdapter(ArrayAdapter<String> adapter);
         void showCallDialog();
         void showWarningDialog();
