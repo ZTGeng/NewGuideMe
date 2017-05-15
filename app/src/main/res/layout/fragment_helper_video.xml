@@ -14,8 +14,10 @@
         android:orientation="vertical">
 
         <android.support.v7.widget.LinearLayoutCompat
+            android:id="@+id/helper_video_map_ratio_bar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/space_1x">
 
             <android.support.v7.widget.AppCompatTextView
                 android:layout_width="wrap_content"
@@ -33,6 +35,7 @@
                     android:id="@+id/map_radio_seekbar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:progress="1"
                     android:max="4"/>
 
                 <RelativeLayout
@@ -58,8 +61,6 @@
                 </RelativeLayout>
 
             </android.support.v7.widget.LinearLayoutCompat>
-
-
 
         </android.support.v7.widget.LinearLayoutCompat>
 

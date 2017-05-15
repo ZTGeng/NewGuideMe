@@ -1,7 +1,6 @@
 package edu.sfsu.geng.newguideme.blind.video;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -9,9 +8,9 @@ import android.view.WindowManager;
 
 import java.util.Set;
 
-import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.blind.home.BlindHomeActivity;
+import edu.sfsu.geng.newguideme.utils.PreferencesUtil;
 
 public class BlindVideoActivity extends AppCompatActivity implements
         BlindWaitFragmentPresenter.BlindWaitListener, BlindVideoFragment.Listener, BlindRateFragment.Listener {
@@ -19,8 +18,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
     private static final String TAG = "BlindVideoActivity";
 
     private String token;
-//    private boolean callFriend;
-    private SharedPreferences pref;
+    private boolean isMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +26,17 @@ public class BlindVideoActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_blind_video);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        pref = getSharedPreferences(Config.PREF_KEY, MODE_PRIVATE);
-        token = pref.getString("token", "");
+        token = PreferencesUtil.getInstance(this).getToken();
 
+        isMap = getIntent().getBooleanExtra("withMap", false);
         boolean callFriend = getIntent().getBooleanExtra("callFriend", false);
         boolean secondCall = getIntent().getBooleanExtra("secondCall", false);
         int secondCallAfter = getIntent().getIntExtra("secondCallAfter", 5);
+        String des = getIntent().getStringExtra("des");
+        des = des == null ? "" : des;
+        if (isMap && des.equals("")) {
+            des = "navigation:0,0?";
+        }
 
         // initial fragment
         if (savedInstanceState == null) {
@@ -41,6 +44,7 @@ public class BlindVideoActivity extends AppCompatActivity implements
             Bundle bundle = new Bundle();
             bundle.putBoolean("secondCall", secondCall);
             bundle.putInt("secondCallAfter", secondCallAfter);
+            bundle.putString("des", des);
 
             BlindWaitFragment blindWaitFragment = new BlindWaitFragment();
             blindWaitFragment.setListener(this);
@@ -64,12 +68,14 @@ public class BlindVideoActivity extends AppCompatActivity implements
         bundle.putString("videoToken", videoToken);
         bundle.putString("helperId", helperId);
         bundle.putString("helperName", helperName);
+        bundle.putBoolean("isMap", isMap);
 
         BlindVideoFragment blindVideoFragment = new BlindVideoFragment();
         blindVideoFragment.setListener(this);
         blindVideoFragment.setArguments(bundle);
 
-        Set<String> friends = pref.getStringSet("friendIds", null);
+//        Set<String> friends = pref.getStringSet("friendIds", null);
+        Set<String> friends = PreferencesUtil.getInstance(this).getFriendIds();
         if (friends != null && friends.contains(helperId)) {
             blindVideoFragment.closeAddFriendbutton();
         }

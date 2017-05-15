@@ -31,6 +31,7 @@ import java.util.Set;
 import edu.sfsu.geng.newguideme.Config;
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.http.ServerApi;
+import edu.sfsu.geng.newguideme.utils.Destination;
 import edu.sfsu.geng.newguideme.utils.PreferencesUtil;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -61,6 +62,8 @@ public class HelperVideoFragmentPresenter implements
     private Subscriber mSubscriber;
 
     private boolean enableAudio;
+    private boolean isMap;
+    private String des;
 
     public HelperVideoFragmentPresenter(@NonNull Fragment fragment, @NonNull Listener listener) {
 
@@ -72,6 +75,8 @@ public class HelperVideoFragmentPresenter implements
         sessionId = bundle.getString("sessionId");
         videoToken = bundle.getString("videoToken");
         blindId = bundle.getString("blindId");
+        isMap = bundle.getBoolean("isMap");
+        des = bundle.getString("des");
 
         enableAudio = true;
     }
@@ -80,7 +85,16 @@ public class HelperVideoFragmentPresenter implements
         Set<String> friends = PreferencesUtil.getInstance(fragment.getContext()).getFriendIds();
         listener.setAddFriendButtonEnable(friends == null || !friends.contains(blindId));
 
-        listener.setMapRadio(1, 4);
+        if (isMap) {
+            if (des.startsWith("navigation:") && !des.equals("navigation:0,0?")) {
+                Destination destination = new Destination(des);
+                listener.setDestination(new LatLng(destination.getLat(), destination.getLng()), destination.getName());
+            }
+            listener.setMapRadio(1, 3);
+        } else {
+            listener.hideMapSeekBar();
+            listener.setMapRadio(0, 4);
+        }
 
         initialSession();
     }
@@ -414,6 +428,7 @@ public class HelperVideoFragmentPresenter implements
     }
 
     interface Listener {
+        void hideMapSeekBar();
         void setMuteButtonEnable(boolean enableAudio);
         void setAddFriendButtonEnable(boolean showAddFriend);
         void setMapRadio(@IntRange(from = 0, to = 4) int mapWeight, @IntRange(from = 0, to = 4) int screenWeight);

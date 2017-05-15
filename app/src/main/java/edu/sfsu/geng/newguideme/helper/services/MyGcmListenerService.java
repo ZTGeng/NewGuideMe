@@ -71,6 +71,7 @@ public class MyGcmListenerService extends GcmListenerService {
         Intent helperHomeActivity = new Intent(MyGcmListenerService.this, HelperHomeActivity.class);
         helperHomeActivity.putExtra("roomId", roomId);
         helperHomeActivity.putExtra("blindName", senderName);
+        helperHomeActivity.putExtra("des", description == null ? "" : description);
         helperHomeActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(MyGcmListenerService.this, 0 /* Request code */,
                 helperHomeActivity, PendingIntent.FLAG_ONE_SHOT);
@@ -85,7 +86,11 @@ public class MyGcmListenerService extends GcmListenerService {
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent);
         if (description != null) {
-            notificationBuilder.setSubText(description);
+            if (description.startsWith("navigation:")) {
+                notificationBuilder.setSubText(description.split("\\?", 2)[1]);
+            } else {
+                notificationBuilder.setSubText(description);
+            }
         }
 
         NotificationManager notificationManager =

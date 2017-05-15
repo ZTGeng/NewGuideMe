@@ -64,6 +64,7 @@ public class HelperVideoFragment extends Fragment implements
 
     private Listener listener;
 
+    private LinearLayoutCompat mapRatioBarComponent;
     private AppCompatSeekBar mapRadioSeekBar;
     private LinearLayoutCompat mapLayout;
     private LinearLayoutCompat screenLayout;
@@ -78,16 +79,16 @@ public class HelperVideoFragment extends Fragment implements
             Bundle savedInstanceState) {
 
         presenter = new HelperVideoFragmentPresenter(this, this);
+        View view = inflater.inflate(R.layout.fragment_helper_video, container, false);
 
         Bundle bundle = getArguments();
         blindName = bundle.getString("blindName");
-
-        View view = inflater.inflate(R.layout.fragment_helper_video, container, false);
 
         screenLayout = (LinearLayoutCompat) view.findViewById(R.id.helper_video_screen);
         mapLayout = (LinearLayoutCompat) view.findViewById(R.id.helper_video_map);
         initMap();
 
+        mapRatioBarComponent = (LinearLayoutCompat) view.findViewById(R.id.helper_video_map_ratio_bar);
         mapRadioSeekBar = (AppCompatSeekBar) view.findViewById(R.id.map_radio_seekbar);
         mapRadioSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -159,6 +160,11 @@ public class HelperVideoFragment extends Fragment implements
 
     void setListener(@NonNull Listener listener) {
         this.listener = listener;
+    }
+
+    @Override
+    public void hideMapSeekBar() {
+        mapRatioBarComponent.setVisibility(View.GONE);
     }
 
     @Override
@@ -262,11 +268,16 @@ public class HelperVideoFragment extends Fragment implements
             currentMarker = mMap.addMarker(new MarkerOptions()
                     .position(location)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_person_pin_black_24dp))
-                    .title("User Location"));
+                    .title(blindName));
+            currentMarker.showInfoWindow();
             mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
             mMap.moveCamera(CameraUpdateFactory.zoomTo(15f));
         } else {
             currentMarker.setPosition(location);
+        }
+
+        if (polyLine == null && destinationMarker != null) {
+            presenter.requestNavigationRoute(currentMarker.getPosition(), destinationMarker.getPosition());
         }
     }
 
@@ -281,6 +292,7 @@ public class HelperVideoFragment extends Fragment implements
         if (destinationMarker == null) {
             destinationMarker = mMap.addMarker(new MarkerOptions()
                     .position(destination)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                     .snippet(placeName)
                     .title("Destination"));
             destinationMarker.showInfoWindow();

@@ -168,7 +168,9 @@ public class ServerApi {
 
     /* Map APIs */
     public static void getAddressHistory(String token, DataListener listener) {
-        // TODO add API
+        new HttpRequest("/api/history", listener)
+                .add("token", token)
+                .send();
     }
     public static void getRoute(LatLng start, LatLng end, DataListener listener) {
         String url = "http://maps.googleapis.com/maps/api/directions/json" +

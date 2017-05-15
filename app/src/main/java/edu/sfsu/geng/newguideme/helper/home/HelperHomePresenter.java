@@ -28,8 +28,8 @@ class HelperHomePresenter {
     @NonNull Listener listener;
     @NonNull String token;
 
-    @NonNull private Handler handler;
-    @NonNull private Runnable refreshRunnable;
+    private Handler handler;
+    private Runnable refreshRunnable;
 
     private boolean openAutoRefresh;
     private boolean isRefreshing;
@@ -72,15 +72,27 @@ class HelperHomePresenter {
 
     void onRoomClicked(@NonNull JSONObject room) {
         try {
-            final String blindName = room.getString("username");
-            final String roomId = room.getString("room_id");
-            listener.showJoinDialog(blindName, roomId);
+            String blindName = room.getString("username");
+            listener.showJoinDialog(blindName, room);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    void onJoinRoom(@NonNull final String blindName, @NonNull final String roomId) {
+    void onJoinRoom(@NonNull final String blindName, @NonNull final JSONObject room) {
+        try {
+            final String roomId = room.getString("room_id");
+            final String des = room.getString("des");
+
+            onJoinRoom(blindName, roomId, des);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void onJoinRoom(@NonNull final String blindName, @NonNull final String roomId, @NonNull final String des) {
+        final boolean isMap = des.startsWith("navigation:");
+
         ServerApi.helperJoinRoom(token, roomId, new ServerApi.DataListener() {
             @Override
             public void onReceiveData(String data) {
@@ -90,6 +102,8 @@ class HelperHomePresenter {
                         Intent helperWaitActivity = new Intent(context, HelperVideoActivity.class);
                         helperWaitActivity.putExtra("roomId", roomId);
                         helperWaitActivity.putExtra("blindName", blindName);
+                        helperWaitActivity.putExtra("des", des);
+                        helperWaitActivity.putExtra("isMap", isMap);
                         context.startActivity(helperWaitActivity);
                         listener.wantFinishActivity();
                     } else {
@@ -179,7 +193,7 @@ class HelperHomePresenter {
 
     interface Listener {
         void updateRoomList(@NonNull String data);
-        void showJoinDialog(@NonNull String blindName, @NonNull String roomId);
+        void showJoinDialog(@NonNull String blindName, @NonNull JSONObject room);
         void wantFinishActivity();
     }
 }

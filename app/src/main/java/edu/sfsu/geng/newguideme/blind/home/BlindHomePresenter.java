@@ -11,8 +11,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import edu.sfsu.geng.newguideme.R;
 import edu.sfsu.geng.newguideme.blind.video.BlindVideoActivity;
@@ -51,9 +52,14 @@ public class BlindHomePresenter {
 
         listener.showDestinationInput();
 
-//        asyncGetAddressHistory();
-        String[] str = {"SFSU", "San Francisco", "safeway", "Market Street"};
-        listener.setDestinationAdapter(new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, str));
+        asyncGetAddressHistory();
+//        String[] str = {"SFSU", "San Francisco", "safeway", "Market Street"};
+//        List<String> addresses = new ArrayList<>();
+//        for (int i = 0; i < str.length; i++) {
+//            addresses.add(str[i]);
+//        }
+//        listener.setDescriptionAdapter(new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, str));
+//        listener.setAddressHistoryAdaptor(addresses);
         asyncGetFriendsList();
     }
 
@@ -83,7 +89,19 @@ public class BlindHomePresenter {
     }
 
     void onRequestButtonClicked() {
-        listener.showCallDialog();
+        String message = "Request help from ";
+        switch (callee) {
+            case favorites:
+                message += "your favorites?";
+                break;
+            case favoritesThenEveryone:
+                message += "your favorites, and if no reply in five minutes, request from everyone?";
+                break;
+            case everyone:
+                message += "everyone?";
+                break;
+        }
+        listener.showCallDialog(message, !Callee.favorites.equals(callee));
     }
 
     void onCall(@NonNull String description) {
@@ -92,12 +110,13 @@ public class BlindHomePresenter {
             return;
         }
 
-        if (callee != Callee.favorites && !hasWarned) {
-            hasWarned = true;
-            listener.showWarningDialog();
-        }
-
+//        if (callee != Callee.favorites && !hasWarned) {
+//            hasWarned = true;
+//            listener.showWarningDialog();
+//        } else {
+//        }
         internalCall(description);
+
     }
 
     private void asyncGetAddressHistory() {
@@ -108,15 +127,19 @@ public class BlindHomePresenter {
                     JSONObject json = new JSONObject(data);
                     if (json.getBoolean("res")) {
                         JSONArray addressesJSONArray =  json.getJSONArray("addresses");
-                        String[] addresses = new String[addressesJSONArray.length()];
+//                        String[] addresses = new String[addressesJSONArray.length()];
+                        List<String> addresses = new ArrayList<>();
                         for (int i = 0; i < addressesJSONArray.length(); i++) {
-                            addresses[i] = addressesJSONArray.getString(i);
+//                            addresses[i] = addressesJSONArray.getString(i);
+                            addresses.add(addressesJSONArray.getString(i));
+                            if (i > 3) break;
                         }
-                        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                                context,
-                                android.R.layout.simple_dropdown_item_1line,
-                                addresses);
-                        listener.setDestinationAdapter(adapter);
+//                        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+//                                context,
+//                                android.R.layout.simple_dropdown_item_1line,
+//                                addresses);
+//                        listener.setDescriptionAdapter(adapter);
+                        listener.setAddressHistoryAdaptor(addresses);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -159,7 +182,7 @@ public class BlindHomePresenter {
         });
     }
 
-    private void internalCall(@NonNull final String description) {
+    private void internalCall(@NonNull final String des) {
         ServerApi.DataListener dataListener = new ServerApi.DataListener() {
             @Override
             public void onReceiveData(String data) {
@@ -170,7 +193,7 @@ public class BlindHomePresenter {
                         intent.putExtra("callFriend", callee != Callee.everyone);
                         intent.putExtra("secondCall", callee == Callee.favoritesThenEveryone);
                         intent.putExtra("secondCallAfter", 5);
-                        intent.putExtra("description", description);
+                        intent.putExtra("description", des);
                         intent.putExtra("withMap", callWithMap);
                         context.startActivity(intent);
                         listener.wantFinishActivity();
@@ -189,44 +212,44 @@ public class BlindHomePresenter {
         };
 
         if (callee == Callee.everyone) {
-            ServerApi.callStrangers(token, description, dataListener);
+            ServerApi.callStrangers(token, des, dataListener);
         } else {
-            ServerApi.callAllFriends(token, description, dataListener);
+            ServerApi.callAllFriends(token, des, dataListener);
         }
     }
 
-    private void internalCall(@NonNull String description, final boolean isCallFavorites, final boolean isWithMap) {
-        ServerApi.DataListener dataListener = new ServerApi.DataListener() {
-            @Override
-            public void onReceiveData(String data) {
-                try {
-                    JSONObject json = new JSONObject(data);
-                    if (json.getBoolean("res")) {
-                        Intent blindWaitActivity = new Intent(context, BlindVideoActivity.class);
-                        blindWaitActivity.putExtra("callFriend", isCallFavorites);
-                        blindWaitActivity.putExtra("withMap", isWithMap);
-                        context.startActivity(blindWaitActivity);
-                        listener.wantFinishActivity();
-                    } else {
-                        String response = json.getString("response");
-                        Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                    }
-                } catch (JSONException e) {
-                    Toast.makeText(context, R.string.vi_home_call_error, Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onClose() {}
-        };
-
-        if (isCallFavorites) {
-            ServerApi.callAllFriends(token, description, dataListener);
-        } else {
-            ServerApi.callStrangers(token, description, dataListener);
-        }
-    }
+//    private void internalCall(@NonNull String description, final boolean isCallFavorites, final boolean isWithMap) {
+//        ServerApi.DataListener dataListener = new ServerApi.DataListener() {
+//            @Override
+//            public void onReceiveData(String data) {
+//                try {
+//                    JSONObject json = new JSONObject(data);
+//                    if (json.getBoolean("res")) {
+//                        Intent blindWaitActivity = new Intent(context, BlindVideoActivity.class);
+//                        blindWaitActivity.putExtra("callFriend", isCallFavorites);
+//                        blindWaitActivity.putExtra("withMap", isWithMap);
+//                        context.startActivity(blindWaitActivity);
+//                        listener.wantFinishActivity();
+//                    } else {
+//                        String response = json.getString("response");
+//                        Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+//                    }
+//                } catch (JSONException e) {
+//                    Toast.makeText(context, R.string.vi_home_call_error, Toast.LENGTH_SHORT).show();
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            @Override
+//            public void onClose() {}
+//        };
+//
+//        if (isCallFavorites) {
+//            ServerApi.callAllFriends(token, description, dataListener);
+//        } else {
+//            ServerApi.callStrangers(token, description, dataListener);
+//        }
+//    }
 
     interface Listener {
         void canCallEveryoneOnly();
@@ -234,8 +257,9 @@ public class BlindHomePresenter {
         void showDestinationInput();
         void showDescriptionInput();
         void setRequestButtonText(@StringRes int textId);
-        void setDestinationAdapter(ArrayAdapter<String> adapter);
-        void showCallDialog();
+        void setDescriptionAdapter(ArrayAdapter<String> adapter);
+        void setAddressHistoryAdaptor(@NonNull List<String> addresses);
+        void showCallDialog(@NonNull String message, boolean warning);
         void showWarningDialog();
         void wantFinishActivity();
     }

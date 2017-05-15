@@ -1,8 +1,11 @@
 package edu.sfsu.geng.newguideme.blind.home;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.TextInputLayout;
@@ -11,18 +14,32 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatTextView;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.support.v7.widget.ListViewCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.sfsu.geng.newguideme.HomeActivity;
 import edu.sfsu.geng.newguideme.R;
+import edu.sfsu.geng.newguideme.utils.Destination;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -46,9 +63,13 @@ public class BlindHomeActivity extends HomeActivity implements
     private static final int RC_SETTINGS_SCREEN_PERM = 123;
 
     private BlindHomePresenter blindHomePresenter;
-    private AutoCompleteTextView destinationInput;
-    private TextInputLayout destinationInputLayout;
+    private AutoCompleteTextView descriptionInput;
+    private TextInputLayout descriptionInputLayout;
     private AppCompatButton RequestButton;
+    private LinearLayoutCompat destinationComponent;
+    private ListViewCompat destinationHistory;
+    private SupportPlaceAutocompleteFragment autocompleteFragment;
+    private String destinationString = "navigation:0,0?";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +78,34 @@ public class BlindHomeActivity extends HomeActivity implements
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        destinationInputLayout = (TextInputLayout) findViewById(R.id.destination_inputlayout);
-        destinationInput = (AutoCompleteTextView) findViewById(R.id.destination_autocomplete);
-        destinationInput.setThreshold(1);
-        destinationInput.setCompletionHint("Select address from history or input a new one");
+        descriptionInputLayout = (TextInputLayout) findViewById(R.id.destination_inputlayout);
+        descriptionInput = (AutoCompleteTextView) findViewById(R.id.destination_autocomplete);
+        descriptionInput.setThreshold(1);
+//        descriptionInput.setCompletionHint("Select address from history or input a new one");
+
+        destinationComponent = (LinearLayoutCompat) findViewById(R.id.destination_component);
+        destinationHistory = (ListViewCompat) findViewById(R.id.destination_history_list);
+
+        autocompleteFragment = (SupportPlaceAutocompleteFragment)
+                getSupportFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        autocompleteFragment.setHint("Input your destination");
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                Log.i(TAG, "Place: " + place.getName());
+                LatLng latLng = place.getLatLng();
+                Destination destination = new Destination(latLng.latitude, latLng.longitude, place.getName().toString());
+                destinationString = destination.toString();
+//                send("destination", String.valueOf(latLng.latitude) + "," + String.valueOf(latLng.longitude) + "," + place.getName());
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.i(TAG, "Error when inputting address: " + status);
+                Toast.makeText(BlindHomeActivity.this, R.string.blind_video_destination_error, Toast.LENGTH_SHORT)
+                        .show();
+            }
+        });
 
         blindHomePresenter = new BlindHomePresenter(this, this);
 
@@ -106,17 +151,21 @@ public class BlindHomeActivity extends HomeActivity implements
 
     @Override
     public void hideDestinationInput() {
-        destinationInput.setVisibility(View.GONE);
+        descriptionInput.setVisibility(View.GONE);
     }
 
     @Override
     public void showDestinationInput() {
-        destinationInputLayout.setHint("Input a destination");
+        destinationComponent.setVisibility(View.VISIBLE);
+        descriptionInputLayout.setVisibility(View.GONE);
+//        descriptionInputLayout.setHint("Input a destination");
     }
 
     @Override
     public void showDescriptionInput() {
-        destinationInputLayout.setHint("Describe your need");
+        destinationComponent.setVisibility(View.GONE);
+        descriptionInputLayout.setVisibility(View.VISIBLE);
+//        descriptionInputLayout.setHint("Describe your need");
     }
 
     @Override
@@ -125,28 +174,46 @@ public class BlindHomeActivity extends HomeActivity implements
     }
 
     @Override
-    public void setDestinationAdapter(ArrayAdapter<String> adapter) {
-        destinationInput.setAdapter(adapter);
+    public void setDescriptionAdapter(ArrayAdapter<String> adapter) {
+        descriptionInput.setAdapter(adapter);
+    }
+
+    @Override
+    public void setAddressHistoryAdaptor(@NonNull final List<String> addresses) {
+        destinationHistory.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, addresses));
+        destinationHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                destinationHistory.setVisibility(View.GONE);
+                autocompleteFragment.setText(addresses.get(position));
+            }
+        });
     }
 
     @Override
     @AfterPermissionGranted(RC_BLIND_PERMS)
-    public void showCallDialog() {
+    public void showCallDialog(@NonNull String message, boolean warning) {
         if (EasyPermissions.hasPermissions(this, BLIND_PERMISSIONS)) {
-            final View view = getLayoutInflater().inflate(R.layout.start_call_dialog_layout, null);
-            new AlertDialog.Builder(this)
-                    .setMessage(R.string.start_call_hint)
-                    .setView(view)
-                    .setPositiveButton(R.string.start_call_next, new DialogInterface.OnClickListener() {
+//            final View view = getLayoutInflater().inflate(R.layout.start_call_dialog_layout, null);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setMessage(message)
+//                    .setMessage(R.string.start_call_hint)
+//                    .setView(view)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            String description =
-                                    ((EditText) view.findViewById(R.id.start_call_des_string)).getText().toString();
-                            blindHomePresenter.onCall(description);
+                            if (descriptionInputLayout.getVisibility() == View.VISIBLE) {
+                                String description = descriptionInput.getText().toString();
+                                blindHomePresenter.onCall(description);
+                            } else {
+                                blindHomePresenter.onCall(destinationString);
+                            }
                         }
                     })
-                    .setNegativeButton(R.string.start_call_cancel, null)
-                    .create()
-                    .show();
+                    .setNegativeButton(R.string.start_call_cancel, null);
+            if (warning) {
+                builder.setView(R.layout.warning_dialog_layout);
+            }
+            builder.create().show();
         } else {
             EasyPermissions.requestPermissions(this, getString(R.string.rationale_all), RC_BLIND_PERMS, BLIND_PERMISSIONS);
         }
@@ -206,6 +273,7 @@ public class BlindHomeActivity extends HomeActivity implements
 
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
+
 }
 
 

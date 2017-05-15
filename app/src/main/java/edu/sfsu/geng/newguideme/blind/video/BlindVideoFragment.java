@@ -92,24 +92,31 @@ public class BlindVideoFragment extends Fragment implements
 
         View view = inflater.inflate(R.layout.fragment_blind_video, container, false);
 
-        SupportPlaceAutocompleteFragment autocompleteFragment = (SupportPlaceAutocompleteFragment)
-//                getActivity().getSupportFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-                getChildFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-        autocompleteFragment.setHint(getString(R.string.blind_video_destination_hint));
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                Log.i(TAG, "Place: " + place.getName());
-                LatLng latLng = place.getLatLng();
-                send("destination", String.valueOf(latLng.latitude) + "," + String.valueOf(latLng.longitude) + "," + place.getName());
-            }
+        boolean isMap = bundle.getBoolean("isMap");
 
-            @Override
-            public void onError(Status status) {
-                Log.i(TAG, "Error when inputting address: " + status);
-                Toast.makeText(getContext(), R.string.blind_video_destination_error, Toast.LENGTH_SHORT).show();
-            }
-        });
+        if (isMap) {
+            SupportPlaceAutocompleteFragment autocompleteFragment = (SupportPlaceAutocompleteFragment)
+//                getActivity().getSupportFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+                    getChildFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+            autocompleteFragment.setHint(getString(R.string.blind_video_destination_hint));
+            autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+                @Override
+                public void onPlaceSelected(Place place) {
+                    Log.i(TAG, "Place: " + place.getName());
+                    LatLng latLng = place.getLatLng();
+                    send("destination", String.valueOf(latLng.latitude) + "," + String.valueOf(latLng.longitude) + ","
+                            + place.getName());
+                }
+
+                @Override
+                public void onError(Status status) {
+                    Log.i(TAG, "Error when inputting address: " + status);
+                    Toast.makeText(getContext(), R.string.blind_video_destination_error, Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            view.findViewById(R.id.address_component).setVisibility(View.GONE);
+        }
 
         // buttons
         AppCompatButton quitButton = (AppCompatButton) view.findViewById(R.id.blind_video_quit_btn);
@@ -187,6 +194,9 @@ public class BlindVideoFragment extends Fragment implements
                     }
                 }
             });
+            if (!isMap) {
+                navigationToggle.setVisibility(View.GONE);
+            }
         }
 
         // Prepare location update

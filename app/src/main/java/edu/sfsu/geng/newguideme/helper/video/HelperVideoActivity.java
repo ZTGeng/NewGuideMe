@@ -24,8 +24,8 @@ public class HelperVideoActivity extends AppCompatActivity
 
     private static final String TAG = "HelperVideo";
 
-    private String token, roomId, blindName;
-    private boolean isVideoStart;
+    private String token, roomId, blindName, des;
+    private boolean isVideoStart, isMap;
     private SharedPreferences pref;
 
     @Override
@@ -39,6 +39,8 @@ public class HelperVideoActivity extends AppCompatActivity
 
         roomId = getIntent().getStringExtra("roomId");
         blindName = getIntent().getStringExtra("blindName");
+        isMap = getIntent().getBooleanExtra("isMap", false);
+        des = getIntent().getStringExtra("des");
 
         isVideoStart = false;
 
@@ -109,6 +111,8 @@ public class HelperVideoActivity extends AppCompatActivity
         bundle.putString("videoToken", videoToken);
         bundle.putString("blindId", blindId);
         bundle.putString("blindName", blindName);
+        bundle.putString("des", des);
+        bundle.putBoolean("isMap", isMap);
 
         HelperVideoFragment helperVideoFragment = new HelperVideoFragment();
         helperVideoFragment.setListener(this);

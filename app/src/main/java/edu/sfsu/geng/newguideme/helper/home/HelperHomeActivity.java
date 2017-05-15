@@ -170,8 +170,9 @@ public class HelperHomeActivity extends HomeActivity implements
         // If come from GCM notify, join room directly.
         String roomId = intent.getStringExtra("roomId");
         String blindName = intent.getStringExtra("blindName");
-        if (roomId != null && blindName != null) {
-            helperHomePresenter.onJoinRoom(blindName, roomId);
+        String des = intent.getStringExtra("des");
+        if (roomId != null && blindName != null && des != null) {
+            helperHomePresenter.onJoinRoom(blindName, roomId, des);
         }
     }
 
@@ -227,12 +228,12 @@ public class HelperHomeActivity extends HomeActivity implements
     }
 
     @Override
-    public void showJoinDialog(@NonNull final String blindName, @NonNull final String roomId) {
+    public void showJoinDialog(@NonNull final String blindName, @NonNull final JSONObject room) {
         new AlertDialog.Builder(this)
                 .setMessage(String.format(getResources().getString(R.string.room_confirm_message), blindName))
-                .setPositiveButton(R.string.room_enter_button, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        helperHomePresenter.onJoinRoom(blindName, roomId);
+                        helperHomePresenter.onJoinRoom(blindName, room);
                     }
                 })
                 .setNegativeButton(R.string.room_cancel_button, null)
@@ -311,11 +312,19 @@ public class HelperHomeActivity extends HomeActivity implements
             View rowView = inflater.inflate(R.layout.room_list_item, parent, false);
             AppCompatTextView usernameText = (AppCompatTextView) rowView.findViewById(R.id.room_item_username);
             AppCompatTextView desText = (AppCompatTextView) rowView.findViewById(R.id.room_item_des);
+            AppCompatTextView navText = (AppCompatTextView) rowView.findViewById(R.id.room_item_navigation);
 
             try {
                 JSONObject room = rooms.get(position);
                 usernameText.setText(room.getString("username"));
-                desText.setText(room.getString("des"));
+
+                String des = room.getString("des");
+                boolean isMap = des.startsWith("navigation:");
+
+                desText.setText(isMap ? des.split("\\?", 2)[1] : des);
+                if (!isMap) {
+                    navText.setVisibility(View.GONE);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }

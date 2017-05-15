@@ -39,7 +39,7 @@
                 <android.support.v7.widget.AppCompatTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Who do you want to call?"/>
+                    android:text="Who do you want to request help?"/>
 
                 <RadioGroup
                     android:layout_width="match_parent"
@@ -59,7 +59,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:onClick="onCalleeSelect"
-                        android:text="Favorites then everyone after 5 mins"/>
+                        android:text="Favorites for now, then everyone after 5 minutes"/>
 
                     <android.support.v7.widget.AppCompatRadioButton
                         android:id="@+id/call_everyone_radio"
@@ -82,7 +82,7 @@
                 <android.support.v7.widget.AppCompatTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Do you want navigation?"/>
+                    android:text="Do you want helper to navigate you on map?"/>
 
                 <RadioGroup
                     android:layout_width="match_parent"
@@ -111,7 +111,9 @@
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/destination_inputlayout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:hint="Describe what you need"
+                    android:visibility="gone">
 
                     <android.support.v7.widget.AppCompatAutoCompleteTextView
                         android:id="@+id/destination_autocomplete"
@@ -119,6 +121,25 @@
                         android:layout_height="wrap_content"/>
 
                 </android.support.design.widget.TextInputLayout>
+
+                <android.support.v7.widget.LinearLayoutCompat
+                    android:id="@+id/destination_component"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <fragment
+                        android:id="@+id/place_autocomplete_fragment"
+                        android:name="com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <android.support.v7.widget.ListViewCompat
+                        android:id="@+id/destination_history_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                </android.support.v7.widget.LinearLayoutCompat>
 
             </android.support.v7.widget.LinearLayoutCompat>
 

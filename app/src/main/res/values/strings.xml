@@ -19,7 +19,7 @@
     <string name="login_password_empty_error">Password can\'t be Empty</string>
     <string name="login_password_short_error">Password should be %1$d characters or more</string>
     <string name="login_password_not_match_error">Password Not Match</string>
-    <string name="login_register_button_v">I am a visual impaired person</string>
+    <string name="login_register_button_v">I am visually impaired</string>
     <string name="login_register_button_h">I am a helper</string>
     <string name="login_forgot_password">Forgot Password</string>
     <string name="login_ok">OK</string>
@@ -117,7 +117,7 @@
 
     <!-- Helper Home -->
     <string name="empty_list">No help request now</string>
-    <string name="room_list_empty">No help request now\nAuto refreshing.&#8230;</string>
+    <string name="room_list_empty">No help request now\nAuto refreshing&#8230;\nYou can also swipe down to refresh.</string>
     <string name="room_enter_button">Enter</string>
     <string name="room_cancel_button">Cancel</string>
     <string name="room_confirm_message">Start video call with %1$s?</string>

@@ -44,7 +44,7 @@ public class BlindWaitFragmentPresenter {
     void onCreate(@NonNull Bundle bundle) {
         secondCall = bundle.getBoolean("secondCall");
         secondCallAfter = bundle.getInt("secondCallAfter");
-        description = bundle.getString("description");
+        description = bundle.getString("des");
 
         listener.setCountDownVisibility(secondCall);
         if (secondCall) {
